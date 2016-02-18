@@ -1,0 +1,171 @@
+{% extends 'base.html.twig'  %}
+
+{% block stylesheets %}
+    <link href="{{asset('bundles/Budget/css/index.css')}}" rel="stylesheet" type="text/css"/>
+{% endblock %}
+
+{% block body %}
+    <div class="col-md-12" style="padding-bottom: 10px;">
+    <a href="{{ path('new_income') }}" class="btn btn-success">new Income</a>
+    <a href="{{ path('new_expense') }}" class="btn btn-success">new expense</a><br>
+        </div>
+
+    <div class="col-md-6 dashed-border">
+        Total this month income:  {{ total_income }}
+    </div>
+
+    <div class="col-md-6 dashed-border">
+        Total month expenses: {{ total_expense }} |
+    </div>
+
+    <div class="col-md-6 dashed-border">
+        <h3 data-toggle="collapse" data-target="#income-list">Income</h3>
+        <ul class="list-group list-window collapse" id="income-list">
+            {% for var in income %}
+                <li class="list-group-item">{{ var.dateTime |date('Y m d') }} <b>{{ var.money }}</b>e {{ var.name }}</li>
+            {% endfor %}
+        </ul>
+    </div>
+
+    <div class="col-md-6 dashed-border">
+        <h3 data-toggle="collapse" data-target="#expense-list">Expenses</h3>
+        <ul class="list-group list-window collapse" id="expense-list">
+            {% for var in expenses %}
+                <li class="list-group-item">{{ var.dateTime |date('Y m d') }} <b>{{ var.money }}</b>e {{ var.name }}</li>
+            {% endfor %}
+        </ul>
+    </div>
+    <div class="col-md-12 dashed-border" style=" padding: 5px;">
+        <div class="form-inline">
+            <p>Choose time interval by which you want to see your expenses</p>
+            <div class="col-md-4">
+                <p>Date From:</p>
+                <div class="input-group" id="time_input">
+                    <input type="text" class="form-control">
+                    <span class="input-group-addon">
+                        <i class="glyphicon glyphicon-calendar"></i>
+                    </span>
+                </div>
+            </div>
+
+            <div class="col-md-4">
+                <p>Date To:</p>
+                <div class="input-group" id="time_input2">
+
+                    <input type="text" class="form-control">
+                    <span class="input-group-addon">
+                        <i class="glyphicon glyphicon-calendar"></i>
+                    </span>
+                </div>
+            </div>
+
+            <div class="col-md-4">
+
+                <button class="btn btn-success btn-lg has-spinner get-expense" id="get-expense-by-range">
+                    Show!
+                </button>
+                <span class="glyphicon glyphicon-refresh glyphicon-refresh-animate" id="spinner" style="display: none;"></span>
+            </div>
+        </div>
+    </div>
+
+
+    <div class="col-md-12 dashed-border" id="chart_div"></div>
+
+{% endblock body %}
+
+{% block javascripts %}
+
+    <script type="text/javascript" src="https://www.gstatic.com/charts/loader.js"></script>
+    <script type="text/javascript">
+
+        // Load the Visualization API and the piechart package.
+        google.charts.load('current', {'packages':['corechart']});
+
+        // Set a callback to run when the Google Visualization API is loaded.
+        google.charts.setOnLoadCallback(drawChart);
+
+        var $chartData;
+
+        var jsonData = $.ajax({
+            url: "{{ url('ajax_expense') }}",
+            dataType: "json",
+            async: false
+        }).responseText;
+
+        $chartData = $.parseJSON(jsonData);
+
+
+        function drawChart(input) {
+
+            var data = new google.visualization.DataTable();
+            data.addColumn('string', 'Date');
+            data.addColumn('number', 'Expenses');
+            data.addRows($chartData);
+
+            var options = {
+                min_height: 250,
+                title: 'Expenses',
+                hAxis: {title: 'Day',  titleTextStyle: {color: '#333'},slantedText:true,showTextEvery: 1},
+                vAxis: {title: 'Money', minValue: 0},
+                animation: {"startup": true, duration: 500,}
+            };
+
+            // Instantiate and draw our chart, passing in some options.
+            var chart = new google.visualization.LineChart(document.getElementById('chart_div'));
+            chart.draw(data, options);
+        }
+
+        var ROUNDING = 30 * 60 * 1000; /*ms*/
+        start = moment();
+        start = moment(Math.ceil((+start) / ROUNDING) * ROUNDING);
+        jQuery(document).ready(function() {
+            $('#time_input').datetimepicker({
+                format: 'YYYY-MM-DD HH:mm',
+                stepping: 1
+            });
+            $('#time_input2').datetimepicker({
+                format: 'YYYY-MM-DD HH:mm',
+                stepping: 1
+            });
+
+
+
+
+            $('#get-expense-by-range').click(function(){
+
+
+                    getExpenses();
+
+
+                console.log("ASd");
+
+
+                $('#get-expense-by-range').button('reset');
+
+            })
+        });
+
+        function getExpenses(){
+            var $dateFrom = $("#time_input").children("input").val();
+            var $dateTo = $("#time_input2").children("input").val();
+
+            var jsonData = $.ajax({
+                data: {date_from : $dateFrom, date_to : $dateTo},
+                url: "{{ url('ajax_expense_by_date_range') }}",
+                dataType: "json",
+                async: false
+            }).responseText;
+
+            $chartData = $.parseJSON(jsonData);
+
+            drawChart();
+        }
+
+        $(window).resize(function(){
+            drawChart();
+        });
+
+    </script>
+
+{% endblock %}
