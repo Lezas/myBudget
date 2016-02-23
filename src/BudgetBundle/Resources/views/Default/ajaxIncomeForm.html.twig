@@ -1,0 +1,37 @@
+
+{% block form %}
+    {{ form_start(form )  }}
+    <div class="form-group">
+        {{ form_label(form.name) }}
+        {{ form_errors(form.name) }}
+        {{ form_widget(form.name, { 'attr' : { 'class' : 'form-control'}  }) }}
+    </div>
+    <div class="form-group">
+        {{ form_label(form.dateTime) }}
+        <div class="input-group" id="modal_time_input">
+            {{ form_widget(form.dateTime, { 'attr' : {'class' : 'form-control' } }) }}
+            <span class="input-group-addon">
+            <i class="glyphicon glyphicon-calendar"></i>
+        </span>
+        </div>
+    </div>
+    <div class="form-group">
+        {{ form_label(form.money) }}
+        {{ form_errors(form.money) }}
+        {{ form_widget(form.money, { 'attr' : { 'class' : 'form-control number'}  }) }}
+    </div>
+
+    <div class="form-group">
+        {{ form_label(form.submit) }}
+        {{ form_widget(form.submit, { 'attr' : { 'class' : 'btn btn-success btn-block save'}  }) }}
+    </div>
+
+    {{form_rest(form)}}
+
+    <script>
+        $('#modal_time_input').datetimepicker({
+            format: 'YYYY-MM-DD HH:mm',
+            stepping: 1
+        });
+    </script>
+{% endblock form %}

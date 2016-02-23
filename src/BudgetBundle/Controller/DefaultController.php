@@ -6,7 +6,6 @@ use BudgetBundle\Entity\Expenses;
 use BudgetBundle\Entity\Income;
 use BudgetBundle\Form\Type\ExpenseType;
 use BudgetBundle\Form\Type\IncomeType;
-use Doctrine\DBAL\Types\StringType;
 use Symfony\Bundle\FrameworkBundle\Controller\Controller;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
 use Symfony\Component\HttpFoundation\JsonResponse;
@@ -14,7 +13,6 @@ use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 use Symfony\Component\Validator\Constraints\Date;
-use Symfony\Component\Validator\Constraints\DateTime;
 
 class DefaultController extends Controller
 {
@@ -23,29 +21,30 @@ class DefaultController extends Controller
      */
     public function indexAction()
     {
-        $budget_array = $this->getMonthBudget();
 
-        $totalIncome = 0;
-        $totalExpenses = 0;
+        if($this->isLogged()){
+            $budget_array = $this->getMonthBudget();
 
-        foreach($budget_array['income'] as $array){
-            $totalIncome += (float)$array['money'];
+            $totalIncome = 0;
+            $totalExpenses = 0;
+
+            foreach($budget_array['income'] as $array){
+                $totalIncome += (float)$array['money'];
+            }
+
+            foreach($budget_array['expenses'] as $array){
+                $totalExpenses += (float)$array['money'];
+            }
+
+            return $this->render('BudgetBundle:Default:index.html.twig',[
+                'total_expense' =>$totalExpenses,
+                'total_income' => $totalIncome,
+                'income' => $budget_array['income'],
+                'expenses' => $budget_array['expenses'],
+            ]);
         }
 
-        foreach($budget_array['expenses'] as $array){
-            $totalExpenses += (float)$array['money'];
-        }
-
-
-        dump($budget_array['expenses']);
-
-
-        return $this->render('BudgetBundle:Default:index.html.twig',[
-            'total_expense' =>$totalExpenses,
-            'total_income' => $totalIncome,
-            'income' => $budget_array['income'],
-            'expenses' => $budget_array['expenses'],
-        ]);
+        return $this->redirectToRoute('fos_user_security_login');
     }
 
     /**
@@ -138,14 +137,12 @@ class DefaultController extends Controller
         if($this->isLogged()) {
             $data = $this->getMonthBudget();
             $expense = $data['expenses'];
-            $income = $data['income'];
 
             $filtered_expense = $this->groupByDay($expense);
             return JsonResponse::create($filtered_expense);
         }
 
         throw new NotFoundHttpException("Page not found");
-
     }
 
     /**
@@ -156,8 +153,6 @@ class DefaultController extends Controller
     public function ajaxGetExpenseByDateRangeAction(Request $request)
     {
         if($this->isLogged()) {
-
-            dump($request->get('date_from'));
 
             $date_from = new \DateTime($request->query->get('date_from'));
             $date_to = new \DateTime($request->query->get('date_to'));
@@ -170,6 +165,273 @@ class DefaultController extends Controller
         }
 
         throw new NotFoundHttpException("Page not found");
+    }
+
+    /**
+     * @param Request $request
+     * @Route("/api/income-date-range", name="ajax_income_by_date_range")
+     * @return Response
+     */
+    public function ajaxGetIncomeByDateRangeAction(Request $request)
+    {
+        if($this->isLogged()) {
+
+            $date_from = new \DateTime($request->query->get('date_from'));
+            $date_to = new \DateTime($request->query->get('date_to'));
+
+            $income = $this->getIncomeByDateRange($date_from, $date_to);
+
+            $filtered_income = $this->groupByDay($income);
+
+            return JsonResponse::create($filtered_income);
+        }
+
+        throw new NotFoundHttpException("Page not found");
+    }
+
+    /**
+     * @param Request $request
+     * @Route("/api/new-expense", name="ajax_new_expense")
+     * @return array|JsonResponse
+     */
+    public function ajaxNewExpenseAction(Request $request)
+    {
+        if($request->isXmlHttpRequest()) {
+            $response['success'] = false;
+
+            if (!$this->isLogged()) {
+                $response['cause'] = 'User is not logged in';
+                return new JsonResponse($response);
+            } else {
+
+                $expense = new Expenses();
+
+                $form = $this->createForm(ExpenseType::class, $expense, array(
+                    'action' => $this->generateUrl('ajax_new_expense'),
+                    'attr' => array('class' => 'create_budget'),
+                    'method' => 'POST',
+                ));
+
+                $form->handleRequest($request);
+
+                if($form->isValid()){
+                    $user = $this->getUser();
+                    $raw_data = $form->getData();
+
+                    $expense->setDateTime($raw_data->getDateTime());
+                    $expense->setUser($user);
+
+                    $em = $this->getDoctrine()->getManager();
+
+                    $em->persist($expense);
+                    $em->flush();
+
+                    $response['success'] = true;
+                    return new JsonResponse($response);
+                }
+
+                $response['success'] = true;
+                $response['form'] = $this->render('BudgetBundle:Default:expenseForm.html.twig', [
+                    'form' => $form->createView(),
+                ])->getContent();
+
+                return new JsonResponse($response);
+
+            }
+        } else {
+            throw $this->createNotFoundException('The page doesn\'t exists');
+        }
+    }
+
+    /**
+     * @param Request $request
+     * @Route("/api/new-income", name="ajax_new_income")
+     * @return array|JsonResponse
+     */
+    public function ajaxNewIncomeAction(Request $request)
+    {
+        if($request->isXmlHttpRequest()) {
+            $response['success'] = false;
+
+            if (!$this->isLogged()) {
+                $response['cause'] = 'User is not logged in';
+                return new JsonResponse($response);
+            } else {
+
+                $income = new Income();
+
+                $form = $this->createForm(IncomeType::class, $income, array(
+                    'action' => $this->generateUrl('ajax_new_income'),
+                    'attr' => array('class' => 'create_budget'),
+                    'method' => 'POST',
+                ));
+
+                $form->handleRequest($request);
+
+                if($form->isValid()){
+                    $user = $this->getUser();
+                    $raw_data = $form->getData();
+
+                    $income->setDateTime($raw_data->getDateTime());
+                    $income->setUser($user);
+
+                    $em = $this->getDoctrine()->getManager();
+
+                    $em->persist($income);
+                    $em->flush();
+
+                    $response['success'] = true;
+                    return new JsonResponse($response);
+                }
+
+                $response['success'] = true;
+                $response['form'] = $this->render('BudgetBundle:Default:ajaxIncomeForm.html.twig', [
+                    'form' => $form->createView(),
+                ])->getContent();
+
+                return new JsonResponse($response);
+
+            }
+        } else {
+            throw $this->createNotFoundException('The page doesn\'t exists');
+        }
+    }
+
+    /**
+     * @Route("/api/update-expense/{id}", name="ajax_update_expense")
+     * @param null $id
+     * @param Request $request
+     * @return JsonResponse
+     */
+    public function ajaxUpdateExpense($id = null, Request $request)
+    {
+        if($request->isXmlHttpRequest()) {
+            $response['success'] = false;
+
+            if (!$this->isLogged()) {
+                $response['cause'] = 'User is not logged in';
+                return new JsonResponse($response);
+            } elseif($id === null){
+                $response['cause'] = 'You must specify expense id';
+                return new JsonResponse($response);
+            } else {
+
+                $em = $this->getDoctrine()->getEntityManager();
+                $expense = $em->getRepository('BudgetBundle:Expenses')->find($id);
+                $user = $this->getUser();
+                $expenseUser = $expense->getUser();
+
+                if($expense === null){
+                    $response['cause'] = 'Cant found expense with that id';
+                    return new JsonResponse($response);
+                }
+                if($expenseUser->getId() !== $user->getId()){
+                    $response['cause'] = 'Cant found expense with that id';
+                    return new JsonResponse($response);
+                }
+
+                $form = $this->createForm(ExpenseType::class, $expense, array(
+                    'action' => $this->generateUrl('ajax_update_expense'),
+                    'attr' => array('class' => 'create_event_form', 'data-id' => $expense->getId()),
+                    'method' => 'POST',
+                ));
+
+                $form->handleRequest($request);
+
+                if($form->isValid()){
+                    $raw_data = $form->getData();
+
+                    $expense->setDateTime($raw_data->getDateTime());
+
+                    $em = $this->getDoctrine()->getManager();
+
+                    $em->persist($expense);
+                    $em->flush();
+
+                    $response['success'] = true;
+                    return new JsonResponse($response);
+                }
+
+                $response['success'] = true;
+                $response['form'] = $this->render('BudgetBundle:Default:expenseForm.html.twig', [
+                    'form' => $form->createView(),
+                ])->getContent();
+
+                return new JsonResponse($response);
+
+            }
+        } else {
+            throw $this->createNotFoundException('The page doesn\'t exists');
+        }
+
+    }
+
+    /**
+     * @Route("/api/update-income/{id}", name="ajax_update_income")
+     * @param null $id
+     * @param Request $request
+     * @return JsonResponse
+     */
+    public function ajaxUpdateIncome($id = null, Request $request)
+    {
+        if($request->isXmlHttpRequest()) {
+            $response['success'] = false;
+
+            if (!$this->isLogged()) {
+                $response['cause'] = 'User is not logged in';
+                return new JsonResponse($response);
+            } elseif($id === null){
+                $response['cause'] = 'You must specify income id';
+                return new JsonResponse($response);
+            } else {
+
+                $em = $this->getDoctrine()->getEntityManager();
+                $income = $em->getRepository('BudgetBundle:Income')->find($id);
+                $user = $this->getUser();
+                $incomeUser = $income->getUser();
+
+                if($income === null){
+                    $response['cause'] = 'Cant found income with that id';
+                    return new JsonResponse($response);
+                }
+                if($incomeUser->getId() !== $user->getId()){
+                    $response['cause'] = 'Cant found income with that id';
+                    return new JsonResponse($response);
+                }
+
+                $form = $this->createForm(IncomeType::class, $income, array(
+                    'action' => $this->generateUrl('ajax_update_income'),
+                    'attr' => array('class' => 'create_event_form', 'data-id' => $income->getId()),
+                    'method' => 'POST',
+                ));
+
+                $form->handleRequest($request);
+
+                if($form->isValid()){
+                    $raw_data = $form->getData();
+
+                    $income->setDateTime($raw_data->getDateTime());
+
+                    $em = $this->getDoctrine()->getManager();
+
+                    $em->persist($income);
+                    $em->flush();
+
+                    $response['success'] = true;
+                    return new JsonResponse($response);
+                }
+
+                $response['success'] = true;
+                $response['form'] = $this->render('BudgetBundle:Default:ajaxIncomeForm.html.twig', [
+                    'form' => $form->createView(),
+                ])->getContent();
+
+                return new JsonResponse($response);
+
+            }
+        } else {
+            throw $this->createNotFoundException('The page doesn\'t exists');
+        }
 
     }
 
@@ -196,10 +458,7 @@ class DefaultController extends Controller
 
             $budget_array = $this->getBudgetByDateRange($month_first_day, $month_last_day);
 
-            $cl = new DateTime();
-
             $this->groupByDay($budget_array['expenses']);
-
 
             return $budget_array;
         }
@@ -224,19 +483,17 @@ class DefaultController extends Controller
     /**
      * @param $date_from - can be timestamp, or date, or string. Auto convert is enabled
      * @param $date_to
-     * @return array\ - returns array of income and expenses.    ['income' => ['2015-02-02 00:00' => 58.85,],
+     * @return array - returns array of income and expenses.    ['income' => ['2015-02-02 00:00' => 58.85,],
      *                                                          'expenses' => ['2015-02-02 00:00' => 58.85,]]
      */
     public function getBudgetByDateRange($date_from, $date_to)
     {
         $income = $this->getIncomeByDateRange($date_from, $date_to);
-
         $expense = $this->getExpensesByDateRange($date_from, $date_to);
 
         $budget = array();
 
         $budget['income'] = $income;
-
         $budget['expenses'] = $expense;
 
         return $budget;
@@ -290,7 +547,6 @@ class DefaultController extends Controller
 
         $expenses = $query->getArrayResult();
 
-
         return $expenses;
     }
 
@@ -312,7 +568,6 @@ class DefaultController extends Controller
                         $data[$o]['deleted'] = true;
                     }
                 }
-
             }
         }
 

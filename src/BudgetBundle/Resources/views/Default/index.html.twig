@@ -6,8 +6,8 @@
 
 {% block body %}
     <div class="col-md-12" style="padding-bottom: 10px;">
-    <a href="{{ path('new_income') }}" class="btn btn-success">new Income</a>
-    <a href="{{ path('new_expense') }}" class="btn btn-success">new expense</a><br>
+    <button class="btn btn-success" id="new_income">New Income</button>
+    <button class="btn btn-success" id="new_expense">New expense</button>
         </div>
 
     <div class="col-md-6 dashed-border">
@@ -18,27 +18,40 @@
         Total month expenses: {{ total_expense }} |
     </div>
 
+    <!-- Income list -->
     <div class="col-md-6 dashed-border">
-        <h3 data-toggle="collapse" data-target="#income-list">Income</h3>
+        <h3>Income <button type="button" class="btn btn-xs  collapse-button"  data-toggle="collapse" data-target="#income-list"><span class="glyphicon glyphicon-menu-down"></span></button></h3>
         <ul class="list-group list-window collapse" id="income-list">
             {% for var in income %}
-                <li class="list-group-item">{{ var.dateTime |date('Y m d') }} <b>{{ var.money }}</b>e {{ var.name }}</li>
+                <li class="list-group-item" data-id="{{ var.id}}">
+                    <button type="button" class="btn btn-xs income-pencil" data-toggle="modal" data-target="#myModal"><span class="glyphicon glyphicon-pencil"></span></button>
+                    {{ var.dateTime |date('Y m d') }} <b>{{ var.money }}</b>e {{ var.name }}
+                </li>
             {% endfor %}
         </ul>
     </div>
 
+    <!-- Expenses list -->
+
     <div class="col-md-6 dashed-border">
-        <h3 data-toggle="collapse" data-target="#expense-list">Expenses</h3>
+
+        <h3>Expenses <button type="button" class="btn btn-xs collapse-button"  data-toggle="collapse" data-target="#expense-list"><span class="glyphicon glyphicon-menu-down"></span></button></h3>
+
         <ul class="list-group list-window collapse" id="expense-list">
             {% for var in expenses %}
-                <li class="list-group-item">{{ var.dateTime |date('Y m d') }} <b>{{ var.money }}</b>e {{ var.name }}</li>
+                <li class="list-group-item" data-id="{{ var.id}}">
+                    <button type="button" class="btn btn-xs expense-pencil" data-toggle="modal" data-target="#myModal"><span class="glyphicon glyphicon-pencil"></span></button>
+                    {{ var.dateTime |date('Y m d') }} <b>{{ var.money }}</b>e {{ var.name }}
+                </li>
             {% endfor %}
         </ul>
     </div>
+
+    <!-- choose time interval to show graph. -->
     <div class="col-md-12 dashed-border" style=" padding: 5px;">
         <div class="form-inline">
             <p>Choose time interval by which you want to see your expenses</p>
-            <div class="col-md-4">
+            <div class="col-lg-4 text-block">
                 <p>Date From:</p>
                 <div class="input-group" id="time_input">
                     <input type="text" class="form-control">
@@ -48,7 +61,7 @@
                 </div>
             </div>
 
-            <div class="col-md-4">
+            <div class="col-lg-4 text-block">
                 <p>Date To:</p>
                 <div class="input-group" id="time_input2">
 
@@ -59,18 +72,43 @@
                 </div>
             </div>
 
-            <div class="col-md-4">
+            <div class="col-lg-4 text-block">
 
-                <button class="btn btn-success btn-lg has-spinner get-expense" id="get-expense-by-range">
-                    Show!
+                <button class="btn btn-success btn-lg get-expense" id="get-expense-by-range">
+                    Expenses
                 </button>
-                <span class="glyphicon glyphicon-refresh glyphicon-refresh-animate" id="spinner" style="display: none;"></span>
+                <button class="btn btn-success btn-lg get-income" id="get-income-by-range">
+                    Income
+                </button>
             </div>
         </div>
     </div>
 
 
     <div class="col-md-12 dashed-border" id="chart_div"></div>
+
+
+
+    <!-- Modal -->
+    <div id="myModal" class="modal fade" role="dialog">
+        <div class="modal-dialog">
+
+            <!-- Modal content-->
+            <div class="modal-content">
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal">&times;</button>
+                    <h4 class="modal-title">Modal Header</h4>
+                </div>
+                <div class="modal-body">
+                    <p>Some text in the modal.</p>
+                </div>
+                <div class="modal-footer">
+                    <button type="submit" class="btn btn-default" data-dismiss="modal">Close</button>
+                </div>
+            </div>
+
+        </div>
+    </div>
 
 {% endblock body %}
 
@@ -79,6 +117,15 @@
     <script type="text/javascript" src="https://www.gstatic.com/charts/loader.js"></script>
     <script type="text/javascript">
 
+        function Notificate(text) {
+            $base = $('<div class="alert alert-success text-center fade in" id="notification-div"><a href="#" class="close" data-dismiss="alert" aria-label="close">&times;</a><strong>__TEXT__</strong></div>');
+            $str = $base.prop('outerHTML');
+
+            var res = $str.replace("__TEXT__", text);
+
+            document.getElementById("notification-div").innerHTML = res;
+        }
+
         // Load the Visualization API and the piechart package.
         google.charts.load('current', {'packages':['corechart']});
 
@@ -86,6 +133,7 @@
         google.charts.setOnLoadCallback(drawChart);
 
         var $chartData;
+        var $chartName;
 
         var jsonData = $.ajax({
             url: "{{ url('ajax_expense') }}",
@@ -94,21 +142,21 @@
         }).responseText;
 
         $chartData = $.parseJSON(jsonData);
+        $chartName = 'Expenses';
 
-
-        function drawChart(input) {
+        function drawChart() {
 
             var data = new google.visualization.DataTable();
             data.addColumn('string', 'Date');
-            data.addColumn('number', 'Expenses');
+            data.addColumn('number', $chartName);
             data.addRows($chartData);
 
             var options = {
                 min_height: 250,
-                title: 'Expenses',
-                hAxis: {title: 'Day',  titleTextStyle: {color: '#333'},slantedText:true,showTextEvery: 1},
+                title: $chartName,
+                hAxis: {title: 'Day',  titleTextStyle: {color: '#333'}},
                 vAxis: {title: 'Money', minValue: 0},
-                animation: {"startup": true, duration: 500,}
+                animation: {"startup": true, duration: 500}
             };
 
             // Instantiate and draw our chart, passing in some options.
@@ -116,10 +164,72 @@
             chart.draw(data, options);
         }
 
+
+        function getExpenses(){
+            var $dateFrom = $("#time_input").children("input").val();
+            var $dateTo = $("#time_input2").children("input").val();
+
+            $.ajax({
+                data: {date_from : $dateFrom, date_to : $dateTo},
+                url: "{{ url('ajax_expense_by_date_range') }}",
+                dataType: "json",
+                async: true,
+            }).done(function(jsonData){
+                $chartName = 'Expenses';
+                $chartData = jsonData;
+                drawChart();
+                $('#get-expense-by-range').button('reset');
+            });
+
+        }
+
+        function getIncome(){
+            var $dateFrom = $("#time_input").children("input").val();
+            var $dateTo = $("#time_input2").children("input").val();
+
+            $.ajax({
+                data: {date_from : $dateFrom, date_to : $dateTo},
+                url: "{{ url('ajax_income_by_date_range') }}",
+                dataType: "json",
+                async: true,
+            }).done(function(jsonData){
+                $chartName = 'Income';
+                $chartData = jsonData;
+                drawChart();
+                $('#get-income-by-range').button('reset');
+            });
+
+        }
+
+        $(window).resize(function(){
+            drawChart();
+        });
+
+        $('.collapse-button').click(function () {
+            if($(this).children("span").hasClass('glyphicon glyphicon-menu-up')) {
+                $(this).children("span").attr('class', 'glyphicon glyphicon-menu-down');
+            } else {
+                $(this).children("span").attr('class', 'glyphicon glyphicon-menu-up');
+            }
+        });
+
+        $('#get-expense-by-range').click(function(){
+            $('#get-expense-by-range').button('loading');
+            getExpenses();
+
+        });
+
+        $('#get-income-by-range').click(function(){
+            $('#get-income-by-range').button('loading');
+            getIncome();
+
+        });
+
         var ROUNDING = 30 * 60 * 1000; /*ms*/
         start = moment();
         start = moment(Math.ceil((+start) / ROUNDING) * ROUNDING);
         jQuery(document).ready(function() {
+
             $('#time_input').datetimepicker({
                 format: 'YYYY-MM-DD HH:mm',
                 stepping: 1
@@ -129,42 +239,152 @@
                 stepping: 1
             });
 
+            $('.expense-pencil').click(function() {
+
+                var $expenseId = $(this).parent('li').attr("data-id");
+
+                $.ajax({
+                    type: 'GET',
+                    url: "{{ url('ajax_update_expense') }}/" + $expenseId,
+                    dataType: "json",
+                    async: true,
+                }).done(function(data){
+                    if(data['success'] == true){
+
+                        $('.modal-body').html(data['form']);
+                    } else if (data['success'] == false) {
+                        Notificate('Something went wrong:' + data['cause'])
+                    }
+
+                });
+            });
+
+            $('.income-pencil').click(function() {
+
+                var $Id = $(this).parent('li').attr("data-id");
+
+                $.ajax({
+                    type: 'GET',
+                    url: "{{ url('ajax_update_income') }}/" + $Id,
+                    dataType: "json",
+                    async: true,
+                }).done(function(data){
+                    if(data['success'] == true){
+
+                        $('.modal-body').html(data['form']);
+                    } else if (data['success'] == false) {
+                        Notificate('Something went wrong:' + data['cause'])
+                    }
 
 
+                });
+            });
 
-            $('#get-expense-by-range').click(function(){
+            $('#new_expense').click(function() {
 
+                $(this).button('loading');
+                var $button = $(this);
 
-                    getExpenses();
+                $.ajax({
+                    type: 'GET',
+                    url: "{{ url('ajax_new_expense') }}",
+                    dataType: "json",
+                    async: true,
+                }).done(function(data){
+                    if(data['success'] == true){
 
+                        $button.button('reset');
+                        $('.modal-body').html(data['form']);
+                        $('#myModal').modal('show');
+                    } else {
+                        Notificate('Something went wrong, coundn\'t fetch form from server!')
+                    }
 
-                console.log("ASd");
+                });
+            });
 
+            $('#new_income').click(function() {
 
-                $('#get-expense-by-range').button('reset');
+                $(this).button('loading');
+                var $button = $(this);
 
+                $.ajax({
+                    type: 'GET',
+                    url: "{{ url('ajax_new_income') }}",
+                    dataType: "json",
+                    async: true,
+                }).done(function(data){
+                    if(data['success'] == true){
+
+                        $button.button('reset');
+                        $('.modal-body').html(data['form']);
+                        $('#myModal').modal('show');
+                    } else {
+                        Notificate('Something went wrong, coundn\'t fetch form from server!')
+                    }
+
+                });
+            });
+        });
+
+        $('body').on('submit', '.create_event_form', function (e) {
+
+            e.preventDefault();
+
+            var $expenseId = $(this).attr("data-id");
+
+            var $button = $(this).find('.save');
+
+            $button.button('loading');
+
+            $.ajax({
+                type: $(this).attr('method'),
+                url: $(this).attr('action') + '/' + $expenseId,
+                data: $(this).serialize()
             })
+            .done(function (data) {
+                $button.button('reset');
+
+                if (data['success'] == true) {
+                    console.log('Duomenys irasyti');
+                    $('.modal-body').html('');
+                    $('#myModal').modal('hide');
+                    Notificate('Data has been saved')
+                } else if (data['success'] == false) {
+                    Notificate('Something went wrong:' + data['cause'])
+                }
+            });
         });
 
-        function getExpenses(){
-            var $dateFrom = $("#time_input").children("input").val();
-            var $dateTo = $("#time_input2").children("input").val();
+        $('body').on('submit', '.create_budget', function (e) {
 
-            var jsonData = $.ajax({
-                data: {date_from : $dateFrom, date_to : $dateTo},
-                url: "{{ url('ajax_expense_by_date_range') }}",
-                dataType: "json",
-                async: false
-            }).responseText;
+            e.preventDefault();
 
-            $chartData = $.parseJSON(jsonData);
+            var $button = $(this).find('.save');
 
-            drawChart();
-        }
+            $button.button('loading');
 
-        $(window).resize(function(){
-            drawChart();
+            $.ajax({
+                type: $(this).attr('method'),
+                url: $(this).attr('action'),
+                data: $(this).serialize()
+            })
+                    .done(function (data) {
+                        $button.button('reset');
+
+                        if (data['success'] == true) {
+                            console.log('Duomenys irasyti');
+                            $('.modal-body').html('');
+                            $('#myModal').modal('hide');
+                            Notificate('Data has been saved')
+                        } else if (data['success'] == false) {
+                            Notificate('Something went wrong:' + data['cause'])
+                        }
+                    });
         });
+
+
+
 
     </script>
 
