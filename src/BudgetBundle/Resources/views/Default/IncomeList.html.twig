@@ -1,0 +1,8 @@
+{% include "BudgetBundle:Default:List.html.twig" %}
+<script>
+    $(".income-pencil").click(function() {
+        $button = $(this);
+
+        getIncomeEdit($button);
+    });
+</script>

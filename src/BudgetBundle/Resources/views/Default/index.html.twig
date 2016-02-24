@@ -24,7 +24,7 @@
         <ul class="list-group list-window collapse" id="income-list">
             {% for var in income %}
                 <li class="list-group-item" data-id="{{ var.id}}">
-                    <button type="button" class="btn btn-xs income-pencil" data-toggle="modal" data-target="#myModal"><span class="glyphicon glyphicon-pencil"></span></button>
+                    <button type="button" class="btn btn-xs income-pencil"><span class="glyphicon glyphicon-pencil"></span></button>
                     {{ var.dateTime |date('Y m d') }} <b>{{ var.money }}</b>e {{ var.name }}
                 </li>
             {% endfor %}
@@ -40,7 +40,7 @@
         <ul class="list-group list-window collapse" id="expense-list">
             {% for var in expenses %}
                 <li class="list-group-item" data-id="{{ var.id}}">
-                    <button type="button" class="btn btn-xs expense-pencil" data-toggle="modal" data-target="#myModal"><span class="glyphicon glyphicon-pencil"></span></button>
+                    <button type="button" class="btn btn-xs expense-pencil"><span class="glyphicon glyphicon-pencil"></span></button>
                     {{ var.dateTime |date('Y m d') }} <b>{{ var.money }}</b>e {{ var.name }}
                 </li>
             {% endfor %}
@@ -74,12 +74,19 @@
 
             <div class="col-lg-4 text-block">
 
-                <button class="btn btn-success btn-lg get-expense" id="get-expense-by-range">
-                    Expenses
+                <button class="btn btn-success get-income" id="get-income-list-by-range">
+                    Income list
                 </button>
-                <button class="btn btn-success btn-lg get-income" id="get-income-by-range">
-                    Income
+                <button class="btn btn-success get-expense" id="get-expense-list-by-range">
+                    Expense list
                 </button>
+                <button class="btn btn-success get-income" id="get-income-by-range">
+                    Income graph
+                </button>
+                <button class="btn btn-success get-expense" id="get-expense-by-range">
+                    Expense graph
+                </button>
+
             </div>
         </div>
     </div>
@@ -117,15 +124,6 @@
     <script type="text/javascript" src="https://www.gstatic.com/charts/loader.js"></script>
     <script type="text/javascript">
 
-        function Notificate(text) {
-            $base = $('<div class="alert alert-success text-center fade in" id="notification-div"><a href="#" class="close" data-dismiss="alert" aria-label="close">&times;</a><strong>__TEXT__</strong></div>');
-            $str = $base.prop('outerHTML');
-
-            var res = $str.replace("__TEXT__", text);
-
-            document.getElementById("notification-div").innerHTML = res;
-        }
-
         // Load the Visualization API and the piechart package.
         google.charts.load('current', {'packages':['corechart']});
 
@@ -156,7 +154,7 @@
                 title: $chartName,
                 hAxis: {title: 'Day',  titleTextStyle: {color: '#333'}},
                 vAxis: {title: 'Money', minValue: 0},
-                animation: {"startup": true, duration: 500}
+                animation: {"startup": true, duration: 500,}
             };
 
             // Instantiate and draw our chart, passing in some options.
@@ -164,12 +162,35 @@
             chart.draw(data, options);
         }
 
+        $(window).resize(function(){
+            drawChart();
+        });
+
+        function newBudgetForm(url, button){
+            button.button('loading');
+
+            var jsonData = $.ajax({
+                type: 'GET',
+                url: url,
+                dataType: "json",
+                async: true,
+            }).done(function(data){
+                if(data['success'] == true){
+                    button.button('reset');
+                    $('.modal-body').html(data['form']);
+                    $('#myModal').modal('show');
+                } else {
+                    Notificate('Something went wrong, coundn\'t fetch form from server!')
+                }
+
+            });
+        }
 
         function getExpenses(){
             var $dateFrom = $("#time_input").children("input").val();
             var $dateTo = $("#time_input2").children("input").val();
 
-            $.ajax({
+            var jsonData = $.ajax({
                 data: {date_from : $dateFrom, date_to : $dateTo},
                 url: "{{ url('ajax_expense_by_date_range') }}",
                 dataType: "json",
@@ -201,9 +222,94 @@
 
         }
 
-        $(window).resize(function(){
-            drawChart();
-        });
+        function getIncomeList(){
+            var $dateFrom = $("#time_input").children("input").val();
+            var $dateTo = $("#time_input2").children("input").val();
+
+            $.ajax({
+                data: {date_from : $dateFrom, date_to : $dateTo},
+                url: "{{ url('ajax_income_list_by_date_range') }}",
+                dataType: "json",
+                async: true,
+            }).done(function(data){
+
+
+                $('#income-list').html(data['list']);
+
+                $('#get-income-list-by-range').button('reset');
+            });
+
+        }
+
+        function getExpenseList(){
+            var $dateFrom = $("#time_input").children("input").val();
+            var $dateTo = $("#time_input2").children("input").val();
+
+            $.ajax({
+                data: {date_from : $dateFrom, date_to : $dateTo},
+                url: "{{ url('ajax_expense_list_by_date_range') }}",
+                dataType: "json",
+                async: true,
+            }).done(function(data){
+                console.log(data);
+                $('#expense-list').html(data['list']);
+
+                $('#get-expense-list-by-range').button('reset');
+            });
+
+        }
+
+        function getIncomeEdit($button) {
+            var $Id = $button.parent('li').attr("data-id");
+            $button.button('loading');
+            var jsonData = $.ajax({
+                type: 'GET',
+                url: "{{ url('ajax_update_income') }}/" + $Id,
+                dataType: "json",
+                async: true,
+            }).done(function(data){
+                if(data['success'] == true){
+                    $button.button('reset');
+                    $('.modal-body').html(data['form']);
+                    $('#myModal').modal('show');
+                } else if (data['success'] == false) {
+                    Notificate('Something went wrong:' + data['cause'])
+                }
+            });
+        }
+
+        function getExpenseEdit($button) {
+
+            var $expenseId = $button.parent('li').attr("data-id");
+            $button.button('loading');
+
+            var jsonData = $.ajax({
+                type: 'GET',
+                url: "{{ url('ajax_update_expense') }}/" + $expenseId,
+                dataType: "json",
+                async: true,
+            }).done(function(data){
+                if(data['success'] == true){
+                    $button.button('reset');
+
+                    $('.modal-body').html(data['form']);
+                    $('#myModal').modal('show');
+                } else if (data['success'] == false) {
+                    Notificate('Something went wrong:' + data['cause'])
+                }
+
+            });
+        }
+
+        function Notificate(text) {
+            $base = $('<div class="alert alert-success text-center fade in" id="notification-div"><a href="#" class="close" data-dismiss="alert" aria-label="close">&times;</a><strong>__TEXT__</strong></div>');
+            $str = $base.prop('outerHTML');
+
+            var res = $str.replace("__TEXT__", text);
+
+            document.getElementById("notification-div").innerHTML = res;
+        }
+
 
         $('.collapse-button').click(function () {
             if($(this).children("span").hasClass('glyphicon glyphicon-menu-up')) {
@@ -213,16 +319,57 @@
             }
         });
 
+        $('#get-income-list-by-range').click(function(){
+            $('#get-income-list-by-range').button('loading');
+            getIncomeList();
+
+        })
+
+        $('#get-expense-list-by-range').click(function(){
+            $('#get-expense-list-by-range').button('loading');
+            getExpenseList();
+
+        })
+
         $('#get-expense-by-range').click(function(){
             $('#get-expense-by-range').button('loading');
             getExpenses();
 
-        });
+        })
 
         $('#get-income-by-range').click(function(){
             $('#get-income-by-range').button('loading');
             getIncome();
 
+        })
+
+        $('.expense-pencil').click(function() {
+            $button = $(this);
+
+            getExpenseEdit($button);
+        })
+
+        $('.income-pencil').click(function() {
+            $button = $(this);
+
+            getIncomeEdit($button);
+        })
+
+        $('#new_expense').click(function() {
+            $(this).button('loading');
+            var $button = $(this);
+            var $url = "{{ url('ajax_new_expense') }}";
+
+            newBudgetForm($url, $button);
+
+        });
+
+        $('#new_income').click(function() {
+            $(this).button('loading');
+            var $button = $(this);
+            var $url = "{{ url('ajax_new_income') }}";
+
+            newBudgetForm($url, $button);
         });
 
         var ROUNDING = 30 * 60 * 1000; /*ms*/
@@ -239,92 +386,6 @@
                 stepping: 1
             });
 
-            $('.expense-pencil').click(function() {
-
-                var $expenseId = $(this).parent('li').attr("data-id");
-
-                $.ajax({
-                    type: 'GET',
-                    url: "{{ url('ajax_update_expense') }}/" + $expenseId,
-                    dataType: "json",
-                    async: true,
-                }).done(function(data){
-                    if(data['success'] == true){
-
-                        $('.modal-body').html(data['form']);
-                    } else if (data['success'] == false) {
-                        Notificate('Something went wrong:' + data['cause'])
-                    }
-
-                });
-            });
-
-            $('.income-pencil').click(function() {
-
-                var $Id = $(this).parent('li').attr("data-id");
-
-                $.ajax({
-                    type: 'GET',
-                    url: "{{ url('ajax_update_income') }}/" + $Id,
-                    dataType: "json",
-                    async: true,
-                }).done(function(data){
-                    if(data['success'] == true){
-
-                        $('.modal-body').html(data['form']);
-                    } else if (data['success'] == false) {
-                        Notificate('Something went wrong:' + data['cause'])
-                    }
-
-
-                });
-            });
-
-            $('#new_expense').click(function() {
-
-                $(this).button('loading');
-                var $button = $(this);
-
-                $.ajax({
-                    type: 'GET',
-                    url: "{{ url('ajax_new_expense') }}",
-                    dataType: "json",
-                    async: true,
-                }).done(function(data){
-                    if(data['success'] == true){
-
-                        $button.button('reset');
-                        $('.modal-body').html(data['form']);
-                        $('#myModal').modal('show');
-                    } else {
-                        Notificate('Something went wrong, coundn\'t fetch form from server!')
-                    }
-
-                });
-            });
-
-            $('#new_income').click(function() {
-
-                $(this).button('loading');
-                var $button = $(this);
-
-                $.ajax({
-                    type: 'GET',
-                    url: "{{ url('ajax_new_income') }}",
-                    dataType: "json",
-                    async: true,
-                }).done(function(data){
-                    if(data['success'] == true){
-
-                        $button.button('reset');
-                        $('.modal-body').html(data['form']);
-                        $('#myModal').modal('show');
-                    } else {
-                        Notificate('Something went wrong, coundn\'t fetch form from server!')
-                    }
-
-                });
-            });
         });
 
         $('body').on('submit', '.create_event_form', function (e) {
@@ -369,22 +430,19 @@
                 url: $(this).attr('action'),
                 data: $(this).serialize()
             })
-                    .done(function (data) {
-                        $button.button('reset');
+            .done(function (data) {
+                $button.button('reset');
 
-                        if (data['success'] == true) {
-                            console.log('Duomenys irasyti');
-                            $('.modal-body').html('');
-                            $('#myModal').modal('hide');
-                            Notificate('Data has been saved')
-                        } else if (data['success'] == false) {
-                            Notificate('Something went wrong:' + data['cause'])
-                        }
-                    });
+                if (data['success'] == true) {
+                    console.log('Duomenys irasyti');
+                    $('.modal-body').html('');
+                    $('#myModal').modal('hide');
+                    Notificate('Data has been saved')
+                } else if (data['success'] == false) {
+                    Notificate('Something went wrong:' + data['cause'])
+                }
+            });
         });
-
-
-
 
     </script>
 

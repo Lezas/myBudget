@@ -1,0 +1,6 @@
+{% for var in list %}
+    <li class="list-group-item" data-id="{{ var.id}}">
+        <button type="button" class="btn btn-xs {{ name }}-pencil"><span class="glyphicon glyphicon-pencil"></span></button>
+        {{ var.dateTime |date('Y m d') }} <b>{{ var.money }}</b>e {{ var.name }}
+    </li>
+{% endfor %}

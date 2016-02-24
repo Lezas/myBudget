@@ -1,0 +1,8 @@
+{% include "BudgetBundle:Default:List.html.twig" %}
+<script>
+    $(".expense-pencil").click(function() {
+        $button = $(this);
+
+        getExpenseEdit($button);
+    });
+</script>
