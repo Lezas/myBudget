@@ -6,16 +6,17 @@
 
 {% block body %}
     <div class="col-md-12" style="padding-bottom: 10px;">
-    <button class="btn btn-success" id="new_income">New Income</button>
-    <button class="btn btn-success" id="new_expense">New expense</button>
-        </div>
-
-    <div class="col-md-6 dashed-border">
-        Total this month income:  {{ total_income }}
+        <button class="btn btn-success" id="new_income">New Income</button>
+        <button class="btn btn-success" id="new_expense">New expense</button>
+        <button class="btn btn-success pull-right" id="reset">Reset to this month</button>
     </div>
 
-    <div class="col-md-6 dashed-border">
-        Total month expenses: {{ total_expense }} |
+    <div class="col-md-6 dashed-border" id="income-list-data">
+        {{ month_first_day }} : {{ month_last_day }} Total:  {{ total_income }}
+    </div>
+
+    <div class="col-md-6 dashed-border" id="expense-list-data">
+        {{ month_first_day }} : {{ month_last_day }} Total:  {{ total_expense }} |
     </div>
 
     <!-- Income list -->
@@ -23,10 +24,17 @@
         <h3>Income <button type="button" class="btn btn-xs  collapse-button"  data-toggle="collapse" data-target="#income-list"><span class="glyphicon glyphicon-menu-down"></span></button></h3>
         <ul class="list-group list-window collapse" id="income-list">
             {% for var in income %}
-                <li class="list-group-item" data-id="{{ var.id}}">
-                    <button type="button" class="btn btn-xs income-pencil"><span class="glyphicon glyphicon-pencil"></span></button>
-                    {{ var.dateTime |date('Y m d') }} <b>{{ var.money }}</b>e {{ var.name }}
-                </li>
+                <div class="col-md-12 list-group-item" data-id="{{ var.id}}">
+                    <div class="col-md-1 nopadding">
+                        <button type="button" class="btn btn-xs income-pencil"><span class="glyphicon glyphicon-pencil"></span></button>
+                    </div>
+                    <div class="col-md-10 nopadding">
+                        {{ var.dateTime |date('Y m d') }} <b>{{ var.money }}</b>e {{ var.name }}
+                    </div>
+                    <div class="col-md-1 nopadding">
+                        <button type="button" class="btn btn-xs income-delete pull-right"><span class="glyphicon glyphicon-remove"></span></button>
+                    </div>
+                </div>
             {% endfor %}
         </ul>
     </div>
@@ -39,10 +47,17 @@
 
         <ul class="list-group list-window collapse" id="expense-list">
             {% for var in expenses %}
-                <li class="list-group-item" data-id="{{ var.id}}">
-                    <button type="button" class="btn btn-xs expense-pencil"><span class="glyphicon glyphicon-pencil"></span></button>
-                    {{ var.dateTime |date('Y m d') }} <b>{{ var.money }}</b>e {{ var.name }}
-                </li>
+                <div class="col-md-12 list-group-item" data-id="{{ var.id}}">
+                    <div class="col-md-1 nopadding">
+                        <button type="button" class="btn btn-xs expense-pencil"><span class="glyphicon glyphicon-pencil"></span></button>
+                    </div>
+                    <div class="col-md-10 nopadding">
+                        {{ var.dateTime |date('Y m d') }} <b>{{ var.money }}</b>e {{ var.name }}
+                    </div>
+                    <div class="col-md-1 nopadding">
+                        <button type="button" class="btn btn-xs expense-delete pull-right"><span class="glyphicon glyphicon-remove"></span></button>
+                    </div>
+                </div>
             {% endfor %}
         </ul>
     </div>
@@ -73,28 +88,31 @@
             </div>
 
             <div class="col-lg-4 text-block">
+                <div class="row" style="padding: 2px;">
+                    <button class="btn btn-success get-income" id="get-income-list-by-range">
+                        Income list
+                    </button>
 
-                <button class="btn btn-success get-income" id="get-income-list-by-range">
-                    Income list
-                </button>
-                <button class="btn btn-success get-expense" id="get-expense-list-by-range">
-                    Expense list
-                </button>
-                <button class="btn btn-success get-income" id="get-income-by-range">
-                    Income graph
-                </button>
-                <button class="btn btn-success get-expense" id="get-expense-by-range">
-                    Expense graph
-                </button>
+                    <button class="btn btn-success get-expense" id="get-expense-list-by-range">
+                        Expense list
+                    </button>
+                </div>
 
+                <div class="row" style="padding: 2px;">
+                    <button class="btn btn-success get-income" id="get-income-by-range">
+                        Income graph
+                    </button>
+                    <button class="btn btn-success get-expense" id="get-expense-by-range">
+                        Expense graph
+                    </button>
+                    <button class="btn btn-success get-expense" id="graph-both">
+                        BOTH
+                    </button>
+                </div>
             </div>
         </div>
     </div>
-
-
     <div class="col-md-12 dashed-border" id="chart_div"></div>
-
-
 
     <!-- Modal -->
     <div id="myModal" class="modal fade" role="dialog">
@@ -142,20 +160,20 @@
         $chartData = $.parseJSON(jsonData);
         $chartName = 'Expenses';
 
+        var options = {
+            min_height: 250,
+            title: $chartName,
+            hAxis: {title: 'Day',  titleTextStyle: {color: '#333'}},
+            vAxis: {title: 'Money', minValue: 0},
+            animation: {"startup": true, duration: 500,}
+        };
+
         function drawChart() {
 
             var data = new google.visualization.DataTable();
             data.addColumn('string', 'Date');
             data.addColumn('number', $chartName);
             data.addRows($chartData);
-
-            var options = {
-                min_height: 250,
-                title: $chartName,
-                hAxis: {title: 'Day',  titleTextStyle: {color: '#333'}},
-                vAxis: {title: 'Money', minValue: 0},
-                animation: {"startup": true, duration: 500,}
-            };
 
             // Instantiate and draw our chart, passing in some options.
             var chart = new google.visualization.LineChart(document.getElementById('chart_div'));
@@ -222,9 +240,65 @@
 
         }
 
-        function getIncomeList(){
+        function getBoth(){
             var $dateFrom = $("#time_input").children("input").val();
             var $dateTo = $("#time_input2").children("input").val();
+
+            $.ajax({
+                data: {date_from : $dateFrom, date_to : $dateTo},
+                url: "{{ url('ajax_budget_chart_data') }}",
+                dataType: "json",
+                async: true,
+            }).done(function(jsonData){
+                $chartName = 'Income and Expenses';
+                $chartData = jsonData;
+                var data = new google.visualization.DataTable();
+                data.addColumn('string', 'Date');
+                data.addColumn('number', 'Expenses');
+                data.addColumn('number', 'Income');
+                data.addRows($chartData);
+
+                // Instantiate and draw our chart, passing in some options.
+                var chart = new google.visualization.LineChart(document.getElementById('chart_div'));
+                chart.draw(data, options);
+
+            });
+
+        }
+
+        function deleteIncome($button){
+            var $Id = $button.parent('div').parent('div').attr("data-id");
+
+            $button.button('loading');
+            $.ajax({
+                url: "{{ url('ajax_delete_income') }}" + '/' + $Id,
+                dataType: "json",
+                async: true,
+            }).done(function(jsonData){
+
+
+                $button.parent('div').parent('div').remove();
+            });
+
+        }
+
+        function deleteExpense($button){
+            var $Id = $button.parent('div').parent('div').attr("data-id");
+
+            $button.button('loading');
+            $.ajax({
+                url: "{{ url('ajax_delete_expense') }}" + '/' + $Id,
+                dataType: "json",
+                async: true,
+            }).done(function(jsonData){
+
+                $button.parent('div').parent('div').remove();
+            });
+
+        }
+
+        function getIncomeList($dateFrom, $dateTo){
+
 
             $.ajax({
                 data: {date_from : $dateFrom, date_to : $dateTo},
@@ -235,15 +309,16 @@
 
 
                 $('#income-list').html(data['list']);
+                var $text = data['date_from'] + " : " + data['date_to'] + " Total: " + data['total'];
+
+                $('#income-list-data').html($text);
 
                 $('#get-income-list-by-range').button('reset');
             });
 
         }
 
-        function getExpenseList(){
-            var $dateFrom = $("#time_input").children("input").val();
-            var $dateTo = $("#time_input2").children("input").val();
+        function getExpenseList($dateFrom, $dateTo){
 
             $.ajax({
                 data: {date_from : $dateFrom, date_to : $dateTo},
@@ -251,8 +326,11 @@
                 dataType: "json",
                 async: true,
             }).done(function(data){
-                console.log(data);
                 $('#expense-list').html(data['list']);
+
+                var $text = data['date_from'] + " : " + data['date_to'] + " Total: " + data['total'];
+
+                $('#expense-list-data').html($text);
 
                 $('#get-expense-list-by-range').button('reset');
             });
@@ -260,7 +338,8 @@
         }
 
         function getIncomeEdit($button) {
-            var $Id = $button.parent('li').attr("data-id");
+            var $Id = $button.parent('div').parent('div').attr("data-id");
+
             $button.button('loading');
             var jsonData = $.ajax({
                 type: 'GET',
@@ -280,7 +359,7 @@
 
         function getExpenseEdit($button) {
 
-            var $expenseId = $button.parent('li').attr("data-id");
+            var $expenseId = $button.parent('div').parent('div').attr("data-id");
             $button.button('loading');
 
             var jsonData = $.ajax({
@@ -305,11 +384,10 @@
             $base = $('<div class="alert alert-success text-center fade in" id="notification-div"><a href="#" class="close" data-dismiss="alert" aria-label="close">&times;</a><strong>__TEXT__</strong></div>');
             $str = $base.prop('outerHTML');
 
-            var res = $str.replace("__TEXT__", text);
+            var $res = $str.replace("__TEXT__", text);
 
-            document.getElementById("notification-div").innerHTML = res;
+            document.getElementById("notification-div").innerHTML = $res;
         }
-
 
         $('.collapse-button').click(function () {
             if($(this).children("span").hasClass('glyphicon glyphicon-menu-up')) {
@@ -320,14 +398,22 @@
         });
 
         $('#get-income-list-by-range').click(function(){
+
             $('#get-income-list-by-range').button('loading');
-            getIncomeList();
+            var $dateFrom = $("#time_input").children("input").val();
+            var $dateTo = $("#time_input2").children("input").val();
+
+            getIncomeList($dateFrom, $dateTo);
 
         })
 
         $('#get-expense-list-by-range').click(function(){
             $('#get-expense-list-by-range').button('loading');
-            getExpenseList();
+
+            var $dateFrom = $("#time_input").children("input").val();
+            var $dateTo = $("#time_input2").children("input").val();
+
+            getExpenseList($dateFrom, $dateTo);
 
         })
 
@@ -343,10 +429,26 @@
 
         })
 
+        $('#graph-both').click(function() {
+            getBoth();
+        })
+
         $('.expense-pencil').click(function() {
             $button = $(this);
 
             getExpenseEdit($button);
+        })
+
+        $('.expense-delete').click(function() {
+            $button = $(this);
+
+            deleteExpense($button);
+        })
+
+        $('.income-delete').click(function() {
+            $button = $(this);
+
+            deleteIncome($button);
         })
 
         $('.income-pencil').click(function() {
@@ -371,6 +473,12 @@
 
             newBudgetForm($url, $button);
         });
+
+        $('#reset').click(function (){
+            getIncomeList("","");
+            getExpenseList("","");
+
+        })
 
         var ROUNDING = 30 * 60 * 1000; /*ms*/
         start = moment();

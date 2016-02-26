@@ -41,4 +41,36 @@ class DataFormatter
         }
         return $return_data;
     }
+
+    public static function connectData($first, $second)
+    {
+        $return = [];
+
+        foreach ($first as $first_row) {
+
+            $found = false;
+            foreach ($second as $sk => $second_row){
+                if($first_row[0] == $second_row[0]){
+                    $return[] = [$first_row[0],$first_row[1],$second_row[1]];
+                    unset($second[$sk]);
+                    $found = true;
+                    break;
+                }
+            }
+
+            if($found == false){
+                $return[] = [$first_row[0],$first_row[1],0];
+            }
+        }
+
+        foreach ($second as $srow){
+            $return[] = [$srow[0],0,$srow[1]];
+        }
+
+        sort($return);
+
+
+
+        return $return;
+    }
 }

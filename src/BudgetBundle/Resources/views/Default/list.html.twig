@@ -1,6 +1,13 @@
 {% for var in list %}
-    <li class="list-group-item" data-id="{{ var.id}}">
-        <button type="button" class="btn btn-xs {{ name }}-pencil"><span class="glyphicon glyphicon-pencil"></span></button>
-        {{ var.dateTime |date('Y m d') }} <b>{{ var.money }}</b>e {{ var.name }}
-    </li>
+    <div class="col-md-12 list-group-item" data-id="{{ var.id}}">
+        <div class="col-md-1 nopadding">
+            <button type="button" class="btn btn-xs {{ name }}-pencil"><span class="glyphicon glyphicon-pencil"></span></button>
+        </div>
+        <div class="col-md-10 nopadding">
+            {{ var.dateTime |date('Y m d') }} <b>{{ var.money }}</b>e {{ var.name }}
+        </div>
+        <div class="col-md-1 nopadding">
+            <button type="button" class="btn btn-xs {{ name }}-delete pull-right"><span class="glyphicon glyphicon-remove"></span></button>
+        </div>
+    </div>
 {% endfor %}
