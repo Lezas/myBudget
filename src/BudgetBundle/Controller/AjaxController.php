@@ -64,9 +64,12 @@ class AjaxController extends Controller
                     $em->persist($expense);
                     $em->flush();
 
+                    $response['valid'] = true;
                     $response['success'] = true;
                     return new JsonResponse($response);
                 }
+
+                $response['valid'] = false;
 
                 $response['success'] = true;
                 $response['form'] = $this->render('BudgetBundle:Default:expenseForm.html.twig', [
@@ -118,10 +121,12 @@ class AjaxController extends Controller
                     $em->persist($income);
                     $em->flush();
 
+                    $response['valid'] = true;
                     $response['success'] = true;
                     return new JsonResponse($response);
                 }
 
+                $response['valid'] = false;
                 $response['success'] = true;
                 $response['form'] = $this->render('BudgetBundle:Default:ajaxIncomeForm.html.twig', [
                     'form' => $form->createView(),
@@ -186,10 +191,12 @@ class AjaxController extends Controller
                     $em->persist($expense);
                     $em->flush();
 
+                    $response['valid'] = true;
                     $response['success'] = true;
                     return new JsonResponse($response);
                 }
 
+                $response['valid'] = false;
                 $response['success'] = true;
                 $response['form'] = $this->render('BudgetBundle:Default:expenseForm.html.twig', [
                     'form' => $form->createView(),
@@ -256,8 +263,11 @@ class AjaxController extends Controller
                     $em->flush();
 
                     $response['success'] = true;
+                    $response['valid'] = true;
                     return new JsonResponse($response);
                 }
+
+                $response['valid'] = false;
 
                 $response['success'] = true;
                 $response['form'] = $this->render('BudgetBundle:Default:ajaxIncomeForm.html.twig', [

@@ -514,12 +514,13 @@
             .done(function (data) {
                 $button.button('reset');
 
-                if (data['success'] == true) {
+                if (data['valid'] == true) {
                     console.log('Duomenys irasyti');
                     $('.modal-body').html('');
                     $('#myModal').modal('hide');
                     Notificate('Data has been saved')
-                } else if (data['success'] == false) {
+                } else if (data['valid'] == false) {
+                    $('.modal-body').html(data['form']);
                     Notificate('Something went wrong:' + data['cause'])
                 }
             });
@@ -541,13 +542,13 @@
             .done(function (data) {
                 $button.button('reset');
 
-                if (data['success'] == true) {
+                if (data['valid'] == true) {
                     console.log('Duomenys irasyti');
                     $('.modal-body').html('');
                     $('#myModal').modal('hide');
                     Notificate('Data has been saved')
-                } else if (data['success'] == false) {
-                    Notificate('Something went wrong:' + data['cause'])
+                } else if (data['valid'] == false) {
+                    $('.modal-body').html(data['form']);
                 }
             });
         });
