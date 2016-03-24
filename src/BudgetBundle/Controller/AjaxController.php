@@ -24,12 +24,13 @@ use Symfony\Component\Validator\Constraints\Date;
 /**
  * Class AjaxController
  * @package BudgetBundle\Controller
+ * @Route("/api")
  */
 class AjaxController extends Controller
 {
     /**
      * @param Request $request
-     * @Route("/api/new-expense", name="ajax_new_expense")
+     * @Route("/new-expense", name="ajax_new_expense")
      * @return array|JsonResponse
      */
     public function NewExpenseAction(Request $request)
@@ -86,7 +87,7 @@ class AjaxController extends Controller
 
     /**
      * @param Request $request
-     * @Route("/api/new-income", name="ajax_new_income")
+     * @Route("/new-income", name="ajax_new_income")
      * @return array|JsonResponse
      */
     public function NewIncomeAction(Request $request)
@@ -141,7 +142,7 @@ class AjaxController extends Controller
     }
 
     /**
-     * @Route("/api/update-expense/{id}", name="ajax_update_expense")
+     * @Route("/update-expense/{id}", name="ajax_update_expense")
      * @param null $id
      * @param Request $request
      * @return JsonResponse
@@ -212,7 +213,7 @@ class AjaxController extends Controller
     }
 
     /**
-     * @Route("/api/update-income/{id}", name="ajax_update_income")
+     * @Route("/update-income/{id}", name="ajax_update_income")
      * @param null $id
      * @param Request $request
      * @return JsonResponse
@@ -284,7 +285,7 @@ class AjaxController extends Controller
     }
 
     /**
-     * @Route("/api/delete-income/{id}", name="ajax_delete_income")
+     * @Route("/delete-income/{id}", name="ajax_delete_income")
      * @param null $id
      * @param Request $request
      * @return JsonResponse
@@ -332,7 +333,7 @@ class AjaxController extends Controller
     }
 
     /**
-     * @Route("/api/delete-expense/{id}", name="ajax_delete_expense")
+     * @Route("/delete-expense/{id}", name="ajax_delete_expense")
      * @param null $id
      * @param Request $request
      * @return JsonResponse
@@ -381,7 +382,7 @@ class AjaxController extends Controller
 
     /**
      * @param Request $request
-     * @Route("/api/expenses-date-range", name="ajax_expense_by_date_range")
+     * @Route("/expenses-date-range", name="ajax_expense_by_date_range")
      * @return JsonResponse
      */
     public function GetExpenseByDateRangeAction(Request $request)
@@ -414,7 +415,7 @@ class AjaxController extends Controller
 
     /**
      * @param Request $request
-     * @Route("/api/income-date-range", name="ajax_income_by_date_range")
+     * @Route("/income-date-range", name="ajax_income_by_date_range")
      * @return JsonResponse
      */
     public function GetIncomeByDateRangeAction(Request $request)
@@ -445,7 +446,7 @@ class AjaxController extends Controller
 
     /**
      * @param Request $request
-     * @Route("/api/income-list", name="ajax_income_list_by_date_range")
+     * @Route("/income-list", name="ajax_income_list_by_date_range")
      * @return JsonResponse
      */
     public function GetIncomeListByDateRangeAction(Request $request)
@@ -489,7 +490,7 @@ class AjaxController extends Controller
 
     /**
      * @param Request $request
-     * @Route("/api/expense-list", name="ajax_expense_list_by_date_range")
+     * @Route("/expense-list", name="ajax_expense_list_by_date_range")
      * @return JsonResponse
      */
     public function GetExpenseListByDateRangeAction(Request $request)
@@ -532,7 +533,7 @@ class AjaxController extends Controller
     }
 
     /**
-     * @Route("/api/expenses", name="ajax_expense")
+     * @Route("/expenses", name="ajax_expense")
      */
     public function GetExpenseAction(Request $request)
     {
@@ -553,7 +554,7 @@ class AjaxController extends Controller
 
     /**
      * @param Request $request
-     * @Route("/api/budget/chart-data", name="ajax_budget_chart_data")
+     * @Route("/budget/chart-data", name="ajax_budget_chart_data")
      * @return JsonResponse
      */
     public function GetBudgetForChart(Request $request){

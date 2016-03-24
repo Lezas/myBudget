@@ -35,6 +35,8 @@ framework:
     http_method_override: true
     assets: ~
     translator: ~
+    serializer:
+        enabled: true
 
 # Twig Configuration
 twig:

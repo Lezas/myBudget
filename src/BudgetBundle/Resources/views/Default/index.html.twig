@@ -157,11 +157,14 @@
             async: false
         }).responseText;
 
+
         $chartData = $.parseJSON(jsonData);
         $chartName = 'Expenses';
 
+        console.log($chartData);
+
         var options = {
-            min_height: 250,
+            height: 350,
             title: $chartName,
             hAxis: {title: 'Day',  titleTextStyle: {color: '#333'}},
             vAxis: {title: 'Money', minValue: 0},
@@ -233,6 +236,8 @@
                 async: true,
             }).done(function(jsonData){
                 $chartName = 'Income';
+                console.log('a---------------');
+                console.log(jsonData);
                 $chartData = jsonData;
                 drawChart();
                 $('#get-income-by-range').button('reset');
@@ -298,7 +303,6 @@
         }
 
         function getIncomeList($dateFrom, $dateTo){
-
 
             $.ajax({
                 data: {date_from : $dateFrom, date_to : $dateTo},
