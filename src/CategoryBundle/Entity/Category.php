@@ -2,6 +2,7 @@
 
 namespace CategoryBundle\Entity;
 
+use MainBundle\Entity\User;
 use Doctrine\ORM\Mapping as ORM;
 use Doctrine\ORM\Mapping\JoinColumn;
 use Doctrine\ORM\Mapping\ManyToOne;
@@ -30,20 +31,7 @@ class Category
      * @ORM\Column(name="Name", type="string", length=50)
      */
     private $name;
-
-    /**
-     * @var int
-     *
-     * @ORM\Column(name="Level", type="integer")
-     */
-    private $level;
-
-    /**
-     * @var int
-     *
-     * @ORM\Column(name="Parent_Id", type="integer")
-     */
-    private $parent_id;
+    
 
     /**
      * @var string
@@ -62,6 +50,13 @@ class Category
      * @JoinColumn(name="parent_id", referencedColumnName="id")
      */
     private $parent;
+
+    /**
+     * @ORM\ManyToOne(targetEntity = "MainBundle\Entity\User", inversedBy = "CategoryUser")
+     * @ORM\JoinColumn(name = "user_id", referencedColumnName = "id")
+     * @var User
+     */
+    private $user;
 
 
     /**
@@ -98,53 +93,6 @@ class Category
         return $this->name;
     }
 
-    /**
-     * Set level
-     *
-     * @param integer $level
-     *
-     * @return Category
-     */
-    public function setLevel($level)
-    {
-        $this->level = $level;
-
-        return $this;
-    }
-
-    /**
-     * Get level
-     *
-     * @return int
-     */
-    public function getLevel()
-    {
-        return $this->level;
-    }
-
-    /**
-     * Set parentCategory
-     *
-     * @param integer $parentId
-     *
-     * @return Category
-     */
-    public function setParentId($parentId)
-    {
-        $this->parent_id = $parentId;
-
-        return $this;
-    }
-
-    /**
-     * Get parentCategory
-     *
-     * @return int
-     */
-    public function getParentId()
-    {
-        return $this->parent_id;
-    }
 
     /**
      * Set valid
@@ -233,5 +181,39 @@ class Category
     public function getParent()
     {
         return $this->parent;
+    }
+
+    /**
+     * Set user
+     *
+     * @param \MainBundle\Entity\User $user
+     *
+     * @return Category
+     */
+    public function setUser(User $user = null)
+    {
+        $this->user = $user;
+
+        return $this;
+    }
+
+    /**
+     * Get user
+     *
+     * @return \MainBundle\Entity\User
+     */
+    public function getUser()
+    {
+        return $this->user;
+    }
+
+    /**
+     * Get name of category
+     *
+     * @return string
+     */
+    public function __toString()
+    {
+        return $this->name;
     }
 }
