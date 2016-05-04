@@ -1,6 +1,8 @@
 <?php
 
 namespace CategoryBundle\Repository;
+use Doctrine\Common\Collections\ArrayCollection;
+use MainBundle\Entity\User;
 
 /**
  * CategoryRepository

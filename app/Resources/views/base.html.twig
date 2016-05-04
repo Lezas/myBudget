@@ -40,6 +40,13 @@
                                 <a href="{{ path('dashboard') }}">Dashboard</a>
                             </li>
                             <li>
+                                <a href="#" class="dropdown-toggle" data-toggle="dropdown">Categories
+                                    <span class="caret"></span></a>
+                                <ul class="dropdown-menu">
+                                    <li><a href="{{ path('new_category') }}">Add Categoty</a></li>
+                                    <li><a href="{{ path('category_list') }}">All categories</a></li>
+                                </ul>
+                            <li>
                                 <a href="{{ path('fos_user_profile_show') }}">Your Profile</a>
                             </li>
                             <li>

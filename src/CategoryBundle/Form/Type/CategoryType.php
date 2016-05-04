@@ -6,6 +6,7 @@ use MainBundle\Entity\User;
 use Symfony\Bridge\Doctrine\Form\Type\EntityType;
 use Symfony\Component\Form\AbstractType;
 use Symfony\Component\Form\Extension\Core\Type\CheckboxType;
+use Symfony\Component\Form\Extension\Core\Type\ChoiceType;
 use Symfony\Component\Form\Extension\Core\Type\SubmitType;
 use Symfony\Component\Form\Extension\Core\Type\TextType;
 use Symfony\Component\Form\FormBuilderInterface;
@@ -29,9 +30,17 @@ class CategoryType extends AbstractType
         $user = $this->user;
 
         $builder->add('name', TextType::class, ['label' => 'Category name'])
-            ->add('valid', CheckboxType::class)
+            ->add('valid', CheckboxType::class, array(
+                    'required' => false
+                )
+            )
+            ->add('type', ChoiceType::class, array(
+                'choices' => array('For expense' => 'expense', 'For Income' => 'income'),
+                'choices_as_values' => true,
+            ))
             ->add('parent', EntityType::class, array(
                 'label' => 'Parent Category',
+                'placeholder' => 'Don\'t have parent category',
                 'class' => 'CategoryBundle\Entity\Category',
                 'expanded' => false,
                 'multiple' => false,
@@ -42,10 +51,11 @@ class CategoryType extends AbstractType
                         ->orderBy('c.name', 'ASC')
                         ->where('c.user = :user')
                         ->orWhere('c.user is null')
+                        ->andWhere('c.parent is null')
                         ->setParameter('user', $user);
                 },
             ))
-            ->add('Submit', SubmitType::class)
+            ->add('submit', SubmitType::class)
             ;
 
     }

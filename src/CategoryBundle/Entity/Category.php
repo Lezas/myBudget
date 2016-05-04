@@ -2,6 +2,8 @@
 
 namespace CategoryBundle\Entity;
 
+use BudgetBundle\Entity\Expenses;
+use Doctrine\Common\Collections\ArrayCollection;
 use MainBundle\Entity\User;
 use Doctrine\ORM\Mapping as ORM;
 use Doctrine\ORM\Mapping\JoinColumn;
@@ -57,6 +59,19 @@ class Category
      * @var User
      */
     private $user;
+
+    /**
+     * @ORM\OneToMany(targetEntity="BudgetBundle\Entity\Expenses", mappedBy="category")
+     * @var Expenses[]|ArrayCollection
+     */
+    protected $Expense;
+
+    /**
+     * @var string
+     *
+     * @ORM\Column(name="Type", type="string", length=255)
+     */
+    protected $type;
 
 
     /**
@@ -115,14 +130,41 @@ class Category
      */
     public function getValid()
     {
-        return $this->valid;
+        return (boolean)$this->valid;
     }
+
+    /**
+     * Set type
+     *
+     * @param string $type
+     *
+     * @return Category
+     */
+    public function setType($type)
+    {
+        $this->type = $type;
+
+        return $this;
+    }
+
+    /**
+     * Get type
+     *
+     * @return string
+     */
+    public function getType()
+    {
+        return $this->type;
+    }
+    
+    
     /**
      * Constructor
      */
     public function __construct()
     {
-        $this->children = new \Doctrine\Common\Collections\ArrayCollection();
+        $this->children = new ArrayCollection();
+        $this->Expense = new ArrayCollection();
     }
 
     /**
@@ -205,6 +247,30 @@ class Category
     public function getUser()
     {
         return $this->user;
+    }
+
+    /**
+     * Add expense
+     *
+     * @param \BudgetBundle\Entity\Expenses $expense
+     *
+     * @return Category
+     */
+    public function addExpense(Expenses $expense)
+    {
+        $this->Expense[] = $expense;
+
+        return $this;
+    }
+
+    /**
+     * Remove expense
+     *
+     * @param \BudgetBundle\Entity\Expenses $expense
+     */
+    public function removeExpense(Expenses $expense)
+    {
+        $this->Expense->removeElement($expense);
     }
 
     /**

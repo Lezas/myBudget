@@ -1,13 +1,9 @@
 <?php
 
-/**
- * Created by PhpStorm.
- * User: Vartotojas
- * Date: 2016.02.24
- * Time: 21:17
- */
 namespace BudgetBundle\Helper;
 
+use BudgetBundle\Entity\Income;
+use Doctrine\Common\Collections\ArrayCollection;
 use Symfony\Component\Validator\Constraints\Date;
 
 class DataFormatter
@@ -18,6 +14,35 @@ class DataFormatter
      */
     public static function groupByDay($data)
     {
+        $arrayCol = new ArrayCollection($data);
+
+        $retturnArray = new ArrayCollection();
+        foreach ($arrayCol as $mkey=>$data) {
+            $retturnArray->set($data->getDateTime()->format('Y-m-d'), (float)$data->getMoney());
+            foreach ($arrayCol as $key=>$data2) {
+                /** @var Income $data2 */
+                /** @var Income $data */
+                
+                if ($data->getDateTime()->format('Y-m-d') == $data2->getDateTime()->format('Y-m-d') && $data->getId() != $data2->getId()) {
+
+                    $row = (float)$retturnArray->get($data->getDateTime()->format('Y-m-d'));
+                    $row += (float)$data2->getMoney();
+
+                    $retturnArray->set($data->getDateTime()->format('Y-m-d'), $row);
+
+                    $arrayCol->remove($key);
+                }
+
+            }
+        }
+
+        $true = [];
+        foreach ($retturnArray as $key=>$array) {
+            $true[] =  [$key, $array];
+        }
+        
+        return $true;
+
         for($i = 0; $i < count($data); $i++){
             $row = $data[$i];
             if(isset($row['deleted']) != true)
@@ -66,10 +91,7 @@ class DataFormatter
         foreach ($second as $srow){
             $return[] = [$srow[0],0,$srow[1]];
         }
-
         sort($return);
-
-
 
         return $return;
     }
