@@ -31,7 +31,7 @@ class IncomeRepository extends EntityRepository
             ->setParameter('date_to', $date_to)
             ->setParameter('id', $user);
 
-        $income = $query->getArrayResult();
+        $income = $query->getResult();
 
         return $income;
     }

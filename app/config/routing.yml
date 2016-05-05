@@ -1,3 +1,8 @@
+category:
+    resource: "@CategoryBundle/Controller/"
+    type:     annotation
+    prefix:   /
+
 budget:
     resource: "@BudgetBundle/Controller/"
     type:     annotation

@@ -2,6 +2,9 @@
 
 namespace CategoryBundle\Entity;
 
+use BudgetBundle\Entity\Expenses;
+use Doctrine\Common\Collections\ArrayCollection;
+use MainBundle\Entity\User;
 use Doctrine\ORM\Mapping as ORM;
 use Doctrine\ORM\Mapping\JoinColumn;
 use Doctrine\ORM\Mapping\ManyToOne;
@@ -30,20 +33,7 @@ class Category
      * @ORM\Column(name="Name", type="string", length=50)
      */
     private $name;
-
-    /**
-     * @var int
-     *
-     * @ORM\Column(name="Level", type="integer")
-     */
-    private $level;
-
-    /**
-     * @var int
-     *
-     * @ORM\Column(name="Parent_Id", type="integer")
-     */
-    private $parent_id;
+    
 
     /**
      * @var string
@@ -62,6 +52,26 @@ class Category
      * @JoinColumn(name="parent_id", referencedColumnName="id")
      */
     private $parent;
+
+    /**
+     * @ORM\ManyToOne(targetEntity = "MainBundle\Entity\User", inversedBy = "CategoryUser")
+     * @ORM\JoinColumn(name = "user_id", referencedColumnName = "id")
+     * @var User
+     */
+    private $user;
+
+    /**
+     * @ORM\OneToMany(targetEntity="BudgetBundle\Entity\Expenses", mappedBy="category")
+     * @var Expenses[]|ArrayCollection
+     */
+    protected $Expense;
+
+    /**
+     * @var string
+     *
+     * @ORM\Column(name="Type", type="string", length=255)
+     */
+    protected $type;
 
 
     /**
@@ -98,53 +108,6 @@ class Category
         return $this->name;
     }
 
-    /**
-     * Set level
-     *
-     * @param integer $level
-     *
-     * @return Category
-     */
-    public function setLevel($level)
-    {
-        $this->level = $level;
-
-        return $this;
-    }
-
-    /**
-     * Get level
-     *
-     * @return int
-     */
-    public function getLevel()
-    {
-        return $this->level;
-    }
-
-    /**
-     * Set parentCategory
-     *
-     * @param integer $parentId
-     *
-     * @return Category
-     */
-    public function setParentId($parentId)
-    {
-        $this->parent_id = $parentId;
-
-        return $this;
-    }
-
-    /**
-     * Get parentCategory
-     *
-     * @return int
-     */
-    public function getParentId()
-    {
-        return $this->parent_id;
-    }
 
     /**
      * Set valid
@@ -167,14 +130,41 @@ class Category
      */
     public function getValid()
     {
-        return $this->valid;
+        return (boolean)$this->valid;
     }
+
+    /**
+     * Set type
+     *
+     * @param string $type
+     *
+     * @return Category
+     */
+    public function setType($type)
+    {
+        $this->type = $type;
+
+        return $this;
+    }
+
+    /**
+     * Get type
+     *
+     * @return string
+     */
+    public function getType()
+    {
+        return $this->type;
+    }
+    
+    
     /**
      * Constructor
      */
     public function __construct()
     {
-        $this->children = new \Doctrine\Common\Collections\ArrayCollection();
+        $this->children = new ArrayCollection();
+        $this->Expense = new ArrayCollection();
     }
 
     /**
@@ -233,5 +223,63 @@ class Category
     public function getParent()
     {
         return $this->parent;
+    }
+
+    /**
+     * Set user
+     *
+     * @param \MainBundle\Entity\User $user
+     *
+     * @return Category
+     */
+    public function setUser(User $user = null)
+    {
+        $this->user = $user;
+
+        return $this;
+    }
+
+    /**
+     * Get user
+     *
+     * @return \MainBundle\Entity\User
+     */
+    public function getUser()
+    {
+        return $this->user;
+    }
+
+    /**
+     * Add expense
+     *
+     * @param \BudgetBundle\Entity\Expenses $expense
+     *
+     * @return Category
+     */
+    public function addExpense(Expenses $expense)
+    {
+        $this->Expense[] = $expense;
+
+        return $this;
+    }
+
+    /**
+     * Remove expense
+     *
+     * @param \BudgetBundle\Entity\Expenses $expense
+     */
+    public function removeExpense(Expenses $expense)
+    {
+        $this->Expense->removeElement($expense);
+    }
+
+    /**
+     * Get name of category
+     *
+     * @return string
+     */
+    public function __toString()
+    {
+        return $this->name;
     }
 }

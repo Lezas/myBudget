@@ -27,7 +27,7 @@ class ExpensesRepository extends EntityRepository
             ->setParameter('date_to', $date_to)
             ->setParameter('id', $user);
 
-        $expenses = $query->getArrayResult();
+        $expenses = $query->getResult();
 
         return $expenses;
     }

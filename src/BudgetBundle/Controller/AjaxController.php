@@ -42,13 +42,14 @@ class AjaxController extends Controller
                 $response['cause'] = 'User is not logged in';
                 return new JsonResponse($response);
             } else {
-
+                $user = $this->getUser();
                 $expense = new Expenses();
 
                 $form = $this->createForm(ExpenseType::class, $expense, array(
                     'action' => $this->generateUrl('ajax_new_expense'),
                     'attr' => array('class' => 'create_budget'),
                     'method' => 'POST',
+                    'user' => $user,
                 ));
 
                 $form->handleRequest($request);
@@ -99,13 +100,14 @@ class AjaxController extends Controller
                 $response['cause'] = 'User is not logged in';
                 return new JsonResponse($response);
             } else {
-
+                $user = $this->getUser();
                 $income = new Income();
 
                 $form = $this->createForm(IncomeType::class, $income, array(
                     'action' => $this->generateUrl('ajax_new_income'),
                     'attr' => array('class' => 'create_budget'),
                     'method' => 'POST',
+                    'user' => $user,
                 ));
 
                 $form->handleRequest($request);
@@ -178,6 +180,7 @@ class AjaxController extends Controller
                     'action' => $this->generateUrl('ajax_update_expense'),
                     'attr' => array('class' => 'create_event_form', 'data-id' => $expense->getId()),
                     'method' => 'POST',
+                    'user' => $user,
                 ));
 
                 $form->handleRequest($request);
@@ -249,6 +252,7 @@ class AjaxController extends Controller
                     'action' => $this->generateUrl('ajax_update_income'),
                     'attr' => array('class' => 'create_event_form', 'data-id' => $income->getId()),
                     'method' => 'POST',
+                    'user' => $user,
                 ));
 
                 $form->handleRequest($request);
@@ -356,11 +360,7 @@ class AjaxController extends Controller
                 $user = $this->getUser();
                 $expenseUser = $expense->getUser();
 
-                if($expense === null){
-                    $response['cause'] = 'Can\'t found expense with that id';
-                    return new JsonResponse($response);
-                }
-                if($expenseUser->getId() !== $user->getId()){
+                if($expense === null || $expenseUser !== $user){
                     $response['cause'] = 'Can\'t found expense with that id';
                     return new JsonResponse($response);
                 }
@@ -467,11 +467,13 @@ class AjaxController extends Controller
             }
 
             $income = $this->getDoctrine()->getRepository('BudgetBundle:Income')->getByDateRange($user, $date_from, $date_to);
-
+            
             $total = 0;
 
             foreach($income as $var){
-                $total += $var['money'];
+                /** @var Income $var */
+
+                $total += (int)$var->getMoney();
             }
 
             $response['list'] = $this->render('BudgetBundle:Default:IncomeList.html.twig', [
@@ -515,7 +517,8 @@ class AjaxController extends Controller
             $total = 0;
 
             foreach($expense as $var){
-                $total += $var['money'];
+                /** @var Expenses $var */
+                $total += (int)$var->getMoney();
             }
 
             $response['list'] = $this->render('BudgetBundle:Default:ExpenseList.html.twig', [

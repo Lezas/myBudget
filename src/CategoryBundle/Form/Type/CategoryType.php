@@ -1,19 +1,18 @@
 <?php
-
-namespace BudgetBundle\Form\Type;
+namespace CategoryBundle\Form\Type;
 
 use Doctrine\ORM\EntityRepository;
 use MainBundle\Entity\User;
 use Symfony\Bridge\Doctrine\Form\Type\EntityType;
 use Symfony\Component\Form\AbstractType;
-use Symfony\Component\Form\Extension\Core\Type\DateTimeType;
+use Symfony\Component\Form\Extension\Core\Type\CheckboxType;
+use Symfony\Component\Form\Extension\Core\Type\ChoiceType;
 use Symfony\Component\Form\Extension\Core\Type\SubmitType;
 use Symfony\Component\Form\Extension\Core\Type\TextType;
 use Symfony\Component\Form\FormBuilderInterface;
 use Symfony\Component\OptionsResolver\OptionsResolver;
-use Symfony\Component\Form\Extension\Core\Type\MoneyType;
 
-class IncomeType extends AbstractType
+class CategoryType extends AbstractType
 {
     /**
      * @var User
@@ -24,25 +23,24 @@ class IncomeType extends AbstractType
     {
         $this->user = $user;
     }
-    
     public function buildForm(FormBuilderInterface $builder, array $options)
     {
         $this->user = $options['user'];
+
         $user = $this->user;
-        
-        $builder->add('name', textType::class, ['label' => 'Income name'])
-            ->add('dateTime', datetimetype::class , [
-                    'input' => 'datetime',
-                    'widget' => 'single_text',
-                    'format' => 'y-MM-dd HH:mm',
-                    'attr' => ['class' => 'date'],
-                    'label' => 'Date and time when you spent money',
-                ]
+
+        $builder->add('name', TextType::class, ['label' => 'Category name'])
+            ->add('valid', CheckboxType::class, array(
+                    'required' => false
+                )
             )
-            ->add('money', MoneyType::class)
-            ->add('category', EntityType::class, array(
-                'label' => 'Category',
-                'placeholder' => '-Don\'t have category-',
+            ->add('type', ChoiceType::class, array(
+                'choices' => array('For expense' => 'expense', 'For Income' => 'income'),
+                'choices_as_values' => true,
+            ))
+            ->add('parent', EntityType::class, array(
+                'label' => 'Parent Category',
+                'placeholder' => 'Don\'t have parent category',
                 'class' => 'CategoryBundle\Entity\Category',
                 'expanded' => false,
                 'multiple' => false,
@@ -53,24 +51,27 @@ class IncomeType extends AbstractType
                         ->orderBy('c.name', 'ASC')
                         ->where('c.user = :user')
                         ->orWhere('c.user is null')
-                        ->andWhere('c.type = :income')
-                        ->orWhere('c.type is null')
-                        ->andWhere('c.valid = true')
-                        ->setParameter('user', $user)
-                        ->setParameter('income','income');
+                        ->andWhere('c.parent is null')
+                        ->setParameter('user', $user);
                 },
             ))
-            ->add('submit', submitType::class, ['label' => 'Save']);
+            ->add('submit', SubmitType::class)
+            ;
 
     }
     public function getName()
     {
-        return 'income';
+        return 'category';
     }
-    public function setDefaultOptions(OptionsResolver  $resolver)
+
+    /**
+     * {@inheritdoc}
+     */
+    public function setDefaultOptions(OptionsResolver $resolver)
     {
         $resolver->setDefaults([
-            'data_class' => 'BudgetBundle/Entity/Income'
+            'data_class' => 'CategoryBundle/Entity/Category',
+            'user' => null
         ]);
     }
 

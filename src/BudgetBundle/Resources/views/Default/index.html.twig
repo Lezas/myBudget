@@ -272,7 +272,9 @@
         }
 
         function deleteIncome($button){
-            var $Id = $button.parent('div').parent('div').attr("data-id");
+            var $Id = $button.data("id");
+
+            console.log($Id);
 
             $button.button('loading');
             $.ajax({
@@ -281,14 +283,15 @@
                 async: true,
             }).done(function(jsonData){
 
-
-                $button.parent('div').parent('div').remove();
+                $button.parent('th').parent('tr').remove();
             });
 
         }
 
         function deleteExpense($button){
-            var $Id = $button.parent('div').parent('div').attr("data-id");
+            var $Id = $button.attr("data-id");
+
+            console.log($Id);
 
             $button.button('loading');
             $.ajax({
@@ -297,7 +300,7 @@
                 async: true,
             }).done(function(jsonData){
 
-                $button.parent('div').parent('div').remove();
+                $button.parent('th').parent('tr').remove();
             });
 
         }
@@ -342,7 +345,7 @@
         }
 
         function getIncomeEdit($button) {
-            var $Id = $button.parent('div').parent('div').attr("data-id");
+            var $Id = $button.attr("data-id");
 
             $button.button('loading');
             var jsonData = $.ajax({
@@ -363,7 +366,7 @@
 
         function getExpenseEdit($button) {
 
-            var $expenseId = $button.parent('div').parent('div').attr("data-id");
+            var $expenseId = $button.attr("data-id");
             $button.button('loading');
 
             var jsonData = $.ajax({
@@ -439,25 +442,25 @@
 
         $('.expense-pencil').click(function() {
             $button = $(this);
-
-            getExpenseEdit($button);
+            console.log("Paspaustas expense redagavimo mygtukas");
+            //getExpenseEdit($button);
         })
 
         $('.expense-delete').click(function() {
             $button = $(this);
-
+console.log("Paspaustas expense istrynimo mygtukas");
             deleteExpense($button);
         })
 
         $('.income-delete').click(function() {
             $button = $(this);
-
-            deleteIncome($button);
+            console.log("Paspaustas income istrynimo mygtukas");
+            //deleteIncome($button);
         })
 
         $('.income-pencil').click(function() {
             $button = $(this);
-
+            console.log("Paspaustas income redagavimo mygtukas");
             getIncomeEdit($button);
         })
 
