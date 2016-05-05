@@ -60,7 +60,8 @@ class ExpenseType extends AbstractType
                         ->orWhere('c.type is null')
                         ->andWhere('c.valid = true')
                         ->setParameter('user', $user)
-                        ->setParameter('expense','expense');
+                        ->setParameter('expense','expense')
+                        ->orderBy('c.name');
                 },
             ))
             ->add('submit', submitType::class, ['label' => 'Save']);
