@@ -29,24 +29,17 @@ class DefaultController extends Controller
             $user = $this->get('security.token_storage')->getToken()->getUser();
             $repository = $this->get('budget.repository.budget');
             $budget_array = $repository->getMonthBudget(null, $user);
-            $date1 = new DateTime('2016-01-01');
-            $date2 = new DateTime('2016-06-01');
-            $budget_array = $repository->getBudgetByDateRange($date1,$date2, $this->getUser());
 
             $totalIncome = 0;
             $totalExpenses = 0;
 
-            $formater = new DataFormatter();
-
-            dump($budget_array['expenses']);
-            dump($formater->groupByDay($budget_array['expenses']));
-            //exit;
-
             foreach($budget_array['income'] as $array){
-                $totalIncome += $array->getMoney();
+                /** @var $array Income */
+                $totalIncome += (float)$array->getMoney();
             }
 
             foreach($budget_array['expenses'] as $array){
+                /** @var $array Expenses */
                 $totalExpenses += (float)$array->getMoney();
             }
 
@@ -87,7 +80,6 @@ class DefaultController extends Controller
 
                 $income->setDateTime($raw_data->getDateTime()['date_time']);
                 $income->setUser($user);
-
 
                 $em = $this->getDoctrine()->getManager();
 
