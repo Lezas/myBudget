@@ -1,0 +1,4 @@
+services:
+#    category.example:
+#        class: Budget\CategoryBundle\Example
+#        arguments: [@service_id, "plain_value", %parameter%]
