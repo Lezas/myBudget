@@ -143,6 +143,90 @@ class DefaultController extends Controller
     }
 
     /**
+     * @param Request $request
+     * @Route("/test", name="new_expense")
+     * @return Response
+     */
+    public function testAction(Request $request)
+    {
+        $user = $this->get('security.token_storage')->getToken()->getUser();
+
+        if ($request->query->get('date_from') != "" || $request->query->get('date_to') != "") {
+            $date_from = new \DateTime($request->query->get('date_from'));
+            $date_to = new \DateTime($request->query->get('date_to'));
+        } else {
+            $date = new \DateTime('now');
+
+            //how to get first and last day of the month
+            $date_from = new \DateTime(date('Y-m-01', $date->getTimestamp()));
+            $date_to = new \DateTime(date('Y-m-t', $date->getTimestamp()));
+        }
+
+        $expense = $this->getDoctrine()->getRepository('BudgetBundle:Expenses')->getByDateRange($user, $date_from, $date_to);
+        $income = $this->getDoctrine()->getRepository('BudgetBundle:Income')->getByDateRange($user, $date_from, $date_to);
+
+        $filteredExpense = DataFormatter::groupByDay($expense);
+        $filteredIncome = DataFormatter::groupByDay($income);
+
+        dump($filteredExpense);
+        dump($filteredIncome);
+        exit;
+
+        $data = DataFormatter::connectData($filteredExpense, $filteredIncome);
+
+
+    }
+
+    /**
+     * @Route("/report", name="reports")
+     */
+    public function reportsAction()
+    {
+
+        if($this->isLogged()){
+            $user = $this->get('security.token_storage')->getToken()->getUser();
+            $repository = $this->get('budget.repository.budget');
+            $budget_array = $repository->getMonthBudget(null, $user);
+
+            $totalIncome = 0;
+            $totalExpenses = 0;
+
+            foreach($budget_array['income'] as $array){
+                /** @var $array Income */
+                $totalIncome += (float)$array->getMoney();
+            }
+
+            foreach($budget_array['expenses'] as $array){
+                /** @var $array Expenses */
+                $totalExpenses += (float)$array->getMoney();
+            }
+
+            $date = new \DateTime('now');
+
+            /*$o = 1;
+
+$str = '';
+            for ($o = 1;$o <= 60; $o++) {
+                $str .= $o;
+                $str .= ':00, ';
+            }
+
+            var_dump($str);*/
+            return $this->render('BudgetBundle:Default:reports.html.twig',[
+                'total_expense' =>$totalExpenses,
+                'total_income' => $totalIncome,
+                'income' => $budget_array['income'],
+                'expenses' => $budget_array['expenses'],
+                'month_first_day' => date('Y-m-01', $date->getTimestamp()),
+                'month_last_day' => date('Y-m-t', $date->getTimestamp()),
+            ]);
+        }
+
+        return $this->redirectToRoute('fos_user_security_login');
+    }
+
+
+    /**
      * @return bool - True if user is logged in, false if not.
      */
     private function isLogged()

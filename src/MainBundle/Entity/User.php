@@ -8,6 +8,7 @@ use CategoryBundle\Entity\Category;
 use Doctrine\Common\Collections\ArrayCollection;
 use FOS\UserBundle\Model\User as BaseUser;
 use Doctrine\ORM\Mapping as ORM;
+use MyAutoBundle\Entity\Auto;
 
 /**
  * @ORM\Entity
@@ -40,6 +41,12 @@ class User extends BaseUser
      */
     protected $Category;
 
+    /**
+     * @ORM\OneToMany(targetEntity="MyAutoBundle\Entity\Auto", mappedBy="user")
+     * @var Auto[]|ArrayCollection
+     */
+    protected $Auto;
+
     public function __construct()
     {
         parent::__construct();
@@ -47,6 +54,7 @@ class User extends BaseUser
         $this->Income = new ArrayCollection();
         $this->Expense = new ArrayCollection();
         $this->Category = new ArrayCollection();
+        $this->Auto = new ArrayCollection();
     }
 
     /**
@@ -129,6 +137,40 @@ class User extends BaseUser
     public function removeCategory(\CategoryBundle\Entity\Category $category)
     {
         $this->Category->removeElement($category);
+    }
+
+    /**
+     * Add auto
+     *
+     * @param \MyAutoBundle\Entity\Auto $auto
+     *
+     * @return User
+     */
+    public function addAuto(\MyAutoBundle\Entity\Auto $auto)
+    {
+        $this->Auto[] = $auto;
+
+        return $this;
+    }
+
+    /**
+     * Remove auto
+     *
+     * @param \MyAutoBundle\Entity\Auto $auto
+     */
+    public function removeAuto(\MyAutoBundle\Entity\Auto $auto)
+    {
+        $this->Auto->removeElement($auto);
+    }
+
+    /**
+     * Get auto
+     *
+     * @return \Doctrine\Common\Collections\Collection
+     */
+    public function getAuto()
+    {
+        return $this->Auto;
     }
 
     /**

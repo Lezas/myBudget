@@ -11,59 +11,40 @@
         <button class="btn btn-success pull-right" id="reset">Reset to this month</button>
     </div>
 
-    <div class="col-md-6 dashed-border" id="income-list-data">
-        {{ month_first_day }} : {{ month_last_day }} Total:  {{ total_income }}
+    <div class="col-md-6 solid-border ">
+        <div class="container-fluid" id="income-list-data">
+            {{ month_first_day }} : {{ month_last_day }} Total:  {{ total_income }}
+        </div>
+
+        <!-- Income list -->
+        <div class="container-fluid">
+            <h3>Income <button type="button" class="btn btn-xs  collapse-button"  data-toggle="collapse" data-target="#income-list"><span class="glyphicon glyphicon-menu-down"></span></button></h3>
+            <ul class="list-group list-window collapse" id="income-list">
+                {% set list = income %}
+                {% set name = 'income' %}
+                {% include 'BudgetBundle:Default:IncomeList.html.twig' with list %}
+            </ul>
+        </div>
     </div>
 
-    <div class="col-md-6 dashed-border" id="expense-list-data">
-        {{ month_first_day }} : {{ month_last_day }} Total:  {{ total_expense }} |
-    </div>
+    <div class="col-md-6 solid-border">
+        <div class="container-fluid" id="expense-list-data">
+            {{ month_first_day }} : {{ month_last_day }} Total:  {{ total_expense }}
+        </div>
 
-    <!-- Income list -->
-    <div class="col-md-6 dashed-border">
-        <h3>Income <button type="button" class="btn btn-xs  collapse-button"  data-toggle="collapse" data-target="#income-list"><span class="glyphicon glyphicon-menu-down"></span></button></h3>
-        <ul class="list-group list-window collapse" id="income-list">
-            {% for var in income %}
-                <div class="col-md-12 list-group-item" data-id="{{ var.id}}">
-                    <div class="col-md-1 nopadding">
-                        <button type="button" class="btn btn-xs income-pencil"><span class="glyphicon glyphicon-pencil"></span></button>
-                    </div>
-                    <div class="col-md-10 nopadding">
-                        {{ var.dateTime |date('Y m d') }} <b>{{ var.money }}</b>e {{ var.name }}
-                    </div>
-                    <div class="col-md-1 nopadding">
-                        <button type="button" class="btn btn-xs income-delete pull-right"><span class="glyphicon glyphicon-remove"></span></button>
-                    </div>
-                </div>
-            {% endfor %}
-        </ul>
-    </div>
-
-    <!-- Expenses list -->
-
-    <div class="col-md-6 dashed-border">
-
-        <h3>Expenses <button type="button" class="btn btn-xs collapse-button"  data-toggle="collapse" data-target="#expense-list"><span class="glyphicon glyphicon-menu-down"></span></button></h3>
-
-        <ul class="list-group list-window collapse" id="expense-list">
-            {% for var in expenses %}
-                <div class="col-md-12 list-group-item" data-id="{{ var.id}}">
-                    <div class="col-md-1 nopadding">
-                        <button type="button" class="btn btn-xs expense-pencil"><span class="glyphicon glyphicon-pencil"></span></button>
-                    </div>
-                    <div class="col-md-10 nopadding">
-                        {{ var.dateTime |date('Y m d') }} <b>{{ var.money }}</b>e {{ var.name }}
-                    </div>
-                    <div class="col-md-1 nopadding">
-                        <button type="button" class="btn btn-xs expense-delete pull-right"><span class="glyphicon glyphicon-remove"></span></button>
-                    </div>
-                </div>
-            {% endfor %}
-        </ul>
+        <!-- Expenses list -->
+        <div class="container-fluid">
+            <h3>Expenses <button type="button" class="btn btn-xs collapse-button"  data-toggle="collapse" data-target="#expense-list"><span class="glyphicon glyphicon-menu-down"></span></button></h3>
+            <ul class="list-group list-window collapse" id="expense-list">
+                {% set list = expenses %}
+                {% set name = 'expense' %}
+                {% include 'BudgetBundle:Default:ExpenseList.html.twig' with list %}
+            </ul>
+        </div>
     </div>
 
     <!-- choose time interval to show graph. -->
-    <div class="col-md-12 dashed-border" style=" padding: 5px;">
+    <div class="col-md-12 solid-border" style=" padding: 5px;">
         <div class="form-inline">
             <p>Choose time interval by which you want to see your expenses</p>
             <div class="col-lg-4 text-block">
@@ -112,7 +93,7 @@
             </div>
         </div>
     </div>
-    <div class="col-md-12 dashed-border" id="chart_div"></div>
+    <div class="col-md-12 solid-border" id="chart_div"></div>
 
     <!-- Modal -->
     <div id="myModal" class="modal fade" role="dialog">
@@ -272,36 +253,42 @@
         }
 
         function deleteIncome($button){
-            var $Id = $button.data("id");
 
-            console.log($Id);
+            var r = confirm("Are you sureyou want to delete it?");
+            if (r == true) {
+                var $Id = $button.data("id");
 
-            $button.button('loading');
-            $.ajax({
-                url: "{{ url('ajax_delete_income') }}" + '/' + $Id,
-                dataType: "json",
-                async: true,
-            }).done(function(jsonData){
+                console.log($Id);
 
-                $button.parent('th').parent('tr').remove();
-            });
+                $button.button('loading');
+                $.ajax({
+                    url: "{{ url('ajax_delete_income') }}" + '/' + $Id,
+                    dataType: "json",
+                    async: true,
+                }).done(function(jsonData){
 
+                    $button.parent('th').parent('tr').remove();
+                });
+            }
         }
 
         function deleteExpense($button){
-            var $Id = $button.attr("data-id");
+            var r = confirm("Are you sureyou want to delete it?");
+            if (r == true) {
+                var $Id = $button.attr("data-id");
 
-            console.log($Id);
+                console.log($Id);
 
-            $button.button('loading');
-            $.ajax({
-                url: "{{ url('ajax_delete_expense') }}" + '/' + $Id,
-                dataType: "json",
-                async: true,
-            }).done(function(jsonData){
+                $button.button('loading');
+                $.ajax({
+                    url: "{{ url('ajax_delete_expense') }}" + '/' + $Id,
+                    dataType: "json",
+                    async: true,
+                }).done(function (jsonData) {
 
-                $button.parent('th').parent('tr').remove();
-            });
+                    $button.parent('th').parent('tr').remove();
+                });
+            }
 
         }
 
@@ -442,25 +429,21 @@
 
         $('.expense-pencil').click(function() {
             $button = $(this);
-            console.log("Paspaustas expense redagavimo mygtukas");
-            //getExpenseEdit($button);
+            getExpenseEdit($button);
         })
 
         $('.expense-delete').click(function() {
             $button = $(this);
-console.log("Paspaustas expense istrynimo mygtukas");
             deleteExpense($button);
         })
 
         $('.income-delete').click(function() {
             $button = $(this);
-            console.log("Paspaustas income istrynimo mygtukas");
-            //deleteIncome($button);
+            deleteIncome($button);
         })
 
         $('.income-pencil').click(function() {
             $button = $(this);
-            console.log("Paspaustas income redagavimo mygtukas");
             getIncomeEdit($button);
         })
 
@@ -470,7 +453,6 @@ console.log("Paspaustas expense istrynimo mygtukas");
             var $url = "{{ url('ajax_new_expense') }}";
 
             newBudgetForm($url, $button);
-
         });
 
         $('#new_income').click(function() {
@@ -484,7 +466,6 @@ console.log("Paspaustas expense istrynimo mygtukas");
         $('#reset').click(function (){
             getIncomeList("","");
             getExpenseList("","");
-
         })
 
         var ROUNDING = 30 * 60 * 1000; /*ms*/
@@ -500,7 +481,6 @@ console.log("Paspaustas expense istrynimo mygtukas");
                 format: 'YYYY-MM-DD HH:mm',
                 stepping: 1
             });
-
         });
 
         $('body').on('submit', '.create_event_form', function (e) {
@@ -508,7 +488,6 @@ console.log("Paspaustas expense istrynimo mygtukas");
             e.preventDefault();
 
             var $expenseId = $(this).attr("data-id");
-
             var $button = $(this).find('.save');
 
             $button.button('loading');

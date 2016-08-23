@@ -473,7 +473,7 @@ class AjaxController extends Controller
             foreach($income as $var){
                 /** @var Income $var */
 
-                $total += (int)$var->getMoney();
+                $total += (float)$var->getMoney();
             }
 
             $response['list'] = $this->render('BudgetBundle:Default:IncomeList.html.twig', [
@@ -518,7 +518,7 @@ class AjaxController extends Controller
 
             foreach($expense as $var){
                 /** @var Expenses $var */
-                $total += (int)$var->getMoney();
+                $total += (float)$var->getMoney();
             }
 
             $response['list'] = $this->render('BudgetBundle:Default:ExpenseList.html.twig', [

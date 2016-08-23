@@ -1,4 +1,36 @@
-{% include "BudgetBundle:Default:List.html.twig" %}
+<table class="table table-striped">
+    <thead>
+    <tr>
+        <th>Date</th>
+        <th>Name</th>
+        <th>Money</th>
+        <th>Category</th>
+        <th>Actions</th>
+    </tr>
+    </thead>
+    {% for var in list %}
+        <tr>
+            <th>{{ var.dateTime |date('Y m d') }}</th>
+            <th>{{ var.name }}</th>
+            <th>{{ var.money }} </th>
+            <th>
+                {% if var.category  %}
+                    {{ var.category.name }}
+                {% else %}
+                    -
+                {% endif %}
+
+            <th>
+                <button type="button" class="btn btn-xs {{ name }}-pencil" data-id="{{ var.id }}"><span class="glyphicon glyphicon-pencil"></span></button>
+                <button type="button" class="btn btn-default btn-xs {{ name }}-delete" data-id="{{ var.id }}"><span class="glyphicon glyphicon-remove"></span></button>
+            </th>
+        </tr>
+
+    {% endfor %}
+    <tbody>
+
+    </tbody>
+</table>
 <script>
     $(".income-pencil").click(function() {
         $button = $(this);
