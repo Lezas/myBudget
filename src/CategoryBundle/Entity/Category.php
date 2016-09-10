@@ -3,7 +3,6 @@
 namespace CategoryBundle\Entity;
 
 use BudgetBundle\Entity\Expenses;
-use BudgetBundle\Entity\Income;
 use Doctrine\Common\Collections\ArrayCollection;
 use MainBundle\Entity\User;
 use Doctrine\ORM\Mapping as ORM;
@@ -66,12 +65,6 @@ class Category
      * @var Expenses[]|ArrayCollection
      */
     protected $Expense;
-
-    /**
-     * @ORM\OneToMany(targetEntity="BudgetBundle\Entity\Income", mappedBy="category")
-     * @var Income[]|ArrayCollection
-     */
-    protected $Income;
 
     /**
      * @var string
@@ -172,7 +165,6 @@ class Category
     {
         $this->children = new ArrayCollection();
         $this->Expense = new ArrayCollection();
-        $this->Income = new ArrayCollection();
     }
 
     /**
@@ -279,48 +271,6 @@ class Category
     public function removeExpense(Expenses $expense)
     {
         $this->Expense->removeElement($expense);
-    }
-
-    /**
-     * Get expense
-     *
-     */
-    public function getExpense()
-    {
-        return $this->Expense;
-    }
-
-    /**
-     * Add income
-     *
-     * @param \BudgetBundle\Entity\Income $income
-     *
-     * @return Category
-     */
-    public function addIncome(Income $income)
-    {
-        $this->Income[] = $income;
-
-        return $this;
-    }
-
-    /**
-     * Remove income
-     *
-     * @param \BudgetBundle\Entity\Income $income
-     */
-    public function removeIncome(Income $income)
-    {
-        $this->Income->removeElement($income);
-    }
-
-    /**
-     * Get income
-     *
-     */
-    public function getIncome()
-    {
-        return $this->Income;
     }
 
     /**
