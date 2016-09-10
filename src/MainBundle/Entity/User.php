@@ -9,12 +9,22 @@ use Doctrine\Common\Collections\ArrayCollection;
 use FOS\UserBundle\Model\User as BaseUser;
 use Doctrine\ORM\Mapping as ORM;
 
+
 /**
  * @ORM\Entity
  * @ORM\Table(name="fos_user")
  */
 class User extends BaseUser
 {
+    public function __construct()
+    {
+        parent::__construct();
+        // your own logic
+        $this->Income = new ArrayCollection();
+        $this->Expense = new ArrayCollection();
+        $this->Category = new ArrayCollection();
+    }
+
     /**
      * @ORM\Id
      * @ORM\Column(type="integer")
@@ -40,23 +50,14 @@ class User extends BaseUser
      */
     protected $Category;
 
-    public function __construct()
-    {
-        parent::__construct();
-        // your own logic
-        $this->Income = new ArrayCollection();
-        $this->Expense = new ArrayCollection();
-        $this->Category = new ArrayCollection();
-    }
-
     /**
      * Add income
      *
-     * @param \BudgetBundle\Entity\Income $income
+     * @param Income $income
      *
      * @return User
      */
-    public function addIncome(\BudgetBundle\Entity\Income $income)
+    public function addIncome(Income $income)
     {
         $this->Income[] = $income;
 
@@ -66,9 +67,9 @@ class User extends BaseUser
     /**
      * Remove income
      *
-     * @param \BudgetBundle\Entity\Income $income
+     * @param Income $income
      */
-    public function removeIncome(\BudgetBundle\Entity\Income $income)
+    public function removeIncome(Income $income)
     {
         $this->Income->removeElement($income);
     }
@@ -107,6 +108,17 @@ class User extends BaseUser
         $this->Expense->removeElement($expense);
     }
 
+
+    /**
+     * Get expense
+     *
+     * @return \Doctrine\Common\Collections\Collection
+     */
+    public function getExpense()
+    {
+        return $this->Expense;
+    }
+
     /**
      * Add category
      *
@@ -130,14 +142,5 @@ class User extends BaseUser
     {
         $this->Category->removeElement($category);
     }
-
-    /**
-     * Get expense
-     *
-     * @return \Doctrine\Common\Collections\Collection
-     */
-    public function getExpense()
-    {
-        return $this->Expense;
-    }
+    
 }

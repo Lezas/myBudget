@@ -24,38 +24,33 @@ class DefaultController extends Controller
      */
     public function indexAction()
     {
+        $user = $this->get('security.token_storage')->getToken()->getUser();
+        $repository = $this->get('budget.repository.budget');
+        $budget_array = $repository->getMonthBudget(null, $user);
 
-        if($this->isLogged()){
-            $user = $this->get('security.token_storage')->getToken()->getUser();
-            $repository = $this->get('budget.repository.budget');
-            $budget_array = $repository->getMonthBudget(null, $user);
+        $totalIncome = 0;
+        $totalExpenses = 0;
 
-            $totalIncome = 0;
-            $totalExpenses = 0;
-
-            foreach($budget_array['income'] as $array){
-                /** @var $array Income */
-                $totalIncome += (float)$array->getMoney();
-            }
-
-            foreach($budget_array['expenses'] as $array){
-                /** @var $array Expenses */
-                $totalExpenses += (float)$array->getMoney();
-            }
-
-            $date = new \DateTime('now');
-
-            return $this->render('BudgetBundle:Default:index.html.twig',[
-                'total_expense' =>$totalExpenses,
-                'total_income' => $totalIncome,
-                'income' => $budget_array['income'],
-                'expenses' => $budget_array['expenses'],
-                'month_first_day' => date('Y-m-01', $date->getTimestamp()),
-                'month_last_day' => date('Y-m-t', $date->getTimestamp()),
-            ]);
+        foreach($budget_array['income'] as $array){
+            /** @var $array Income */
+            $totalIncome += (float)$array->getMoney();
         }
 
-        return $this->redirectToRoute('fos_user_security_login');
+        foreach($budget_array['expenses'] as $array){
+            /** @var $array Expenses */
+            $totalExpenses += (float)$array->getMoney();
+        }
+
+        $date = new \DateTime('now');
+
+        return $this->render('BudgetBundle:Default:index.html.twig',[
+            'total_expense' =>$totalExpenses,
+            'total_income' => $totalIncome,
+            'income' => $budget_array['income'],
+            'expenses' => $budget_array['expenses'],
+            'month_first_day' => date('Y-m-01', $date->getTimestamp()),
+            'month_last_day' => date('Y-m-t', $date->getTimestamp()),
+        ]);
     }
 
     /**
@@ -63,39 +58,35 @@ class DefaultController extends Controller
      */
     public function newIncomeAction(Request $request)
     {
-        if (!$this->isLogged()) {
+        $user = $this->getUser();
+        $income = new Income();
 
-            return $this->redirectToRoute('fos_user_security_login');
-        } else {
+        $form = $this->createForm(IncomeType::class, $income, ['user' => $user]);
+
+        $form->handleRequest($request);
+
+        if($form->isValid()){
             $user = $this->getUser();
-            $income = new Income();
+            $raw_data = $form->getData();
 
-            $form = $this->createForm(IncomeType::class, $income, ['user' => $user]);
+            $income->setDateTime($raw_data->getDateTime()['date_time']);
+            $income->setUser($user);
 
-            $form->handleRequest($request);
+            $em = $this->getDoctrine()->getManager();
 
-            if($form->isValid()){
-                $user = $this->getUser();
-                $raw_data = $form->getData();
-
-                $income->setDateTime($raw_data->getDateTime()['date_time']);
-                $income->setUser($user);
-
-                $em = $this->getDoctrine()->getManager();
-
-                $em->persist($income);
-                $em->flush();
-                $this->addFlash(
-                    'notice',
-                    'Your income has been saved!'
-                );
-                return $this->redirectToRoute('dashboard');
-            }
-
-            return $this->render('BudgetBundle:Default:newIncome.html.twig',[
-                'form' => $form->createView(),
-            ]);
+            $em->persist($income);
+            $em->flush();
+            $this->addFlash(
+                'notice',
+                'Your income has been saved!'
+            );
+            return $this->redirectToRoute('dashboard');
         }
+
+        return $this->render('BudgetBundle:Default:newIncome.html.twig',[
+            'form' => $form->createView(),
+        ]);
+        
     }
 
     /**
@@ -105,57 +96,106 @@ class DefaultController extends Controller
      */
     public function newExpenseAction(Request $request)
     {
-        if (!$this->isLogged()) {
+        $user = $this->getUser();
+        $expenses = new Expenses();
+        $form = $this->createForm(ExpenseType::class, $expenses, ['user' => $user]);
 
-            return $this->redirectToRoute('fos_user_security_login');
-        } else {
+        $form->handleRequest($request);
 
+        if($form->isValid()){
             $user = $this->getUser();
-            $expenses = new Expenses();
-            $form = $this->createForm(ExpenseType::class, $expenses, ['user' => $user]);
-
-            $form->handleRequest($request);
-
-            if($form->isValid()){
-                $user = $this->getUser();
-                $raw_data = $form->getData();
+            $raw_data = $form->getData();
 
 
-                $expenses->setDateTime($raw_data->getDateTime());
-                $expenses->setUser($user);
+            $expenses->setDateTime($raw_data->getDateTime());
+            $expenses->setUser($user);
 
-                $em = $this->getDoctrine()->getManager();
+            $em = $this->getDoctrine()->getManager();
 
-                $em->persist($expenses);
-                $em->flush();
-                $this->addFlash(
-                    'notice',
-                    'Your expense has been saved!'
-                );
+            $em->persist($expenses);
+            $em->flush();
+            $this->addFlash(
+                'notice',
+                'Your expense has been saved!'
+            );
 
-                return $this->redirectToRoute('dashboard');
-            }
-
-            return $this->render('BudgetBundle:Default:newExpense.html.twig',[
-                'form' => $form->createView(),
-            ]);
+            return $this->redirectToRoute('dashboard');
         }
+
+        return $this->render('BudgetBundle:Default:newExpense.html.twig',[
+            'form' => $form->createView(),
+        ]);
     }
 
     /**
-     * @return bool - True if user is logged in, false if not.
+     * @param Request $request
+     * @Route("/test", name="new_expense")
+     * @return Response
      */
-    private function isLogged()
+    public function testAction(Request $request)
     {
-        $securityContext = $this->container->get('security.authorization_checker');
+        $user = $this->get('security.token_storage')->getToken()->getUser();
 
-        if (!$securityContext->isGranted('IS_AUTHENTICATED_REMEMBERED')) {
-
-            return false;
+        if ($request->query->get('date_from') != "" || $request->query->get('date_to') != "") {
+            $date_from = new \DateTime($request->query->get('date_from'));
+            $date_to = new \DateTime($request->query->get('date_to'));
         } else {
+            $date = new \DateTime('now');
 
-            return true;
+            //how to get first and last day of the month
+            $date_from = new \DateTime(date('Y-m-01', $date->getTimestamp()));
+            $date_to = new \DateTime(date('Y-m-t', $date->getTimestamp()));
         }
+
+        $expense = $this->getDoctrine()->getRepository('BudgetBundle:Expenses')->getByDateRange($user, $date_from, $date_to);
+        $income = $this->getDoctrine()->getRepository('BudgetBundle:Income')->getByDateRange($user, $date_from, $date_to);
+
+        $filteredExpense = DataFormatter::groupByDay($expense);
+        $filteredIncome = DataFormatter::groupByDay($income);
+
+        dump($filteredExpense);
+        dump($filteredIncome);
+        exit;
+
+        $data = DataFormatter::connectData($filteredExpense, $filteredIncome);
+
+
     }
 
+    /**
+     * @Route("/report", name="reports")
+     */
+    public function reportsAction()
+    {
+        $user = $this->get('security.token_storage')->getToken()->getUser();
+        $repository = $this->get('budget.repository.budget');
+        $budget_array = $repository->getMonthBudget(null, $user);
+
+        $totalIncome = 0;
+        $totalExpenses = 0;
+
+        foreach($budget_array['income'] as $array){
+            /** @var $array Income */
+            $totalIncome += (float)$array->getMoney();
+        }
+
+        foreach($budget_array['expenses'] as $array){
+            /** @var $array Expenses */
+            $totalExpenses += (float)$array->getMoney();
+        }
+
+        $date = new \DateTime('now');
+
+
+        return $this->render('BudgetBundle:Default:reports.html.twig',[
+            'total_expense' =>$totalExpenses,
+            'total_income' => $totalIncome,
+            'income' => $budget_array['income'],
+            'expenses' => $budget_array['expenses'],
+            'month_first_day' => date('Y-m-01', $date->getTimestamp()),
+            'month_last_day' => date('Y-m-t', $date->getTimestamp()),
+        ]);
+        
+    }
+    
 }

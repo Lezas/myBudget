@@ -36,7 +36,7 @@ class IncomeType extends AbstractType
                     'widget' => 'single_text',
                     'format' => 'y-MM-dd HH:mm',
                     'attr' => ['class' => 'date'],
-                    'label' => 'Date and time when you spent money',
+                    'label' => 'Date and time when you earn money',
                 ]
             )
             ->add('money', MoneyType::class)

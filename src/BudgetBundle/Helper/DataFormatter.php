@@ -14,25 +14,17 @@ class DataFormatter
      */
     public static function groupByDay($data)
     {
+
         $arrayCol = new ArrayCollection($data);
 
         $retturnArray = new ArrayCollection();
         foreach ($arrayCol as $mkey=>$data) {
-            $retturnArray->set($data->getDateTime()->format('Y-m-d'), (float)$data->getMoney());
-            foreach ($arrayCol as $key=>$data2) {
-                /** @var Income $data2 */
-                /** @var Income $data */
-                
-                if ($data->getDateTime()->format('Y-m-d') == $data2->getDateTime()->format('Y-m-d') && $data->getId() != $data2->getId()) {
 
-                    $row = (float)$retturnArray->get($data->getDateTime()->format('Y-m-d'));
-                    $row += (float)$data2->getMoney();
-
-                    $retturnArray->set($data->getDateTime()->format('Y-m-d'), $row);
-
-                    $arrayCol->remove($key);
-                }
-
+            if ($retturnArray->get($data->getDateTime()->format('Y-m-d')) != null) {
+                $row = $retturnArray->get($data->getDateTime()->format('Y-m-d')) + (float)$data->getMoney();
+                $retturnArray->set($data->getDateTime()->format('Y-m-d'), $row);
+            } else {
+                $retturnArray->set($data->getDateTime()->format('Y-m-d'), (float)$data->getMoney());
             }
         }
 
