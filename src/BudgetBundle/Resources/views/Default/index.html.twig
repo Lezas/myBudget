@@ -123,6 +123,11 @@
     <script type="text/javascript" src="https://www.gstatic.com/charts/loader.js"></script>
     <script type="text/javascript">
 
+        var incomeDateFrom = "";
+        var incomeDateTo = "";
+        var expenseDateFrom = "";
+        var expenseDateTo = "";
+
         // Load the Visualization API and the piechart package.
         google.charts.load('current', {'packages':['corechart']});
 
@@ -131,6 +136,7 @@
 
         var $chartData;
         var $chartName;
+
 
         var jsonData = $.ajax({
             url: "{{ url('ajax_expense') }}",
@@ -142,7 +148,6 @@
         $chartData = $.parseJSON(jsonData);
         $chartName = 'Expenses';
 
-        console.log($chartData);
 
         var options = {
             height: 350,
@@ -168,7 +173,7 @@
             drawChart();
         });
 
-        function newBudgetForm(url, button){
+        function newBudgetForm(url, button, backCall){
             button.button('loading');
 
             var jsonData = $.ajax({
@@ -217,8 +222,6 @@
                 async: true,
             }).done(function(jsonData){
                 $chartName = 'Income';
-                console.log('a---------------');
-                console.log(jsonData);
                 $chartData = jsonData;
                 drawChart();
                 $('#get-income-by-range').button('reset');
@@ -268,6 +271,7 @@
                 }).done(function(jsonData){
 
                     $button.parent('th').parent('tr').remove();
+                    getIncomeList(incomeDateFrom, incomeDateTo);
                 });
             }
         }
@@ -287,6 +291,7 @@
                 }).done(function (jsonData) {
 
                     $button.parent('th').parent('tr').remove();
+                    getExpenseList(expenseDateFrom, expenseDateTo);
                 });
             }
 
@@ -294,6 +299,9 @@
 
         function getIncomeList($dateFrom, $dateTo){
 
+            console.log($dateFrom);
+            incomeDateFrom = $dateFrom;
+            incomeDateTo = $dateTo;
             $.ajax({
                 data: {date_from : $dateFrom, date_to : $dateTo},
                 url: "{{ url('ajax_income_list_by_date_range') }}",
@@ -312,8 +320,14 @@
 
         }
 
+        function getincomeList($dateFrom, $dateTo) {
+            getIncomeList($dateFrom,$dateTo);
+        }
+
         function getExpenseList($dateFrom, $dateTo){
 
+            expenseDateFrom = $dateFrom;
+            expenseDateTo = $dateTo;
             $.ajax({
                 data: {date_from : $dateFrom, date_to : $dateTo},
                 url: "{{ url('ajax_expense_list_by_date_range') }}",
@@ -329,6 +343,10 @@
                 $('#get-expense-list-by-range').button('reset');
             });
 
+        }
+
+        function getexpenseList($dateFrom, $dateTo) {
+            getExpenseList($dateFrom, $dateTo)
         }
 
         function getIncomeEdit($button) {
@@ -492,6 +510,7 @@
 
             $button.button('loading');
 
+
             $.ajax({
                 type: $(this).attr('method'),
                 url: $(this).attr('action') + '/' + $expenseId,
@@ -520,6 +539,7 @@
 
             $button.button('loading');
 
+            var name =  $(this).attr('name');
             $.ajax({
                 type: $(this).attr('method'),
                 url: $(this).attr('action'),
@@ -527,6 +547,11 @@
             })
             .done(function (data) {
                 $button.button('reset');
+
+                var function_name = "get" + name + "List";
+                var dateFromName = name + "DateFrom";
+                var dateToName = name + "DateTo";
+                window[function_name](window[dateFromName],window[dateToName]);
 
                 if (data['valid'] == true) {
                     console.log('Duomenys irasyti');

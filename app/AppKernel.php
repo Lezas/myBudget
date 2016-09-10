@@ -21,7 +21,6 @@ class AppKernel extends Kernel
             new BudgetBundle\BudgetBundle(),
             new FOS\RestBundle\FOSRestBundle(),
             new CategoryBundle\CategoryBundle(),
-            new MyAutoBundle\MyAutoBundle(),
         ];
 
         if (in_array($this->getEnvironment(), ['dev', 'test'], true)) {
