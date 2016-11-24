@@ -12,4 +12,5 @@
 !var/sessions/.gitkeep
 !var/SymfonyRequirements.php
 /vendor/
+!app/config/parameters.yml
 /.idea/

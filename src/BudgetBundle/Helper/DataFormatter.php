@@ -2,9 +2,9 @@
 
 namespace BudgetBundle\Helper;
 
-use BudgetBundle\Entity\Income;
+
 use Doctrine\Common\Collections\ArrayCollection;
-use Symfony\Component\Validator\Constraints\Date;
+
 
 class DataFormatter
 {
@@ -14,7 +14,6 @@ class DataFormatter
      */
     public static function groupByDay($data)
     {
-
         $arrayCol = new ArrayCollection($data);
 
         $retturnArray = new ArrayCollection();

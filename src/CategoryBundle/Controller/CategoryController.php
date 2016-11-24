@@ -5,6 +5,8 @@ namespace CategoryBundle\Controller;
 use CategoryBundle\Entity\Category;
 use CategoryBundle\Form\Type\CategoryType;
 use CategoryBundle\Helpers\GroupingHelper;
+use Doctrine\ORM\EntityManager;
+use Doctrine\ORM\Tools\Pagination\Paginator;
 use MainBundle\Form\Type\ConfirmType;
 use Doctrine\Common\Collections\ArrayCollection;
 use Symfony\Bundle\FrameworkBundle\Controller\Controller;
@@ -125,6 +127,8 @@ class CategoryController extends Controller
         } else {
 
             $categoryRepository = $this->getDoctrine()->getRepository('CategoryBundle:Category');
+
+            /** @var $category Category*/
             $category = $categoryRepository->findOneBy(['id'=>$id]);
 
             $user = $this->getUser();
@@ -134,27 +138,28 @@ class CategoryController extends Controller
                 throw $this->createNotFoundException('The category does not exist');
             }
 
-            $form = $this->createForm(ConfirmType::class);
+            /** @var $em EntityManager */
+            $em = $this->getDoctrine()->getManager();
 
-            $form->handleRequest($request);
-            if ($form->isValid()) {
-                $data = $form->getData();
-                $confirm = $data['confirm'];
-                if ($confirm == true) {
-                    $em = $this->getDoctrine()->getManager();
-                    $em->remove($category);
-                    $em->flush();
-                    $this->addFlash(
-                        'notice',
-                        'Category' . $category->getName() . ' has been deleted!'
-                    );
-                }
-                return $this->redirectToRoute('category_list');
+            dump($category->getExpense()->count());
+            dump($category->getChildren()->count());
+            dump($category->getParent());
+
+            if ($category->getExpense()->count() == 0 && $category->getChildren()->count() == 0 && $category->getIncome()->count() == 0) {
+                $em->remove($category);
+                $em->flush();
+                $this->addFlash(
+                    'notice',
+                    'Category' . $category->getName() . ' has been deleted!'
+                );
+            } else {
+                $this->addFlash(
+                    'notice',
+                    'Category' . $category->getName() . ' has relations with budget or has children categories.'
+                );
             }
 
-            return $this->render('@Category/category/deleteCategory.html.twig',[
-                'form' => $form->createView(),
-            ]);
+            return $this->redirect($this->generateUrl('category_list'));
         }
     }
 

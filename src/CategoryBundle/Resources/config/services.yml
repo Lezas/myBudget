@@ -1,4 +1,5 @@
 services:
-#    category.example:
-#        class: Budget\CategoryBundle\Example
-#        arguments: [@service_id, "plain_value", %parameter%]
+    category.repository.service:
+        class: CategoryBundle\Repository\CategoryRepositoryService
+        arguments:
+          - '@doctrine.orm.default_entity_manager'

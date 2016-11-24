@@ -2,12 +2,139 @@
 
 {% block stylesheets %}
     <link href="{{asset('bundles/Budget/css/index.css')}}" rel="stylesheet" type="text/css"/>
+    <link href="{{asset('bundles/Budget/css/reports.css')}}" rel="stylesheet" type="text/css"/>
+    <link href="https://cdn.datatables.net/1.10.12/css/jquery.dataTables.min.css" rel="stylesheet" type="text/css"/>
 {% endblock %}
 
 {% block body %}
+    <div class="col-lg-12 solid-border top-control">
 
+        <div class="col-lg-3">
+            <h4>Choose time interval by which you want to see your budget</h4>
+            <label for="date-from">Date From:</label>
+            <div class="input-group" id="time_input">
+
+                <input id="date-from" type="text" class="form-control">
+                <span class="input-group-addon">
+                    <i class="glyphicon glyphicon-calendar"></i>
+                </span>
+            </div>
+
+            <label for="date-to">Date To:</label>
+            <div class="input-group" id="time_input2">
+                <input id="date-to" type="text" class="form-control">
+                <span class="input-group-addon">
+                    <i class="glyphicon glyphicon-calendar"></i>
+                </span>
+            </div>
+            <a id="select-today" href="#">Today</a><br>
+            <a id="select-this-week" href="#">This Week</a>
+            <a id="select-previous-week" href="#">Previous Week</a><br>
+            <a id="select-this-month" href="#">This Month</a>
+            <a id="select-previous-month" href="#">Previous Month</a><br>
+            <a id="select-this-year" href="#">This year</a><br>
+            <a id="select-lifetime" href="#">Life time</a>
+
+        </div>
+
+        <div class="col-lg-3">
+            <h4>Select Income categories.</h4>
+            <p>If none selected, all be shown.</p>
+            <div class="checkbox-container">
+                <ul class="list-group checked-list-box" id="income-category-list">
+                    {% for category in income_categories %}
+                        <li class="list-group-item" data-id="{{ category.id }}">{{ category.name }}</li>
+                    {% endfor %}
+                        <li class="list-group-item" data-id="NULL">Without category</li>
+                </ul>
+            </div>
+        </div>
+
+        <div class="col-lg-3">
+            <h4>Select Expense categories.</h4>
+            <p>If none selected, all be shown.</p>
+            <div class="checkbox-container">
+                <ul class="list-group checked-list-box" id="expense-category-list">
+                    {% for category in expense_categories %}
+                        <li class="list-group-item" data-id="{{ category.id }}">{{ category.name }}</li>
+                    {% endfor %}
+                        <li class="list-group-item" data-id="NULL">Without category</li>
+                </ul>
+            </div>
+        </div>
+
+        <div class="col-lg-3 text-center">
+
+            <div class="btn-group btn-group-justified center-block">
+                <div class="btn-group">
+                    <button id="button_show_income" type="button" class="btn btn-default">Show Income</button>
+                    <button id="button_show_expenses" type="button" class="btn btn-default">Show Expenses</button>
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+    <div class="col-lg-12 solid-border tables">
+        <div class="col-lg-6">
+            <h3>Income</h3>
+            <b><div class="col-xs-10" id="income-table-data-range">2016-01-06 2016-09-09</div></b>
+            <b><div class="col-xs-2" id="income-table-data-money">9999.99</div></b>
+
+            <table id="income-table" class="table table-striped">
+
+            </table>
+        </div>
+        <div class="col-lg-6">
+            <h3>Expense</h3>
+            <b><div class="col-xs-10" id="expense-table-data-range">2016-01-06 2016-09-09</div></b>
+            <b><div class="col-xs-2" id="expense-table-data-money">9999.99</div></b>
+            <table id="expense-table" class="table table-striped">
+
+            </table>
+        </div>
+    </div>
+
+    <div class="col-lg-12 solid-border" id="chart_div"></div>
 {% endblock body %}
 
 {% block javascripts %}
+    <script type="text/javascript" src="https://www.gstatic.com/charts/loader.js"></script>
+    <script src="https://cdn.datatables.net/1.10.12/js/jquery.dataTables.min.js" type="text/javascript"></script>
+    <script src="{{ asset('bundles/Budget/js/datetimepickerCustom.js') }}" type="text/javascript"></script>
+    <script src="{{ asset('bundles/Budget/js/selectList.js') }}" type="text/javascript"></script>
+    <script src="{{ asset('bundles/Budget/js/DateTimeFunctions.js') }}" type="text/javascript"></script>
 
+    <script src="{{ asset('bundles/Budget/js/reportChart.js') }}" type="text/javascript"></script>
+    <script type="text/javascript">
+        const ajax_get_Income_List_URL = "{{ url('ajax_report_get_income') }}";
+        const ajax_get_Expense_List_URL = "{{ url('ajax_report_get_expense') }}";
+
+
+        var dataSet = [];
+        $(document).ready(function() {
+             ExpenseTable = $('#expense-table').DataTable( {
+                responsive: true,
+                data: dataSet,
+                columns: [
+                    { title: "Date" },
+                    { title: "Description" },
+                    { title: "Category" },
+                    { title: "Money" },
+                ]
+            } );
+
+            IncomeTable = $('#income-table').DataTable( {
+                responsive: true,
+                data: dataSet,
+                columns: [
+                    { title: "Date" },
+                    { title: "Description" },
+                    { title: "Category" },
+                    { title: "Money" },
+                ]
+            } );
+        } );
+    </script>
+    <script src="{{ asset('bundles/Budget/js/reports.js') }}" type="text/javascript"></script>
 {% endblock %}
