@@ -32,10 +32,12 @@ class ReportController extends Controller
     {
         $user = $this->get('security.token_storage')->getToken()->getUser();
         $repository = $this->get('budget.repository.budget');
+        $oCategoryRepService = $this->get('category.repository.service');
+
         $budget_array = $repository->getMonthBudget(null, $user);
 
-        $incomeCategories = $this->get('category.repository.service')->getAllUserIncomeCategories($user);
-        $expenseCategories = $this->get('category.repository.service')->getAllUserExpenseCategories($user);
+        $incomeCategories = $oCategoryRepService->getAllUserIncomeCategories($user);
+        $expenseCategories = $oCategoryRepService->getAllUserExpenseCategories($user);
 
         $totalIncome = 0;
         $totalExpenses = 0;
@@ -51,7 +53,6 @@ class ReportController extends Controller
         }
 
         $date = new \DateTime('now');
-
 
         return $this->render('BudgetBundle:Default:reports.html.twig',[
             'income_categories' => $incomeCategories,
@@ -71,7 +72,7 @@ class ReportController extends Controller
      */
     public function ajaxGetIncomeListAction(Request $request)
     {
-        if($this->isLogged() && $request->isXmlHttpRequest()) {
+        if($request->isXmlHttpRequest()) {
 
             $user = $this->get('security.token_storage')->getToken()->getUser();
             $dateFrom = $request->query->get('date_from');
@@ -121,7 +122,7 @@ class ReportController extends Controller
 
     public function getLifetimeIncomeListAction(Request $request)
     {
-        if($this->isLogged() && $request->isXmlHttpRequest()) {
+        if($request->isXmlHttpRequest()) {
 
             $user = $this->get('security.token_storage')->getToken()->getUser();
             $Ids = $request->query->get('ids');
@@ -134,7 +135,7 @@ class ReportController extends Controller
                 $Incomes = $this->getDoctrine()->getRepository('BudgetBundle:Income')->getByCategories($user, $Ids);
                 $IdsArrayCollection = new ArrayCollection($Ids);
             } else {
-                $Incomes = $this->getDoctrine()->getRepository('BudgetBundle:Income')->getIncomeWithCategories($user);
+                $Incomes = $this->getDoctrine()->getRepository('BudgetBundle:Income')->getWithCategories($user);
                 $Incomes2 = $this->getDoctrine()->getRepository('BudgetBundle:Income')->getWithoutCategories($user);
 
                 $Incomes = array_merge($Incomes,$Incomes2);
@@ -172,7 +173,7 @@ class ReportController extends Controller
      */
     public function ajaxGetExpenseListAction(Request $request)
     {
-        if($this->isLogged() && $request->isXmlHttpRequest()) {
+        if($request->isXmlHttpRequest()) {
 
             $user = $this->get('security.token_storage')->getToken()->getUser();
             $dateFrom = $request->query->get('date_from');
@@ -222,7 +223,7 @@ class ReportController extends Controller
 
     public function getLifetimeExpenseListAction(Request $request)
     {
-        if($this->isLogged() && $request->isXmlHttpRequest()) {
+        if($request->isXmlHttpRequest()) {
 
             $user = $this->get('security.token_storage')->getToken()->getUser();
             $Ids = $request->query->get('ids');
@@ -294,21 +295,6 @@ class ReportController extends Controller
         }
 
         return $result;
-    }
-    /**
-     * @return bool - True if user is logged in, false if not.
-     */
-    private function isLogged()
-    {
-        $securityContext = $this->get('security.authorization_checker');
-
-        if (!$securityContext->isGranted('IS_AUTHENTICATED_REMEMBERED')) {
-
-            return false;
-        } else {
-
-            return true;
-        }
     }
 
 }

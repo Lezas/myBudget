@@ -1,5 +1,5 @@
 services:
     budget.repository.budget:
-        class: BudgetBundle\Repository\BudgetRepository
+        class: BudgetBundle\Repository\BudgetRepositoryService
         arguments:
           - '@doctrine.orm.default_entity_manager'

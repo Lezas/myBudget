@@ -38,49 +38,43 @@ class AjaxController extends Controller
         if($request->isXmlHttpRequest()) {
             $response['success'] = false;
 
-            if (!$this->isLogged()) {
-                $response['cause'] = 'User is not logged in';
-                return new JsonResponse($response);
-            } else {
+            $user = $this->getUser();
+            $expense = new Expenses();
+
+            $form = $this->createForm(ExpenseType::class, $expense, array(
+                'action' => $this->generateUrl('ajax_new_expense'),
+                'attr' => array('class' => 'create_budget'),
+                'method' => 'POST',
+                'user' => $user,
+            ));
+
+            $form->handleRequest($request);
+
+            if($form->isValid()){
                 $user = $this->getUser();
-                $expense = new Expenses();
+                $raw_data = $form->getData();
 
-                $form = $this->createForm(ExpenseType::class, $expense, array(
-                    'action' => $this->generateUrl('ajax_new_expense'),
-                    'attr' => array('class' => 'create_budget'),
-                    'method' => 'POST',
-                    'user' => $user,
-                ));
+                $expense->setDateTime($raw_data->getDateTime());
+                $expense->setUser($user);
 
-                $form->handleRequest($request);
+                $em = $this->getDoctrine()->getManager();
 
-                if($form->isValid()){
-                    $user = $this->getUser();
-                    $raw_data = $form->getData();
+                $em->persist($expense);
+                $em->flush();
 
-                    $expense->setDateTime($raw_data->getDateTime());
-                    $expense->setUser($user);
-
-                    $em = $this->getDoctrine()->getManager();
-
-                    $em->persist($expense);
-                    $em->flush();
-
-                    $response['valid'] = true;
-                    $response['success'] = true;
-                    return new JsonResponse($response);
-                }
-
-                $response['valid'] = false;
-
+                $response['valid'] = true;
                 $response['success'] = true;
-                $response['form'] = $this->render('BudgetBundle:Default:expenseForm.html.twig', [
-                    'form' => $form->createView(),
-                ])->getContent();
-
                 return new JsonResponse($response);
-
             }
+
+            $response['valid'] = false;
+
+            $response['success'] = true;
+            $response['form'] = $this->render('BudgetBundle:Default:expenseForm.html.twig', [
+                'form' => $form->createView(),
+            ])->getContent();
+
+            return new JsonResponse($response);
         } else {
             throw $this->createNotFoundException('The page doesn\'t exists');
         }
@@ -96,48 +90,43 @@ class AjaxController extends Controller
         if($request->isXmlHttpRequest()) {
             $response['success'] = false;
 
-            if (!$this->isLogged()) {
-                $response['cause'] = 'User is not logged in';
-                return new JsonResponse($response);
-            } else {
+
+            $user = $this->getUser();
+            $income = new Income();
+
+            $form = $this->createForm(IncomeType::class, $income, array(
+                'action' => $this->generateUrl('ajax_new_income'),
+                'attr' => array('class' => 'create_budget'),
+                'method' => 'POST',
+                'user' => $user,
+            ));
+
+            $form->handleRequest($request);
+
+            if($form->isValid()){
                 $user = $this->getUser();
-                $income = new Income();
+                $raw_data = $form->getData();
 
-                $form = $this->createForm(IncomeType::class, $income, array(
-                    'action' => $this->generateUrl('ajax_new_income'),
-                    'attr' => array('class' => 'create_budget'),
-                    'method' => 'POST',
-                    'user' => $user,
-                ));
+                $income->setDateTime($raw_data->getDateTime());
+                $income->setUser($user);
 
-                $form->handleRequest($request);
+                $em = $this->getDoctrine()->getManager();
 
-                if($form->isValid()){
-                    $user = $this->getUser();
-                    $raw_data = $form->getData();
+                $em->persist($income);
+                $em->flush();
 
-                    $income->setDateTime($raw_data->getDateTime());
-                    $income->setUser($user);
-
-                    $em = $this->getDoctrine()->getManager();
-
-                    $em->persist($income);
-                    $em->flush();
-
-                    $response['valid'] = true;
-                    $response['success'] = true;
-                    return new JsonResponse($response);
-                }
-
-                $response['valid'] = false;
+                $response['valid'] = true;
                 $response['success'] = true;
-                $response['form'] = $this->render('BudgetBundle:Default:ajaxIncomeForm.html.twig', [
-                    'form' => $form->createView(),
-                ])->getContent();
-
                 return new JsonResponse($response);
-
             }
+
+            $response['valid'] = false;
+            $response['success'] = true;
+            $response['form'] = $this->render('BudgetBundle:Default:ajaxIncomeForm.html.twig', [
+                'form' => $form->createView(),
+            ])->getContent();
+
+            return new JsonResponse($response);
         } else {
             throw $this->createNotFoundException('The page doesn\'t exists');
         }
@@ -154,10 +143,7 @@ class AjaxController extends Controller
         if($request->isXmlHttpRequest()) {
             $response['success'] = false;
 
-            if (!$this->isLogged()) {
-                $response['cause'] = 'User is not logged in';
-                return new JsonResponse($response);
-            } elseif($id === null){
+            if($id === null){
                 $response['cause'] = 'You must specify expense id';
                 return new JsonResponse($response);
             } else {
@@ -226,10 +212,7 @@ class AjaxController extends Controller
         if($request->isXmlHttpRequest()) {
             $response['success'] = false;
 
-            if (!$this->isLogged()) {
-                $response['cause'] = 'User is not logged in';
-                return new JsonResponse($response);
-            } elseif($id === null){
+            if($id === null){
                 $response['cause'] = 'You must specify income id';
                 return new JsonResponse($response);
             } else {
@@ -299,10 +282,7 @@ class AjaxController extends Controller
         if($request->isXmlHttpRequest()) {
             $response['success'] = false;
 
-            if (!$this->isLogged()) {
-                $response['cause'] = 'User is not logged in';
-                return new JsonResponse($response);
-            } elseif($id === null){
+            if($id === null){
                 $response['cause'] = 'You must specify income id';
                 return new JsonResponse($response);
             } else {
@@ -347,10 +327,7 @@ class AjaxController extends Controller
         if($request->isXmlHttpRequest()) {
             $response['success'] = false;
 
-            if (!$this->isLogged()) {
-                $response['cause'] = 'User is not logged in';
-                return new JsonResponse($response);
-            } elseif($id === null){
+            if($id === null){
                 $response['cause'] = 'You must specify expense id';
                 return new JsonResponse($response);
             } else {
@@ -388,7 +365,7 @@ class AjaxController extends Controller
     public function GetExpenseByDateRangeAction(Request $request)
     {
 
-        if($this->isLogged() && $request->isXmlHttpRequest()) {
+        if($request->isXmlHttpRequest()) {
 
             $user = $this->get('security.token_storage')->getToken()->getUser();
 
@@ -420,7 +397,7 @@ class AjaxController extends Controller
      */
     public function GetIncomeByDateRangeAction(Request $request)
     {
-        if($this->isLogged() && $request->isXmlHttpRequest()) {
+        if($request->isXmlHttpRequest()) {
             $user = $this->get('security.token_storage')->getToken()->getUser();
 
             if ($request->query->get('date_from') != "" || $request->query->get('date_to') != "") {
@@ -451,7 +428,7 @@ class AjaxController extends Controller
      */
     public function GetIncomeListByDateRangeAction(Request $request)
     {
-        if($this->isLogged() && $request->isXmlHttpRequest()) {
+        if($request->isXmlHttpRequest()) {
             $user = $this->get('security.token_storage')->getToken()->getUser();
 
             if($request->query->get('date_from') != "" || $request->query->get('date_to') != "") {
@@ -497,7 +474,7 @@ class AjaxController extends Controller
      */
     public function GetExpenseListByDateRangeAction(Request $request)
     {
-        if($this->isLogged() && $request->isXmlHttpRequest()) {
+        if($request->isXmlHttpRequest()) {
 
             $user = $this->get('security.token_storage')->getToken()->getUser();
 
@@ -540,7 +517,7 @@ class AjaxController extends Controller
      */
     public function GetExpenseAction(Request $request)
     {
-        if($this->isLogged() && $request->isXmlHttpRequest()) {
+        if($request->isXmlHttpRequest()) {
 
             $user = $this->get('security.token_storage')->getToken()->getUser();
 
@@ -562,7 +539,7 @@ class AjaxController extends Controller
      */
     public function GetBudgetForChart(Request $request){
 
-        if($this->isLogged() && $request->isXmlHttpRequest()) {
+        if($request->isXmlHttpRequest()) {
 
             $user = $this->get('security.token_storage')->getToken()->getUser();
 
@@ -590,19 +567,4 @@ class AjaxController extends Controller
     }
 
 
-    /**
-     * @return bool - True if user is logged in, false if not.
-     */
-    private function isLogged()
-    {
-        $securityContext = $this->get('security.authorization_checker');
-
-        if (!$securityContext->isGranted('IS_AUTHENTICATED_REMEMBERED')) {
-
-            return false;
-        } else {
-
-            return true;
-        }
-    }
 }

@@ -35,6 +35,11 @@ class DataFormatter
         return $true;
     }
 
+    /**
+     * @param $first
+     * @param $second
+     * @return array
+     */
     public static function connectData($first, $second)
     {
         $return = [];
