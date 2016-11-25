@@ -2,7 +2,6 @@
 
 namespace BudgetBundle\Form\Type;
 
-
 use Doctrine\ORM\EntityRepository;
 use MainBundle\Entity\User;
 use Symfony\Component\Form\AbstractType;
@@ -29,7 +28,6 @@ class ExpenseType extends AbstractType
 
     public function buildForm(FormBuilderInterface $builder, array $options)
     {
-
         $this->user = $options['user'];
         $user = $this->user;
 

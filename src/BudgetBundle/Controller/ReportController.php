@@ -9,6 +9,7 @@ use BudgetBundle\Form\Type\ExpenseType;
 use BudgetBundle\Form\Type\IncomeType;
 use BudgetBundle\Helper\BudgetMoneyCounter;
 use BudgetBundle\Helper\DataFormatter;
+use BudgetBundle\Repository\BudgetRepository;
 use DateTime;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\ORM\Tools\Pagination\Paginator;
@@ -21,7 +22,10 @@ use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 use Symfony\Component\Validator\Constraints\Date;
 
-
+/**
+ * Class ReportController
+ * @package BudgetBundle\Controller
+ */
 class ReportController extends Controller
 {
 
@@ -42,22 +46,22 @@ class ReportController extends Controller
         $totalIncome = 0;
         $totalExpenses = 0;
 
-        foreach($budget_array['income'] as $array){
-            /** @var $array Income */
-            $totalIncome += (float)$array->getMoney();
+        foreach ($budget_array['income'] as $budget) {
+            /** @var $budget Budget */
+            $totalIncome += (float)$budget->getMoney();
         }
 
-        foreach($budget_array['expenses'] as $array){
-            /** @var $array Expenses */
-            $totalExpenses += (float)$array->getMoney();
+        foreach ($budget_array['expenses'] as $budget) {
+            /** @var $budget Budget */
+            $totalExpenses += (float)$budget->getMoney();
         }
 
         $date = new \DateTime('now');
 
-        return $this->render('BudgetBundle:Default:reports.html.twig',[
+        return $this->render('BudgetBundle:Default:reports.html.twig', [
             'income_categories' => $incomeCategories,
             'expense_categories' => $expenseCategories,
-            'total_expense' =>$totalExpenses,
+            'total_expense' => $totalExpenses,
             'total_income' => $totalIncome,
             'income' => $budget_array['income'],
             'expenses' => $budget_array['expenses'],
@@ -72,96 +76,38 @@ class ReportController extends Controller
      */
     public function ajaxGetIncomeListAction(Request $request)
     {
-        if($request->isXmlHttpRequest()) {
+        if ($request->isXmlHttpRequest()) {
 
-            $user = $this->get('security.token_storage')->getToken()->getUser();
             $dateFrom = $request->query->get('date_from');
             $dateTo = $request->query->get('date_to');
-            $Ids = $request->query->get('ids');
 
-            if ($dateFrom == "Lifetime" && $dateTo == "Lifetime"){
+            if ($dateFrom == "Lifetime" && $dateTo == "Lifetime") {
                 return $this->getLifetimeIncomeListAction($request);
             }
-            $IdsArrayCollection = new ArrayCollection();
-            $result = [];
-            $sum = 0;
 
-            if ($Ids != null) {
-                $incomes = $this->getDoctrine()->getRepository('BudgetBundle:Income')->getByDateRangeAndCategories($user, $dateFrom, $dateTo, $Ids);
-                $IdsArrayCollection = new ArrayCollection($Ids);
-            }else {
-                $incomes = $this->getDoctrine()->getRepository('BudgetBundle:Income')->getByDateRange($user, $dateFrom, $dateTo);
-            }
-
-            $Incomes = new ArrayCollection($incomes);
-            $data = $this->createDataFromBudget($Incomes);
-            $result = array_merge($result,$data->toArray());
-            $sum += BudgetMoneyCounter::countBudget($Incomes);
-
-
-            if ($IdsArrayCollection->contains("NULL")) {
-                $additionalIncomes = $this->getDoctrine()->getRepository('BudgetBundle:Income')->getByDateRangeWithoutCategories($user, $dateFrom, $dateTo);
-                $additionalIncome = new ArrayCollection($additionalIncomes);
-
-                $data = $this->createDataFromBudget($additionalIncome);
-                $result = array_merge($result,$data->toArray());
-                $sum += BudgetMoneyCounter::countBudget($additionalIncome);
-            }
-
-            $return = [
-                'dateFrom' => $dateFrom,
-                'dateTo' => $dateTo,
-                'data' => $result,
-                'sum' => $sum
-            ];
+            $return = $this->getBudgetList($request, $this->getDoctrine()->getRepository('BudgetBundle:Income'));
             return JsonResponse::create($return);
         }
 
         throw new NotFoundHttpException("Page not found");
     }
 
-    public function getLifetimeIncomeListAction(Request $request)
+
+    /**
+     * @Route("/report/get/expense", name="ajax_report_get_expense")
+     */
+    public function ajaxGetExpenseListAction(Request $request)
     {
-        if($request->isXmlHttpRequest()) {
+        if ($request->isXmlHttpRequest()) {
 
-            $user = $this->get('security.token_storage')->getToken()->getUser();
-            $Ids = $request->query->get('ids');
+            $dateFrom = $request->query->get('date_from');
+            $dateTo = $request->query->get('date_to');
 
-            $result = [];
-            $sum =0;
-            $IdsArrayCollection = new ArrayCollection();
-
-            if ($Ids != null) {
-                $Incomes = $this->getDoctrine()->getRepository('BudgetBundle:Income')->getByCategories($user, $Ids);
-                $IdsArrayCollection = new ArrayCollection($Ids);
-            } else {
-                $Incomes = $this->getDoctrine()->getRepository('BudgetBundle:Income')->getWithCategories($user);
-                $Incomes2 = $this->getDoctrine()->getRepository('BudgetBundle:Income')->getWithoutCategories($user);
-
-                $Incomes = array_merge($Incomes,$Incomes2);
+            if ($dateFrom == "Lifetime" && $dateTo == "Lifetime") {
+                return $this->getLifetimeExpenseListAction($request);
             }
 
-            $Incomes = new ArrayCollection($Incomes);
-            $data = $this->createDataFromBudget($Incomes);
-
-            $result = array_merge($result,$data->toArray());
-            $sum += BudgetMoneyCounter::countBudget($Incomes);
-
-            if ($IdsArrayCollection->contains("NULL")) {
-                $additionalIncome = $this->getDoctrine()->getRepository('BudgetBundle:Income')->getWithoutCategories($user);
-                $additionalIncome = new ArrayCollection($additionalIncome);
-
-                $data = $this->createDataFromBudget($additionalIncome);
-                $result = array_merge($result,$data->toArray());
-                $sum += BudgetMoneyCounter::countBudget($additionalIncome);
-            }
-
-            $return = [
-                'dateFrom' => "lifetime",
-                'dateTo' => "lifetime",
-                'data' => $result,
-                'sum' => $sum
-            ];
+            $return = $this->getBudgetList($request, $this->getDoctrine()->getRepository('BudgetBundle:Expenses'));
             return JsonResponse::create($return);
         }
 
@@ -169,103 +115,129 @@ class ReportController extends Controller
     }
 
     /**
-     * @Route("/report/get/expense", name="ajax_report_get_expense")
+     * @param Request $request
+     * @param BudgetRepository $repository
+     * @return array
      */
-    public function ajaxGetExpenseListAction(Request $request)
+    private function getBudgetList(Request $request, BudgetRepository $repository)
     {
-        if($request->isXmlHttpRequest()) {
+        $user = $this->get('security.token_storage')->getToken()->getUser();
+        $dateFrom = $request->query->get('date_from');
+        $dateTo = $request->query->get('date_to');
+        $Ids = $request->query->get('ids');
 
-            $user = $this->get('security.token_storage')->getToken()->getUser();
-            $dateFrom = $request->query->get('date_from');
-            $dateTo = $request->query->get('date_to');
-            $Ids = $request->query->get('ids');
+        $result = [];
+        $sum = 0;
+        $IdsArrayCollection = new ArrayCollection();
 
-            $result = [];
-            $sum =0;
-            $IdsArrayCollection = new ArrayCollection();
+        if ($Ids != null) {
+            $expenses = $repository->getByDateRangeAndCategories($user, $dateFrom, $dateTo, $Ids);
+            $IdsArrayCollection = new ArrayCollection($Ids);
+        } else {
+            $expenses = $repository->getByDateRange($user, $dateFrom, $dateTo);
+        }
 
-            if ($dateFrom == "Lifetime" && $dateTo == "Lifetime"){
-                return $this->getLifetimeExpenseListAction($request);
-            }
+        $expenses = new ArrayCollection($expenses);
+        $data = $this->createDataFromBudget($expenses);
+        $result = array_merge($result, $data->toArray());
+        $sum += BudgetMoneyCounter::countBudget($expenses);
 
-            if ($Ids != null) {
-                $expenses = $this->getDoctrine()->getRepository('BudgetBundle:Expenses')->getByDateRangeAndCategories($user, $dateFrom, $dateTo, $Ids);
-                $IdsArrayCollection = new ArrayCollection($Ids);
-            } else {
-                $expenses = $this->getDoctrine()->getRepository('BudgetBundle:Expenses')->getByDateRange($user, $dateFrom, $dateTo);
-            }
+        if ($IdsArrayCollection->contains("NULL")) {
+            $additionalExpenses = $repository->getByDateRangeWithoutCategories($user, $dateFrom, $dateTo);
+            $expenses = new ArrayCollection($additionalExpenses);
 
-            $expenses = new ArrayCollection($expenses);
             $data = $this->createDataFromBudget($expenses);
-            $result = array_merge($result,$data->toArray());
+            $result = array_merge($result, $data->toArray());
             $sum += BudgetMoneyCounter::countBudget($expenses);
+        }
 
-            if ($IdsArrayCollection->contains("NULL")) {
-                $additionalExpenses = $this->getDoctrine()->getRepository('BudgetBundle:Expenses')->getByDateRangeWithoutCategories($user, $dateFrom, $dateTo);
-                $expenses = new ArrayCollection($additionalExpenses);
+        $return = [
+            'dateFrom' => $dateFrom,
+            'dateTo' => $dateTo,
+            'data' => $result,
+            'sum' => $sum
+        ];
 
-                $data = $this->createDataFromBudget($expenses);
-                $result = array_merge($result,$data->toArray());
-                $sum += BudgetMoneyCounter::countBudget($expenses);
-            }
+        return $return;
+    }
 
-            $return = [
-                'dateFrom' => $dateFrom,
-                'dateTo' => $dateTo,
-                'data' => $result,
-                'sum' => $sum
-            ];
+    /**
+     * @param Request $request
+     * @return JsonResponse
+     */
+    public function getLifetimeIncomeListAction(Request $request)
+    {
+        if ($request->isXmlHttpRequest()) {
+            $return = $this->getLifetimeBudget($request, $this->getDoctrine()->getRepository('BudgetBundle:Income'));
+
             return JsonResponse::create($return);
         }
 
         throw new NotFoundHttpException("Page not found");
     }
 
+    /**
+     * @param Request $request
+     * @return JsonResponse
+     */
     public function getLifetimeExpenseListAction(Request $request)
     {
-        if($request->isXmlHttpRequest()) {
+        if ($request->isXmlHttpRequest()) {
+            $return = $this->getLifetimeBudget($request, $this->getDoctrine()->getRepository('BudgetBundle:Expenses'))
 
-            $user = $this->get('security.token_storage')->getToken()->getUser();
-            $Ids = $request->query->get('ids');
-
-            $result = [];
-            $sum =0;
-            $IdsArrayCollection = new ArrayCollection();
-            if ($Ids != null) {
-                $expenses = $this->getDoctrine()->getRepository('BudgetBundle:Expenses')->getByCategories($user, $Ids);
-                $IdsArrayCollection = new ArrayCollection($Ids);
-            } else {
-                $expenses = $this->getDoctrine()->getRepository('BudgetBundle:Expenses')->getWithCategories($user);
-                $expenses2 = $this->getDoctrine()->getRepository('BudgetBundle:Expenses')->getWithoutCategories($user);
-
-                $expenses = array_merge($expenses,$expenses2);
-            }
-
-            $expenses = new ArrayCollection($expenses);
-            $data = $this->createDataFromBudget($expenses);
-
-            $result = array_merge($result,$data->toArray());
-            $sum += BudgetMoneyCounter::countBudget($expenses);
-
-            if ($IdsArrayCollection->contains("NULL")) {
-                $additionalExpenses = $this->getDoctrine()->getRepository('BudgetBundle:Expenses')->getWithoutCategories($user);
-                $expenses = new ArrayCollection($additionalExpenses);
-
-                $data = $this->createDataFromBudget($expenses);
-                $result = array_merge($result,$data->toArray());
-                $sum += BudgetMoneyCounter::countBudget($expenses);
-            }
-
-            $return = [
-                'dateFrom' => "lifetime",
-                'dateTo' => "lifetime",
-                'data' => $result,
-                'sum' => $sum
-            ];
             return JsonResponse::create($return);
         }
 
         throw new NotFoundHttpException("Page not found");
+    }
+
+    /**
+     * @param Request $request
+     * @param BudgetRepository $repository
+     * @return array
+     */
+    private function getLifetimeBudget(Request $request, BudgetRepository $repository)
+    {
+        $user = $this->get('security.token_storage')->getToken()->getUser();
+        $Ids = $request->query->get('ids');
+
+        $result = [];
+        $sum = 0;
+        $IdsArrayCollection = new ArrayCollection();
+
+        if ($Ids != null) {
+            $budget = $repository->getByCategories($user, $Ids);
+            $IdsArrayCollection = new ArrayCollection($Ids);
+        } else {
+            $budget = $repository->getWithCategories($user);
+            $budget2 = $repository->getWithoutCategories($user);
+            $budget = array_merge($budget, $budget2);
+        }
+
+        $budget = new ArrayCollection($budget);
+
+        $data = $this->createDataFromBudget($budget);
+
+        $result = array_merge($result, $data->toArray());
+        $sum += BudgetMoneyCounter::countBudget($budget);
+
+        if ($IdsArrayCollection->contains("NULL")) {
+            $additionalBudget = $repository->getWithoutCategories($user);
+            $additionalBudget = new ArrayCollection($additionalBudget);
+
+            $data = $this->createDataFromBudget($additionalBudget);
+            $result = array_merge($result, $data->toArray());
+            $sum += BudgetMoneyCounter::countBudget($additionalBudget);
+        }
+
+        $return = [
+            'dateFrom' => "lifetime",
+            'dateTo' => "lifetime",
+            'data' => $result,
+            'sum' => $sum
+        ];
+
+        return $return;
     }
 
 
@@ -273,7 +245,7 @@ class ReportController extends Controller
      * @param $budgets ArrayCollection of Budget
      * @return ArrayCollection
      */
-    public function createDataFromBudget($budgets)
+    private function createDataFromBudget($budgets)
     {
         $result = new ArrayCollection();
         foreach ($budgets as $budget) {

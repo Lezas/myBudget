@@ -13,10 +13,18 @@ use Doctrine\ORM\EntityManager;
 use MainBundle\Entity\User;
 use Symfony\Component\Validator\Constraints\Date;
 
+/**
+ * Class BudgetRepositoryService
+ * @package BudgetBundle\Repository
+ */
 class BudgetRepositoryService
 {
     private $_em;
 
+    /**
+     * BudgetRepositoryService constructor.
+     * @param EntityManager $em
+     */
     public function __construct(EntityManager $em)
     {
         $this->_em = $em;
@@ -54,7 +62,7 @@ class BudgetRepositoryService
         $income = $this->_em->getRepository('BudgetBundle:Income')->getByDateRange($user, $date_from, $date_to);
         $expense = $this->_em->getRepository('BudgetBundle:Expenses')->getByDateRange($user, $date_from, $date_to);
 
-        $budget = array();
+        $budget = [];
 
         $budget['income'] = $income;
         $budget['expenses'] = $expense;

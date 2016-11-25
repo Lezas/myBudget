@@ -14,6 +14,10 @@ use MainBundle\Entity\User;
 use Symfony\Component\Validator\Constraints\Date;
 use Doctrine\ORM\EntityRepository;
 
+/**
+ * Class BudgetRepository
+ * @package BudgetBundle\Repository
+ */
 class BudgetRepository extends EntityRepository
 {
 

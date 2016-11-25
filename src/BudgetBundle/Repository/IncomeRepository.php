@@ -12,6 +12,10 @@ namespace BudgetBundle\Repository;
 use Doctrine\ORM\EntityRepository;
 use MainBundle\Entity\User;
 
+/**
+ * Class IncomeRepository
+ * @package BudgetBundle\Repository
+ */
 class IncomeRepository extends BudgetRepository
 {
 

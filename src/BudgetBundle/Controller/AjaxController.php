@@ -514,6 +514,8 @@ class AjaxController extends Controller
 
     /**
      * @Route("/expenses", name="ajax_expense")
+     * @param Request $request
+     * @return JsonResponse
      */
     public function GetExpenseAction(Request $request)
     {
