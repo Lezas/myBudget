@@ -55,6 +55,8 @@ class DefaultController extends Controller
 
     /**
      * @Route("/income/new", name="new_income")
+     * @param Request $request
+     * @return \Symfony\Component\HttpFoundation\RedirectResponse|Response
      */
     public function newIncomeAction(Request $request)
     {

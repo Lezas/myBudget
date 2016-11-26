@@ -73,6 +73,8 @@ class ReportController extends Controller
 
     /**
      * @Route("/report/get/income", name="ajax_report_get_income")
+     * @param Request $request
+     * @return JsonResponse
      */
     public function ajaxGetIncomeListAction(Request $request)
     {
@@ -95,6 +97,8 @@ class ReportController extends Controller
 
     /**
      * @Route("/report/get/expense", name="ajax_report_get_expense")
+     * @param Request $request
+     * @return JsonResponse
      */
     public function ajaxGetExpenseListAction(Request $request)
     {
@@ -183,7 +187,7 @@ class ReportController extends Controller
     public function getLifetimeExpenseListAction(Request $request)
     {
         if ($request->isXmlHttpRequest()) {
-            $return = $this->getLifetimeBudget($request, $this->getDoctrine()->getRepository('BudgetBundle:Expenses'))
+            $return = $this->getLifetimeBudget($request, $this->getDoctrine()->getRepository('BudgetBundle:Expenses'));
 
             return JsonResponse::create($return);
         }
