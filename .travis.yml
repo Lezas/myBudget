@@ -1,4 +1,5 @@
-composer install
+install:
+   - composer install
 language: php
 php:
   - '5.6'
