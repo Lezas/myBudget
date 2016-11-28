@@ -26,12 +26,12 @@ env:
 
 # Update composer
 before-install:
-  - mysql -e "create database IF NOT EXISTS symfony;" -uroot
   - composer self-update
 
 # Install composer dependencies,
 # Create database, schema and fixtures
 install:
+  - mysql -e "create database IF NOT EXISTS symfony;" -uroot
   - composer install
   - cp app/config/parameters.yml.dist app/config/parameters.yml
   - php bin/console doctrine:schema:create
