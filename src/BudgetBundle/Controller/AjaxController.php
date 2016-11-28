@@ -233,12 +233,12 @@ class AjaxController extends Controller
                     return new JsonResponse($response);
                 }
 
-                $form = $this->createForm(IncomeType::class, $income, array(
+                $form = $this->createForm(IncomeType::class, $income, [
                     'action' => $this->generateUrl('ajax_update_income'),
-                    'attr' => array('class' => 'create_event_form', 'data-id' => $income->getId()),
+                    'attr' => ['class' => 'create_event_form', 'data-id' => $income->getId()],
                     'method' => 'POST',
                     'user' => $user,
-                ));
+                ]);
 
                 $form->handleRequest($request);
 

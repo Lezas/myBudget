@@ -49,9 +49,7 @@ class CategoryController extends Controller
         $user = $this->getUser();
         
         $categoryRepository = $this->getDoctrine()->getManager()->getRepository('CategoryBundle:Category');
-        
         $categories = $categoryRepository->findBy(['user' => $user]);
-
         $groupingHelper = new GroupingHelper();
 
         $groupedData = $groupingHelper->groupByParent($categories);

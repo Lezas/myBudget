@@ -16,19 +16,19 @@ class DataFormatter
     {
         $arrayCol = new ArrayCollection($data);
 
-        $retturnArray = new ArrayCollection();
+        $returnArray = new ArrayCollection();
         foreach ($arrayCol as $mkey=>$data) {
 
-            if ($retturnArray->get($data->getDateTime()->format('Y-m-d')) != null) {
-                $row = $retturnArray->get($data->getDateTime()->format('Y-m-d')) + (float)$data->getMoney();
-                $retturnArray->set($data->getDateTime()->format('Y-m-d'), $row);
+            if ($returnArray->get($data->getDateTime()->format('Y-m-d')) != null) {
+                $row = $returnArray->get($data->getDateTime()->format('Y-m-d')) + (float)$data->getMoney();
+                $returnArray->set($data->getDateTime()->format('Y-m-d'), $row);
             } else {
-                $retturnArray->set($data->getDateTime()->format('Y-m-d'), (float)$data->getMoney());
+                $returnArray->set($data->getDateTime()->format('Y-m-d'), (float)$data->getMoney());
             }
         }
 
         $true = [];
-        foreach ($retturnArray as $key=>$array) {
+        foreach ($returnArray as $key=>$array) {
             $true[] =  [$key, $array];
         }
         
