@@ -4,6 +4,10 @@ language: php
 # Allows use container-based infrastructure
 sudo: false
 
+addons:
+  code_climate:
+    repo_token: a408bbed45bd8e8cbebb3a6276ffdad7786624f6
+
 # Start mysql service
 services:
   - mysql
@@ -39,3 +43,4 @@ install:
 # Run script
 script:
   - phpunit
+  - vendor/bin/test-reporter
