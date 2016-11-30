@@ -16,13 +16,6 @@ cache:
   directories:
     - $HOME/.composer/cache/files
 
-# Matrix to test in every php version
-matrix:
-  # Fast finish allows to set the build as "finished" even if the "allow_failures" matrix elements are not finished yet.
-  fast_finish: true
-  include:
-    - php: 5.6
-
 # Define an environment variable
 env:
   - SYMFONY_VERSION="3.0.*" DB=mysql
