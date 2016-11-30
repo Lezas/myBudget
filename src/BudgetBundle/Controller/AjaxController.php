@@ -16,6 +16,7 @@ use BudgetBundle\Form\Type\ExpenseType;
 use BudgetBundle\Form\Type\IncomeType;
 use BudgetBundle\Helper\DataFormatter;
 use BudgetBundle\Repository\BudgetRepository;
+use BudgetBundle\Response\AjaxBudgetResponse;
 use Symfony\Bundle\FrameworkBundle\Controller\Controller;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
@@ -26,7 +27,7 @@ use Symfony\Component\Validator\Constraints\Date;
 /**
  * Class AjaxController
  * @package BudgetBundle\Controller
- * @Route("/api")
+ * @Route("/api", condition="request.isXmlHttpRequest()")
  */
 class AjaxController extends Controller
 {
@@ -37,15 +38,126 @@ class AjaxController extends Controller
      */
     public function NewExpenseAction(Request $request)
     {
-        if ($request->isXmlHttpRequest()) {
-            $response['success'] = false;
+        $ajaxBudgetResponse = new AjaxBudgetResponse();
 
+        $user = $this->getUser();
+        $expense = new Expenses();
+
+        $form = $this->createForm(ExpenseType::class, $expense, [
+            'action' => $this->generateUrl('ajax_new_expense'),
+            'attr' => ['class' => 'create_budget'],
+            'method' => 'POST',
+            'user' => $user,
+        ]);
+
+        $form->handleRequest($request);
+
+        if ($form->isValid()) {
             $user = $this->getUser();
-            $expense = new Expenses();
+            $raw_data = $form->getData();
+
+            $expense->setDateTime($raw_data->getDateTime());
+            $expense->setUser($user);
+
+            $em = $this->getDoctrine()->getManager();
+
+            $em->persist($expense);
+            $em->flush();
+
+            $ajaxBudgetResponse->setDataToValid();
+            $ajaxBudgetResponse->setResponseToSuccessful();
+
+            return new JsonResponse($ajaxBudgetResponse->getResponse());
+        }
+
+        $ajaxBudgetResponse->setDataToInvalid();
+        $ajaxBudgetResponse->setResponseToSuccessful();
+        $ajaxBudgetResponse->setRenderedForm($this->render('BudgetBundle:Default:expenseForm.html.twig', [
+            'form' => $form->createView(),
+        ])->getContent()
+        );
+
+        return new JsonResponse($ajaxBudgetResponse->getResponse());
+    }
+
+    /**
+     * @param Request $request
+     * @Route("/new-income", name="ajax_new_income")
+     * @return array|JsonResponse
+     */
+    public function NewIncomeAction(Request $request)
+    {
+        $ajaxBudgetResponse = new AjaxBudgetResponse();
+        $user = $this->getUser();
+        $income = new Income();
+
+        $form = $this->createForm(IncomeType::class, $income, array(
+            'action' => $this->generateUrl('ajax_new_income'),
+            'attr' => array('class' => 'create_budget'),
+            'method' => 'POST',
+            'user' => $user,
+        ));
+
+        $form->handleRequest($request);
+
+        if ($form->isValid()) {
+            $user = $this->getUser();
+            $raw_data = $form->getData();
+
+            $income->setDateTime($raw_data->getDateTime());
+            $income->setUser($user);
+
+            $em = $this->getDoctrine()->getManager();
+
+            $em->persist($income);
+            $em->flush();
+
+            $ajaxBudgetResponse->setDataToValid();
+            $ajaxBudgetResponse->setResponseToSuccessful();
+            return new JsonResponse($ajaxBudgetResponse->getResponse());
+        }
+
+        $ajaxBudgetResponse->setDataToInvalid();
+        $ajaxBudgetResponse->setResponseToSuccessful();
+        $ajaxBudgetResponse->setRenderedForm($this->render('BudgetBundle:Default:ajaxIncomeForm.html.twig', [
+            'form' => $form->createView(),
+        ])->getContent());
+
+        return new JsonResponse($ajaxBudgetResponse->getResponse());
+    }
+
+    /**
+     * @Route("/update-expense/{id}", name="ajax_update_expense")
+     * @param null $id
+     * @param Request $request
+     * @return JsonResponse
+     */
+    public function UpdateExpense($id = null, Request $request)
+    {
+        $response['success'] = false;
+
+        if ($id === null) {
+            $response['cause'] = 'You must specify expense id';
+            return new JsonResponse($response);
+        } else {
+
+            $em = $this->getDoctrine()->getEntityManager();
+            $expense = $em->getRepository('BudgetBundle:Expenses')->find($id);
+            $user = $this->getUser();
+            $expenseUser = $expense->getUser();
+
+            if ($expense === null) {
+                $response['cause'] = 'Cant found expense with that id';
+                return new JsonResponse($response);
+            }
+            if ($expenseUser->getId() !== $user->getId()) {
+                $response['cause'] = 'Cant found expense with that id';
+                return new JsonResponse($response);
+            }
 
             $form = $this->createForm(ExpenseType::class, $expense, array(
-                'action' => $this->generateUrl('ajax_new_expense'),
-                'attr' => array('class' => 'create_budget'),
+                'action' => $this->generateUrl('ajax_update_expense'),
+                'attr' => array('class' => 'create_event_form', 'data-id' => $expense->getId()),
                 'method' => 'POST',
                 'user' => $user,
             ));
@@ -53,11 +165,9 @@ class AjaxController extends Controller
             $form->handleRequest($request);
 
             if ($form->isValid()) {
-                $user = $this->getUser();
                 $raw_data = $form->getData();
 
                 $expense->setDateTime($raw_data->getDateTime());
-                $expense->setUser($user);
 
                 $em = $this->getDoctrine()->getManager();
 
@@ -70,137 +180,14 @@ class AjaxController extends Controller
             }
 
             $response['valid'] = false;
-
             $response['success'] = true;
             $response['form'] = $this->render('BudgetBundle:Default:expenseForm.html.twig', [
                 'form' => $form->createView(),
             ])->getContent();
 
             return new JsonResponse($response);
-        } else {
-            throw $this->createNotFoundException('The page doesn\'t exists');
+
         }
-    }
-
-    /**
-     * @param Request $request
-     * @Route("/new-income", name="ajax_new_income")
-     * @return array|JsonResponse
-     */
-    public function NewIncomeAction(Request $request)
-    {
-        if ($request->isXmlHttpRequest()) {
-            $response['success'] = false;
-
-
-            $user = $this->getUser();
-            $income = new Income();
-
-            $form = $this->createForm(IncomeType::class, $income, array(
-                'action' => $this->generateUrl('ajax_new_income'),
-                'attr' => array('class' => 'create_budget'),
-                'method' => 'POST',
-                'user' => $user,
-            ));
-
-            $form->handleRequest($request);
-
-            if ($form->isValid()) {
-                $user = $this->getUser();
-                $raw_data = $form->getData();
-
-                $income->setDateTime($raw_data->getDateTime());
-                $income->setUser($user);
-
-                $em = $this->getDoctrine()->getManager();
-
-                $em->persist($income);
-                $em->flush();
-
-                $response['valid'] = true;
-                $response['success'] = true;
-                return new JsonResponse($response);
-            }
-
-            $response['valid'] = false;
-            $response['success'] = true;
-            $response['form'] = $this->render('BudgetBundle:Default:ajaxIncomeForm.html.twig', [
-                'form' => $form->createView(),
-            ])->getContent();
-
-            return new JsonResponse($response);
-        } else {
-            throw $this->createNotFoundException('The page doesn\'t exists');
-        }
-    }
-
-    /**
-     * @Route("/update-expense/{id}", name="ajax_update_expense")
-     * @param null $id
-     * @param Request $request
-     * @return JsonResponse
-     */
-    public function UpdateExpense($id = null, Request $request)
-    {
-        if ($request->isXmlHttpRequest()) {
-            $response['success'] = false;
-
-            if ($id === null) {
-                $response['cause'] = 'You must specify expense id';
-                return new JsonResponse($response);
-            } else {
-
-                $em = $this->getDoctrine()->getEntityManager();
-                $expense = $em->getRepository('BudgetBundle:Expenses')->find($id);
-                $user = $this->getUser();
-                $expenseUser = $expense->getUser();
-
-                if ($expense === null) {
-                    $response['cause'] = 'Cant found expense with that id';
-                    return new JsonResponse($response);
-                }
-                if ($expenseUser->getId() !== $user->getId()) {
-                    $response['cause'] = 'Cant found expense with that id';
-                    return new JsonResponse($response);
-                }
-
-                $form = $this->createForm(ExpenseType::class, $expense, array(
-                    'action' => $this->generateUrl('ajax_update_expense'),
-                    'attr' => array('class' => 'create_event_form', 'data-id' => $expense->getId()),
-                    'method' => 'POST',
-                    'user' => $user,
-                ));
-
-                $form->handleRequest($request);
-
-                if ($form->isValid()) {
-                    $raw_data = $form->getData();
-
-                    $expense->setDateTime($raw_data->getDateTime());
-
-                    $em = $this->getDoctrine()->getManager();
-
-                    $em->persist($expense);
-                    $em->flush();
-
-                    $response['valid'] = true;
-                    $response['success'] = true;
-                    return new JsonResponse($response);
-                }
-
-                $response['valid'] = false;
-                $response['success'] = true;
-                $response['form'] = $this->render('BudgetBundle:Default:expenseForm.html.twig', [
-                    'form' => $form->createView(),
-                ])->getContent();
-
-                return new JsonResponse($response);
-
-            }
-        } else {
-            throw $this->createNotFoundException('The page doesn\'t exists');
-        }
-
     }
 
     /**
@@ -211,66 +198,61 @@ class AjaxController extends Controller
      */
     public function UpdateIncome($id = null, Request $request)
     {
-        if ($request->isXmlHttpRequest()) {
-            $response['success'] = false;
+        $response['success'] = false;
 
-            if ($id === null) {
-                $response['cause'] = 'You must specify income id';
+        if ($id === null) {
+            $response['cause'] = 'You must specify income id';
+            return new JsonResponse($response);
+        } else {
+
+            $em = $this->getDoctrine()->getEntityManager();
+            $income = $em->getRepository('BudgetBundle:Income')->find($id);
+            $user = $this->getUser();
+            $incomeUser = $income->getUser();
+
+            if ($income === null) {
+                $response['cause'] = 'Can\'t found income with that id';
                 return new JsonResponse($response);
-            } else {
+            }
+            if ($incomeUser->getId() !== $user->getId()) {
+                $response['cause'] = 'Can\'t found income with that id';
+                return new JsonResponse($response);
+            }
 
-                $em = $this->getDoctrine()->getEntityManager();
-                $income = $em->getRepository('BudgetBundle:Income')->find($id);
-                $user = $this->getUser();
-                $incomeUser = $income->getUser();
+            $form = $this->createForm(IncomeType::class, $income, [
+                'action' => $this->generateUrl('ajax_update_income'),
+                'attr' => ['class' => 'create_event_form', 'data-id' => $income->getId()],
+                'method' => 'POST',
+                'user' => $user,
+            ]);
 
-                if ($income === null) {
-                    $response['cause'] = 'Can\'t found income with that id';
-                    return new JsonResponse($response);
-                }
-                if ($incomeUser->getId() !== $user->getId()) {
-                    $response['cause'] = 'Can\'t found income with that id';
-                    return new JsonResponse($response);
-                }
+            $form->handleRequest($request);
 
-                $form = $this->createForm(IncomeType::class, $income, [
-                    'action' => $this->generateUrl('ajax_update_income'),
-                    'attr' => ['class' => 'create_event_form', 'data-id' => $income->getId()],
-                    'method' => 'POST',
-                    'user' => $user,
-                ]);
+            if ($form->isValid()) {
+                $raw_data = $form->getData();
 
-                $form->handleRequest($request);
+                $income->setDateTime($raw_data->getDateTime());
 
-                if ($form->isValid()) {
-                    $raw_data = $form->getData();
+                $em = $this->getDoctrine()->getManager();
 
-                    $income->setDateTime($raw_data->getDateTime());
-
-                    $em = $this->getDoctrine()->getManager();
-
-                    $em->persist($income);
-                    $em->flush();
-
-                    $response['success'] = true;
-                    $response['valid'] = true;
-                    return new JsonResponse($response);
-                }
-
-                $response['valid'] = false;
+                $em->persist($income);
+                $em->flush();
 
                 $response['success'] = true;
-                $response['form'] = $this->render('BudgetBundle:Default:ajaxIncomeForm.html.twig', [
-                    'form' => $form->createView(),
-                ])->getContent();
-
+                $response['valid'] = true;
                 return new JsonResponse($response);
-
             }
-        } else {
-            throw $this->createNotFoundException('The page doesn\'t exists');
-        }
 
+            $response['valid'] = false;
+
+            $response['success'] = true;
+            $response['form'] = $this->render('BudgetBundle:Default:ajaxIncomeForm.html.twig', [
+                'form' => $form->createView(),
+            ])->getContent();
+
+            return new JsonResponse($response);
+
+        }
     }
 
     /**
@@ -281,18 +263,11 @@ class AjaxController extends Controller
      */
     public function DeleteIncome($id = null, Request $request)
     {
-        if ($request->isXmlHttpRequest()) {
+        $em = $this->getDoctrine()->getManager();
+        $income = $em->getRepository('BudgetBundle:Income');
+        $response = $this->deleteBudget($id, $income);
 
-            $em = $this->getDoctrine()->getManager();
-            $income = $em->getRepository('BudgetBundle:Income');
-            $response = $this->deleteBudget($id, $income);
-
-            return new JsonResponse($response);
-
-        } else {
-            throw $this->createNotFoundException('The page doesn\'t exists');
-        }
-
+        return new JsonResponse($response);
     }
 
     /**
@@ -303,18 +278,11 @@ class AjaxController extends Controller
      */
     public function DeleteExpense($id = null, Request $request)
     {
-        if ($request->isXmlHttpRequest()) {
+        $em = $this->getDoctrine()->getManager();
+        $expense = $em->getRepository('BudgetBundle:Expenses');
+        $response = $this->deleteBudget($id, $expense);
 
-            $em = $this->getDoctrine()->getManager();
-            $expense = $em->getRepository('BudgetBundle:Expenses');
-            $response = $this->deleteBudget($id, $expense);
-
-            return new JsonResponse($response);
-
-        } else {
-            throw $this->createNotFoundException('The page doesn\'t exists');
-        }
-
+        return new JsonResponse($response);
     }
 
     /**
@@ -357,15 +325,10 @@ class AjaxController extends Controller
      */
     public function GetExpenseByDateRangeAction(Request $request)
     {
+        $repository = $this->getDoctrine()->getManager()->getRepository('BudgetBundle:Expenses');
+        $return = $this->GetBudgetByDateRange($request, $repository);
 
-        if ($request->isXmlHttpRequest()) {
-            $repository = $this->getDoctrine()->getManager()->getRepository('BudgetBundle:Expenses');
-            $return = $this->GetBudgetByDateRange($request, $repository);
-
-            return JsonResponse::create($return);
-        }
-
-        throw new NotFoundHttpException("Page not found");
+        return JsonResponse::create($return);
     }
 
     /**
@@ -375,14 +338,10 @@ class AjaxController extends Controller
      */
     public function GetIncomeByDateRangeAction(Request $request)
     {
-        if ($request->isXmlHttpRequest()) {
-            $repository = $this->getDoctrine()->getManager()->getRepository('BudgetBundle:Income');
-            $return = $this->GetBudgetByDateRange($request, $repository);
+        $repository = $this->getDoctrine()->getManager()->getRepository('BudgetBundle:Income');
+        $return = $this->GetBudgetByDateRange($request, $repository);
 
-            return JsonResponse::create($return);
-        }
-
-        throw new NotFoundHttpException("Page not found");
+        return JsonResponse::create($return);
     }
 
     /**
@@ -419,42 +378,38 @@ class AjaxController extends Controller
      */
     public function GetIncomeListByDateRangeAction(Request $request)
     {
-        if ($request->isXmlHttpRequest()) {
-            $user = $this->get('security.token_storage')->getToken()->getUser();
+        $user = $this->get('security.token_storage')->getToken()->getUser();
 
-            if ($request->query->get('date_from') != "" || $request->query->get('date_to') != "") {
-                $date_from = new \DateTime($request->query->get('date_from'));
-                $date_to = new \DateTime($request->query->get('date_to'));
-            } else {
-                $date = new \DateTime('now');
+        if ($request->query->get('date_from') != "" || $request->query->get('date_to') != "") {
+            $date_from = new \DateTime($request->query->get('date_from'));
+            $date_to = new \DateTime($request->query->get('date_to'));
+        } else {
+            $date = new \DateTime('now');
 
-                //how to get first and last day of the month
-                $date_from = new \DateTime(date('Y-m-01', $date->getTimestamp()));
-                $date_to = new \DateTime(date('Y-m-t', $date->getTimestamp()));
+            //how to get first and last day of the month
+            $date_from = new \DateTime(date('Y-m-01', $date->getTimestamp()));
+            $date_to = new \DateTime(date('Y-m-t', $date->getTimestamp()));
 
-            }
-
-            $income = $this->getDoctrine()->getRepository('BudgetBundle:Income')->getByDateRange($user, $date_from, $date_to);
-
-            $total = 0;
-
-            foreach ($income as $var) {
-                /** @var Budget $var */
-                $total += (float)$var->getMoney();
-            }
-
-            $response['list'] = $this->render('BudgetBundle:Default:IncomeList.html.twig', [
-                'list' => $income,
-                'name' => 'income',
-            ])->getContent();
-            $response['date_from'] = $date_from->format('Y-m-d');
-            $response['date_to'] = $date_to->format('Y-m-d');
-            $response['total'] = $total;
-
-            return new JsonResponse($response);
         }
 
-        throw new NotFoundHttpException("Page not found");
+        $income = $this->getDoctrine()->getRepository('BudgetBundle:Income')->getByDateRange($user, $date_from, $date_to);
+
+        $total = 0;
+
+        foreach ($income as $var) {
+            /** @var Budget $var */
+            $total += (float)$var->getMoney();
+        }
+
+        $response['list'] = $this->render('BudgetBundle:Default:IncomeList.html.twig', [
+            'list' => $income,
+            'name' => 'income',
+        ])->getContent();
+        $response['date_from'] = $date_from->format('Y-m-d');
+        $response['date_to'] = $date_to->format('Y-m-d');
+        $response['total'] = $total;
+
+        return new JsonResponse($response);
     }
 
     /**
@@ -464,42 +419,37 @@ class AjaxController extends Controller
      */
     public function GetExpenseListByDateRangeAction(Request $request)
     {
-        if ($request->isXmlHttpRequest()) {
+        $user = $this->get('security.token_storage')->getToken()->getUser();
 
-            $user = $this->get('security.token_storage')->getToken()->getUser();
+        if ($request->query->get('date_from') != "" || $request->query->get('date_to') != "") {
+            $date_from = new \DateTime($request->query->get('date_from'));
+            $date_to = new \DateTime($request->query->get('date_to'));
+        } else {
+            $date = new \DateTime('now');
 
-            if ($request->query->get('date_from') != "" || $request->query->get('date_to') != "") {
-                $date_from = new \DateTime($request->query->get('date_from'));
-                $date_to = new \DateTime($request->query->get('date_to'));
-            } else {
-                $date = new \DateTime('now');
-
-                //how to get first and last day of the month
-                $date_from = new \DateTime(date('Y-m-01', $date->getTimestamp()));
-                $date_to = new \DateTime(date('Y-m-t', $date->getTimestamp()));
-            }
-
-            $expense = $this->getDoctrine()->getRepository('BudgetBundle:Expenses')->getByDateRange($user, $date_from, $date_to);
-
-            $total = 0;
-
-            foreach ($expense as $var) {
-                /** @var Budget $var */
-                $total += (float)$var->getMoney();
-            }
-
-            $response['list'] = $this->render('BudgetBundle:Default:ExpenseList.html.twig', [
-                'list' => $expense,
-                'name' => 'expense',
-            ])->getContent();
-            $response['date_from'] = $date_from->format('Y-m-d');
-            $response['date_to'] = $date_to->format('Y-m-d');
-            $response['total'] = $total;
-
-            return new JsonResponse($response);
+            //how to get first and last day of the month
+            $date_from = new \DateTime(date('Y-m-01', $date->getTimestamp()));
+            $date_to = new \DateTime(date('Y-m-t', $date->getTimestamp()));
         }
 
-        throw new NotFoundHttpException("Page not found");
+        $expense = $this->getDoctrine()->getRepository('BudgetBundle:Expenses')->getByDateRange($user, $date_from, $date_to);
+
+        $total = 0;
+
+        foreach ($expense as $var) {
+            /** @var Budget $var */
+            $total += (float)$var->getMoney();
+        }
+
+        $response['list'] = $this->render('BudgetBundle:Default:ExpenseList.html.twig', [
+            'list' => $expense,
+            'name' => 'expense',
+        ])->getContent();
+        $response['date_from'] = $date_from->format('Y-m-d');
+        $response['date_to'] = $date_to->format('Y-m-d');
+        $response['total'] = $total;
+
+        return new JsonResponse($response);
     }
 
     /**
@@ -509,19 +459,15 @@ class AjaxController extends Controller
      */
     public function GetExpenseAction(Request $request)
     {
-        if ($request->isXmlHttpRequest()) {
+        $user = $this->get('security.token_storage')->getToken()->getUser();
 
-            $user = $this->get('security.token_storage')->getToken()->getUser();
+        $data = $this->get('budget.repository.budget')->getMonthBudget(null, $user);
 
-            $data = $this->get('budget.repository.budget')->getMonthBudget(null, $user);
+        $expense = $data['expenses'];
 
-            $expense = $data['expenses'];
+        $filtered_expense = DataFormatter::groupByDay($expense);
 
-            $filtered_expense = DataFormatter::groupByDay($expense);
-            return JsonResponse::create($filtered_expense);
-        }
-
-        throw new NotFoundHttpException("Page not found");
+        return JsonResponse::create($filtered_expense);
     }
 
     /**
@@ -531,32 +477,28 @@ class AjaxController extends Controller
      */
     public function GetBudgetForChart(Request $request)
     {
+        $user = $this->get('security.token_storage')->getToken()->getUser();
 
-        if ($request->isXmlHttpRequest()) {
+        if ($request->query->get('date_from') != "" || $request->query->get('date_to') != "") {
+            $date_from = new \DateTime($request->query->get('date_from'));
+            $date_to = new \DateTime($request->query->get('date_to'));
+        } else {
+            $date = new \DateTime('now');
 
-            $user = $this->get('security.token_storage')->getToken()->getUser();
-
-            if ($request->query->get('date_from') != "" || $request->query->get('date_to') != "") {
-                $date_from = new \DateTime($request->query->get('date_from'));
-                $date_to = new \DateTime($request->query->get('date_to'));
-            } else {
-                $date = new \DateTime('now');
-
-                //how to get first and last day of the month
-                $date_from = new \DateTime(date('Y-m-01', $date->getTimestamp()));
-                $date_to = new \DateTime(date('Y-m-t', $date->getTimestamp()));
-            }
-
-            $expense = $this->getDoctrine()->getRepository('BudgetBundle:Expenses')->getByDateRange($user, $date_from, $date_to);
-            $income = $this->getDoctrine()->getRepository('BudgetBundle:Income')->getByDateRange($user, $date_from, $date_to);
-
-            $filteredExpense = DataFormatter::groupByDay($expense);
-            $filteredIncome = DataFormatter::groupByDay($income);
-
-            $data = DataFormatter::connectData($filteredExpense, $filteredIncome);
-
-            return JsonResponse::create($data);
+            //how to get first and last day of the month
+            $date_from = new \DateTime(date('Y-m-01', $date->getTimestamp()));
+            $date_to = new \DateTime(date('Y-m-t', $date->getTimestamp()));
         }
+
+        $expense = $this->getDoctrine()->getRepository('BudgetBundle:Expenses')->getByDateRange($user, $date_from, $date_to);
+        $income = $this->getDoctrine()->getRepository('BudgetBundle:Income')->getByDateRange($user, $date_from, $date_to);
+
+        $filteredExpense = DataFormatter::groupByDay($expense);
+        $filteredIncome = DataFormatter::groupByDay($income);
+
+        $data = DataFormatter::connectData($filteredExpense, $filteredIncome);
+
+        return JsonResponse::create($data);
     }
 
 
