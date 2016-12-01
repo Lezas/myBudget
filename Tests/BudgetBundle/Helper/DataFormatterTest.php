@@ -44,7 +44,7 @@ class DataFormatterTest extends \PHPUnit_Framework_TestCase
         $return = DataFormatter::groupByDay($arr);
 
         $this->assertEquals(2,count($return));
-        $this->assertEquals(300,$return[0][1]);
+        $this->assertEquals(305,$return[0][1]);
         $this->assertEquals('2016-01-01',$return[0][0]);
         $this->assertEquals(401.04,$return[1][1]);
         $this->assertEquals('2016-01-02',$return[1][0]);
