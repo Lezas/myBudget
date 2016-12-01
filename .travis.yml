@@ -34,5 +34,4 @@ install:
 
 # Run script
 script:
-  - phpunit
   - phpunit --coverage-clover clover.xml
