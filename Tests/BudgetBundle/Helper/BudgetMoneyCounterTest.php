@@ -15,21 +15,16 @@ class BudgetMoneyCounterTest extends \PHPUnit_Framework_TestCase
 {
     public function testCountBudget()
     {
-        try {
-            $budget = new Budget();
-            $budget->setMoney(55);
-            $arr = [];
-            $arr[] = $budget;
-            $budget = new Budget();
-            $budget->setMoney(50);
-            $arr[] = $budget;
-            $result = BudgetMoneyCounter::countBudget($arr);
+        $budget = new Budget();
+        $budget->setMoney(55);
+        $arr = new ArrayCollection();
+        $arr->add($budget);
+        $budget = new Budget();
+        $budget->setMoney(50);
+        $arr->add($budget);
 
-            $this->assertEquals(105, $result);
-        } catch (\Exception $e) {
-            $this->assertEquals("Not array collection", $e->getMessage());
-        }
+        $result = BudgetMoneyCounter::countBudget($arr);
 
-
+        $this->assertNotEquals(110, $result);
     }
 }
