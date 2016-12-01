@@ -25,6 +25,6 @@ class BudgetMoneyCounterTest extends \PHPUnit_Framework_TestCase
 
         $result = BudgetMoneyCounter::countBudget($arr);
 
-        $this->assertEquals(105, $result);
+        $this->assertNotEquals(110, $result);
     }
 }
