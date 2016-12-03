@@ -35,7 +35,7 @@ class BudgetRepositoryService
      * @param Date $date - date object MUST be valid datetime object or string of format YYYY-MM-DD
      * @return array
      */
-    public function getMonthBudget(Date $date = null, User $user)
+    public function getMonthBudget(\DateTime $date = null, User $user)
     {
         //if $dat is null, return this month budget
         if($date === null){
