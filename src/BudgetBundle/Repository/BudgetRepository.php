@@ -23,8 +23,8 @@ class BudgetRepository extends EntityRepository
 
     /**
      * @param User $user
-     * @param string $date_from
-     * @param string $date_to
+     * @param $date_from
+     * @param $date_to
      * @return array
      */
     public function getByDateRange(User $user, $date_from, $date_to)
