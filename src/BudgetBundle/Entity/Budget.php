@@ -85,7 +85,7 @@ class Budget
     /**
      * Set spendMoney
      *
-     * @param string $money
+     * @param float $money
      *
      * @return Budget
      */

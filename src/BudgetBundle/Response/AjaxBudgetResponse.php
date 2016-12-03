@@ -57,6 +57,7 @@ class AjaxBudgetResponse
      */
     private function generateResponse()
     {
+        $response = [];
         $response['success'] = $this->success;
         $response['valid'] = $this->isDataValid;
         $response['form'] = $this->form;

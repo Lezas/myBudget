@@ -134,6 +134,7 @@ class AjaxController extends Controller
      */
     public function UpdateExpense($id = null, Request $request)
     {
+        $response = [];
         $response['success'] = false;
 
         if ($id === null) {
@@ -141,7 +142,7 @@ class AjaxController extends Controller
             return new JsonResponse($response);
         } else {
 
-            $em = $this->getDoctrine()->getEntityManager();
+            $em = $this->getDoctrine()->getManager();
             $expense = $em->getRepository('BudgetBundle:Expenses')->find($id);
             $user = $this->getUser();
             $expenseUser = $expense->getUser();
@@ -198,6 +199,7 @@ class AjaxController extends Controller
      */
     public function UpdateIncome($id = null, Request $request)
     {
+        $response = [];
         $response['success'] = false;
 
         if ($id === null) {
@@ -205,7 +207,7 @@ class AjaxController extends Controller
             return new JsonResponse($response);
         } else {
 
-            $em = $this->getDoctrine()->getEntityManager();
+            $em = $this->getDoctrine()->getManager();
             $income = $em->getRepository('BudgetBundle:Income')->find($id);
             $user = $this->getUser();
             $incomeUser = $income->getUser();
@@ -292,6 +294,7 @@ class AjaxController extends Controller
      */
     private function deleteBudget($id = null, BudgetRepository $repository)
     {
+        $response = [];
         $response['success'] = false;
 
         if ($id === null) {
@@ -299,7 +302,7 @@ class AjaxController extends Controller
             return $response;
         } else {
 
-            $em = $this->getDoctrine()->getEntityManager();
+            $em = $this->getDoctrine()->getManager();
             $budget = $repository->find($id);
             $user = $this->getUser();
             $budgetUser = $budget->getUser();
@@ -379,6 +382,7 @@ class AjaxController extends Controller
     public function GetIncomeListByDateRangeAction(Request $request)
     {
         $user = $this->get('security.token_storage')->getToken()->getUser();
+        $response = [];
 
         if ($request->query->get('date_from') != "" || $request->query->get('date_to') != "") {
             $date_from = new \DateTime($request->query->get('date_from'));
