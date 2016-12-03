@@ -1,13 +1,17 @@
 
 function getIncomeList($dateFrom, $dateTo, $Ids){
+    /** global: incomeDateFrom */
     incomeDateFrom = $dateFrom;
+    /** global: incomeDateTo */
     incomeDateTo = $dateTo;
+    /** global: ajax_get_Income_List_URL */
     $.ajax({
         data: {date_from : $dateFrom, date_to : $dateTo, ids : $Ids},
         url: ajax_get_Income_List_URL,
         dataType: "json",
         async: true,
     }).done(function(data){
+        /** global: IncomeTable */
         IncomeTable.destroy();
         UpdateIncomeTable(data.data);
         UpdateIncomeTableBasicInfo(data.dateFrom, data.dateTo, data.sum)
@@ -19,12 +23,14 @@ function getIncomeList($dateFrom, $dateTo, $Ids){
 function getExpenseList($dateFrom, $dateTo, $Ids){
     incomeDateFrom = $dateFrom;
     incomeDateTo = $dateTo;
+    /** global: ajax_get_Expense_List_URL */
     $.ajax({
         data: {date_from : $dateFrom, date_to : $dateTo, ids : $Ids},
         url: ajax_get_Expense_List_URL,
         dataType: "json",
         async: true,
     }).done(function(data){
+        /** global: ExpenseTable */
         ExpenseTable.destroy();
         UpdateExpenseTable(data.data);
         UpdateExpenseTableBasicInfo(data.dateFrom, data.dateTo, data.sum)
@@ -89,8 +95,6 @@ function UpdateExpenseTableBasicInfo(dateFrom, dateTo, money) {
 }
 
 function getCategoryIds($listName){
-    var everyChild = document.querySelectorAll($listName + " li");
-
     var Ids = [];
 
     $($listName).find(".active").each(function(){Ids.push($(this).data("id"))});

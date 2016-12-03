@@ -3,6 +3,7 @@
 namespace CategoryBundle\Repository;
 use Doctrine\ORM\EntityManager;
 use MainBundle\Entity\User;
+use Symfony\Bridge\Doctrine\ManagerRegistry;
 
 /**
  * CategoryRepository
@@ -12,16 +13,26 @@ use MainBundle\Entity\User;
  */
 class CategoryRepositoryService
 {
-    private $_em;
+    private $managerRegistry;
 
-    public function __construct(EntityManager $em)
+    /**
+     * BudgetRepositoryService constructor.
+     * @param ManagerRegistry $managerRegistry
+     * @internal param EntityManager $em
+     */
+    public function __construct(ManagerRegistry $managerRegistry)
     {
-        $this->_em = $em;
+        $this->managerRegistry = $managerRegistry;
     }
 
+    /**
+     * @param User $user
+     * @return array
+     */
     public function getAllUserIncomeCategories(User $user)
     {
-        $repository = $this->_em->getRepository('CategoryBundle:Category');
+        $em = $this->managerRegistry->getManager();
+        $repository = $em->getRepository('CategoryBundle:Category');
         $query = $repository->createQueryBuilder('c')
             ->orderBy('c.name', 'ASC')
             ->where('c.user = :user')
@@ -37,9 +48,14 @@ class CategoryRepositoryService
         return $income;
     }
 
+    /**
+     * @param User $user
+     * @return array
+     */
     public function getAllUserExpenseCategories(User $user)
     {
-        $repository = $this->_em->getRepository('CategoryBundle:Category');
+        $em = $this->managerRegistry->getManager();
+        $repository = $em->getRepository('CategoryBundle:Category');
         $query = $repository->createQueryBuilder('c')
             ->orderBy('c.name', 'ASC')
             ->where('c.user = :user')

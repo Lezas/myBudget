@@ -4,9 +4,11 @@ var expenseDateFrom = "";
 var expenseDateTo = "";
 
 // Load the Visualization API and the piechart package.
+/** global: google */
 google.charts.load('current', {'packages':['corechart']});
 
 // Set a callback to run when the Google Visualization API is loaded.
+/** global: google */
 google.charts.setOnLoadCallback(drawChart);
 
 var $chartData;

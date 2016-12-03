@@ -11,6 +11,7 @@ namespace BudgetBundle\Repository;
 
 use Doctrine\ORM\EntityManager;
 use MainBundle\Entity\User;
+use Symfony\Bridge\Doctrine\ManagerRegistry;
 use Symfony\Component\Validator\Constraints\Date;
 
 /**
@@ -19,20 +20,22 @@ use Symfony\Component\Validator\Constraints\Date;
  */
 class BudgetRepositoryService
 {
-    private $_em;
+    private $managerRegistry;
 
     /**
      * BudgetRepositoryService constructor.
-     * @param EntityManager $em
+     * @param ManagerRegistry $managerRegistry
+     * @internal param EntityManager $em
      */
-    public function __construct(EntityManager $em)
+    public function __construct(ManagerRegistry $managerRegistry)
     {
-        $this->_em = $em;
+        $this->managerRegistry = $managerRegistry;
     }
 
     /**
      *
-     * @param Date $date - date object MUST be valid datetime object or string of format YYYY-MM-DD
+     * @param \DateTime|Date $date - date object MUST be valid datetime object or string of format YYYY-MM-DD
+     * @param User $user
      * @return array
      */
     public function getMonthBudget(\DateTime $date = null, User $user)
@@ -52,15 +55,17 @@ class BudgetRepositoryService
     }
 
     /**
-     * @param $date_from
-     * @param $date_to
-     * @param $user
+     * @param string $date_from
+     * @param string $date_to
+     * @param User $user
      * @return array
      */
     public function getBudgetByDateRange($date_from, $date_to, $user)
     {
-        $income = $this->_em->getRepository('BudgetBundle:Income')->getByDateRange($user, $date_from, $date_to);
-        $expense = $this->_em->getRepository('BudgetBundle:Expenses')->getByDateRange($user, $date_from, $date_to);
+        /** @var EntityManager $em */
+        $em = $this->managerRegistry->getManager();
+        $income = $em->getRepository('BudgetBundle:Income')->getByDateRange($user, $date_from, $date_to);
+        $expense = $em->getRepository('BudgetBundle:Expenses')->getByDateRange($user, $date_from, $date_to);
 
         $budget = [];
 

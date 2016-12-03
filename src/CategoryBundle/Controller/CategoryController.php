@@ -90,8 +90,8 @@ class CategoryController extends Controller
         $form->handleRequest($request);
 
         if ($form->isValid()){
-            $this->getDoctrine()->getEntityManager()->persist($category);
-            $this->getDoctrine()->getEntityManager()->flush();
+            $this->getDoctrine()->getManager()->persist($category);
+            $this->getDoctrine()->getManager()->flush();
 
             $this->addFlash(
                 'notice',

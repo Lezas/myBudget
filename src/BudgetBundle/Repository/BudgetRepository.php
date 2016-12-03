@@ -21,6 +21,12 @@ use Doctrine\ORM\EntityRepository;
 class BudgetRepository extends EntityRepository
 {
 
+    /**
+     * @param User $user
+     * @param string $date_from
+     * @param string $date_to
+     * @return array
+     */
     public function getByDateRange(User $user, $date_from, $date_to)
     {
         $query = $this->_em->createQuery(
@@ -40,11 +46,13 @@ class BudgetRepository extends EntityRepository
     }
 
     /**
-     * @param $date_from
-     * @param $date_to
-     * @return mixed  ['2015-02-02 00:00' => 58.85,]
+     * @param User $user
+     * @param string $date_from
+     * @param string $date_to
+     * @param array $categoryIds
+     * @return mixed ['2015-02-02 00:00' => 58.85,]
      */
-    public function getByDateRangeAndCategories($user, $date_from, $date_to, array $Categoryids)
+    public function getByDateRangeAndCategories($user, $date_from, $date_to, array $categoryIds)
     {
 
         $query = $this->_em->createQuery(
@@ -57,7 +65,7 @@ class BudgetRepository extends EntityRepository
         )->setParameter('date_from', $date_from)
             ->setParameter('date_to', $date_to)
             ->setParameter('id', $user)
-            ->setParameter('ids', $Categoryids);
+            ->setParameter('ids', $categoryIds);
 
         $budget = $query->getResult();
 

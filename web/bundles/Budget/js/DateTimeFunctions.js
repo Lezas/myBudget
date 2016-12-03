@@ -115,13 +115,13 @@ $('#select-previous-week').click(function(){
 //YEAR
 
 function getCurrentYearFirstDay() {
-    firstDay = new Date(new Date().getFullYear(), 0, 1);
+    var firstDay = new Date(new Date().getFullYear(), 0, 1);
 
     return firstDay.getFullYear() + '-' + (("0" + (firstDay.getMonth()+1 )).slice(-2)) + '-' + (("0" + (firstDay.getDate())).slice(-2));
 }
 
 function getCurrentYearLastDay() {
-    firstDay = new Date(new Date().getFullYear(), 11, 31);
+    var firstDay = new Date(new Date().getFullYear(), 11, 31);
 
     return firstDay.getFullYear() + '-' + (("0" + (firstDay.getMonth() +1)).slice(-2)) + '-' + (("0" + (firstDay.getDate())).slice(-2));
 }
@@ -138,7 +138,7 @@ $('#select-this-year').click(function(){
 //TODAY
 
 function getToday() {
-    firstDay = new Date(new Date().getFullYear(), new Date().getMonth(), new Date().getDate());
+    var firstDay = new Date(new Date().getFullYear(), new Date().getMonth(), new Date().getDate());
 
     return firstDay.getFullYear() + '-' + (("0" + (firstDay.getMonth()+1 )).slice(-2)) + '-' + (("0" + (firstDay.getDate())).slice(-2));
 }

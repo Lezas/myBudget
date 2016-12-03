@@ -8,6 +8,7 @@ use BudgetBundle\Form\Type\ExpenseType;
 use BudgetBundle\Form\Type\IncomeType;
 use BudgetBundle\Helper\DataFormatter;
 use DateTime;
+use MainBundle\Entity\User;
 use Symfony\Bundle\FrameworkBundle\Controller\Controller;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
 use Symfony\Component\HttpFoundation\JsonResponse;
@@ -60,6 +61,7 @@ class DefaultController extends Controller
      */
     public function newIncomeAction(Request $request)
     {
+        /** @var User $user */
         $user = $this->getUser();
         $income = new Income();
 
@@ -98,6 +100,7 @@ class DefaultController extends Controller
      */
     public function newExpenseAction(Request $request)
     {
+        /** @var User $user */
         $user = $this->getUser();
         $expenses = new Expenses();
         $form = $this->createForm(ExpenseType::class, $expenses, ['user' => $user]);

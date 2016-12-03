@@ -17,6 +17,7 @@ use BudgetBundle\Form\Type\IncomeType;
 use BudgetBundle\Helper\DataFormatter;
 use BudgetBundle\Repository\BudgetRepository;
 use BudgetBundle\Response\AjaxBudgetResponse;
+use MainBundle\Entity\User;
 use Symfony\Bundle\FrameworkBundle\Controller\Controller;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
@@ -40,6 +41,7 @@ class AjaxController extends Controller
     {
         $ajaxBudgetResponse = new AjaxBudgetResponse();
 
+        /** @var User $user */
         $user = $this->getUser();
         $expense = new Expenses();
 
@@ -88,6 +90,7 @@ class AjaxController extends Controller
     public function NewIncomeAction(Request $request)
     {
         $ajaxBudgetResponse = new AjaxBudgetResponse();
+        /** @var User $user */
         $user = $this->getUser();
         $income = new Income();
 
