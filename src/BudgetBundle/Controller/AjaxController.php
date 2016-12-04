@@ -426,6 +426,7 @@ class AjaxController extends Controller
      */
     public function GetExpenseListByDateRangeAction(Request $request)
     {
+        $response = [];
         $user = $this->get('security.token_storage')->getToken()->getUser();
 
         if ($request->query->get('date_from') != "" || $request->query->get('date_to') != "") {
