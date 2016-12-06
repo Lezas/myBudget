@@ -44,12 +44,14 @@ class AjaxController extends Controller
         /** @var User $user */
         $user = $this->getUser();
         $expense = new Expenses();
+        $expenseCategories = $this->get('category.repository.service')->getAllUserExpenseCategories($user);
 
         $form = $this->createForm(ExpenseType::class, $expense, [
             'action' => $this->generateUrl('ajax_new_expense'),
             'attr' => ['class' => 'create_budget'],
             'method' => 'POST',
             'user' => $user,
+            'categories' => $expenseCategories,
         ]);
 
         $form->handleRequest($request);
@@ -93,12 +95,14 @@ class AjaxController extends Controller
         /** @var User $user */
         $user = $this->getUser();
         $income = new Income();
+        $incomeCategories = $this->get('category.repository.service')->getAllUserIncomeCategories($user);
 
         $form = $this->createForm(IncomeType::class, $income, array(
             'action' => $this->generateUrl('ajax_new_income'),
             'attr' => array('class' => 'create_budget'),
             'method' => 'POST',
             'user' => $user,
+            'categories' => $incomeCategories,
         ));
 
         $form->handleRequest($request);
@@ -158,12 +162,14 @@ class AjaxController extends Controller
                 $response['cause'] = 'Cant found expense with that id';
                 return new JsonResponse($response);
             }
+            $expenseCategories = $this->get('category.repository.service')->getAllUserExpenseCategories($user);
 
             $form = $this->createForm(ExpenseType::class, $expense, array(
                 'action' => $this->generateUrl('ajax_update_expense'),
                 'attr' => array('class' => 'create_event_form', 'data-id' => $expense->getId()),
                 'method' => 'POST',
                 'user' => $user,
+                'categories' => $expenseCategories,
             ));
 
             $form->handleRequest($request);
@@ -224,11 +230,13 @@ class AjaxController extends Controller
                 return new JsonResponse($response);
             }
 
+            $incomeCategories = $this->get('category.repository.service')->getAllUserIncomeCategories($user);
             $form = $this->createForm(IncomeType::class, $income, [
                 'action' => $this->generateUrl('ajax_update_income'),
                 'attr' => ['class' => 'create_event_form', 'data-id' => $income->getId()],
                 'method' => 'POST',
                 'user' => $user,
+                'categories' => $incomeCategories,
             ]);
 
             $form->handleRequest($request);

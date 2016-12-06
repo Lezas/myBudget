@@ -9,6 +9,7 @@
 namespace BudgetBundle\Repository;
 
 
+use BudgetBundle\Entity\Expenses;
 use Doctrine\ORM\EntityManager;
 use MainBundle\Entity\User;
 use Symfony\Bridge\Doctrine\ManagerRegistry;

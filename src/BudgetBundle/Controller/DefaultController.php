@@ -2,11 +2,14 @@
 
 namespace BudgetBundle\Controller;
 
+use BudgetBundle\Entity\Budget;
 use BudgetBundle\Entity\Expenses;
 use BudgetBundle\Entity\Income;
+use BudgetBundle\Form\Type\BudgetType;
 use BudgetBundle\Form\Type\ExpenseType;
 use BudgetBundle\Form\Type\IncomeType;
 use BudgetBundle\Helper\DataFormatter;
+use CategoryBundle\Entity\Category;
 use DateTime;
 use MainBundle\Entity\User;
 use Symfony\Bundle\FrameworkBundle\Controller\Controller;
@@ -65,7 +68,8 @@ class DefaultController extends Controller
         $user = $this->getUser();
         $income = new Income();
 
-        $form = $this->createForm(IncomeType::class, $income, ['user' => $user]);
+         $incomeCategories = $this->get('category.repository.service')->getAllUserIncomeCategories($user);
+        $form = $this->createForm(IncomeType::class, $income);
 
         $form->handleRequest($request);
 

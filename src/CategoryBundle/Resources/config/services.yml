@@ -2,4 +2,4 @@ services:
     category.repository.service:
         class: CategoryBundle\Repository\CategoryRepositoryService
         arguments:
-          - '@doctrine.orm.default_entity_manager'
+          - '@doctrine'
