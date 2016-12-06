@@ -68,8 +68,10 @@ class DefaultController extends Controller
         $user = $this->getUser();
         $income = new Income();
 
-         $incomeCategories = $this->get('category.repository.service')->getAllUserIncomeCategories($user);
-        $form = $this->createForm(IncomeType::class, $income);
+        $incomeCategories = $this->get('category.repository.service')->getAllUserIncomeCategories($user);
+        $form = $this->createForm(IncomeType::class, $income, [
+            'categories' => $incomeCategories,
+        ]);
 
         $form->handleRequest($request);
 
@@ -107,7 +109,11 @@ class DefaultController extends Controller
         /** @var User $user */
         $user = $this->getUser();
         $expenses = new Expenses();
-        $form = $this->createForm(ExpenseType::class, $expenses, ['user' => $user]);
+        $expenseCategories = $this->get('category.repository.service')->getAllUserExpenseCategories($user);
+        $form = $this->createForm(ExpenseType::class, $expenses, [
+            'user' => $user,
+            'categories' => $expenseCategories
+        ]);
 
         $form->handleRequest($request);
 
