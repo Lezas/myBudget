@@ -1,4 +1,4 @@
-{% extends 'base.html.twig'  %}
+{% extends 'base.html.twig' %}
 {% block body %}
     {% for key, categories in groupedCategories %}
         {% if key == 0 %}
@@ -8,27 +8,29 @@
         {% endif %}
         <table class="table table-striped table-bordered">
             <thead>
-                <tr>
-                    <th>Name</th>
-                    <th>Type</th>
-                    <th>Parent</th>
-                    <th>Valid</th>
-                    <th>Actions</th>
-                </tr>
+            <tr>
+                <th>Name</th>
+                <th>Type</th>
+                <th>Parent</th>
+                <th>Valid</th>
+                <th>Actions</th>
+            </tr>
             </thead>
             <tbody>
-                {% for category in categories %}
-                    <tr>
-                        <th>{{  category.name }}</th>
-                        <th>{{  category.type }}</th>
-                        <th>{{  category.parent }}</th>
-                        <th>{% if category.valid %} Yes {% else %} No {% endif %}</th>
-                        <th>
-                            <a href="{{ path('edit_category', {'category' : category.id})  }}" class="btn btn-xs"><span class="glyphicon glyphicon-pencil"></span></a>
-                            <a href="{{ path('delete_category', {'category' : category.id}) }}" class="btn btn-xs" onclick="return confirm('are u sure?')"><span class="glyphicon glyphicon-remove"></span></a>
-                        </th>
-                    </tr>
-                {% endfor %}
+            {% for category in categories %}
+                <tr>
+                    <th>{{ category.name }}</th>
+                    <th>{{ category.type }}</th>
+                    <th>{{ category.parent }}</th>
+                    <th>{% if category.valid %} Yes {% else %} No {% endif %}</th>
+                    <th>
+                        <a href="{{ path('edit_category', {'category' : category.id}) }}" class="btn btn-xs"><span
+                                    class="glyphicon glyphicon-pencil"></span></a>
+                        <a href="{{ path('delete_category', {'category' : category.id}) }}" class="btn btn-xs"
+                           onclick="return confirm('are u sure?')"><span class="glyphicon glyphicon-remove"></span></a>
+                    </th>
+                </tr>
+            {% endfor %}
             </tbody>
         </table>
     {% endfor %}

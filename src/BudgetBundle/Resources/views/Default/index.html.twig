@@ -1,7 +1,7 @@
-{% extends 'base.html.twig'  %}
+{% extends 'base.html.twig' %}
 
 {% block stylesheets %}
-    <link href="{{asset('bundles/Budget/css/index.css')}}" rel="stylesheet" type="text/css"/>
+    <link href="{{ asset('bundles/Budget/css/index.css') }}" rel="stylesheet" type="text/css"/>
 {% endblock %}
 
 {% block body %}
@@ -13,12 +13,15 @@
 
     <div class="col-md-6 solid-border ">
         <div class="container-fluid" id="income-list-data">
-            {{ month_first_day }} : {{ month_last_day }} Total:  {{ total_income }}
+            {{ month_first_day }} : {{ month_last_day }} Total: {{ total_income }}
         </div>
 
         <!-- Income list -->
         <div class="container-fluid">
-            <h3>Income <button type="button" class="btn btn-xs  collapse-button"  data-toggle="collapse" data-target="#income-list"><span class="glyphicon glyphicon-menu-down"></span></button></h3>
+            <h3>Income
+                <button type="button" class="btn btn-xs  collapse-button" data-toggle="collapse"
+                        data-target="#income-list"><span class="glyphicon glyphicon-menu-down"></span></button>
+            </h3>
             <ul class="list-group list-window collapse" id="income-list">
                 {% set list = income %}
                 {% set name = 'income' %}
@@ -29,12 +32,15 @@
 
     <div class="col-md-6 solid-border">
         <div class="container-fluid" id="expense-list-data">
-            {{ month_first_day }} : {{ month_last_day }} Total:  {{ total_expense }}
+            {{ month_first_day }} : {{ month_last_day }} Total: {{ total_expense }}
         </div>
 
         <!-- Expenses list -->
         <div class="container-fluid">
-            <h3>Expenses <button type="button" class="btn btn-xs collapse-button"  data-toggle="collapse" data-target="#expense-list"><span class="glyphicon glyphicon-menu-down"></span></button></h3>
+            <h3>Expenses
+                <button type="button" class="btn btn-xs collapse-button" data-toggle="collapse"
+                        data-target="#expense-list"><span class="glyphicon glyphicon-menu-down"></span></button>
+            </h3>
             <ul class="list-group list-window collapse" id="expense-list">
                 {% set list = expenses %}
                 {% set name = 'expense' %}
@@ -129,7 +135,7 @@
         var expenseDateTo = "";
 
         // Load the Visualization API and the piechart package.
-        google.charts.load('current', {'packages':['corechart']});
+        google.charts.load('current', {'packages': ['corechart']});
 
         // Set a callback to run when the Google Visualization API is loaded.
         google.charts.setOnLoadCallback(drawChart);
@@ -152,7 +158,7 @@
         var options = {
             height: 350,
             title: $chartName,
-            hAxis: {title: 'Day',  titleTextStyle: {color: '#333'}},
+            hAxis: {title: 'Day', titleTextStyle: {color: '#333'}},
             vAxis: {title: 'Money', minValue: 0},
             animation: {"startup": true, duration: 500,}
         };
@@ -169,11 +175,11 @@
             chart.draw(data, options);
         }
 
-        $(window).resize(function(){
+        $(window).resize(function () {
             drawChart();
         });
 
-        function newBudgetForm(url, button, backCall){
+        function newBudgetForm(url, button, backCall) {
             button.button('loading');
 
             var jsonData = $.ajax({
@@ -181,8 +187,8 @@
                 url: url,
                 dataType: "json",
                 async: true,
-            }).done(function(data){
-                if(data['success'] == true){
+            }).done(function (data) {
+                if (data['success'] == true) {
                     button.button('reset');
                     $('.modal-body').html(data['form']);
                     $('#myModal').modal('show');
@@ -193,16 +199,16 @@
             });
         }
 
-        function getExpenses(){
+        function getExpenses() {
             var $dateFrom = $("#time_input").children("input").val();
             var $dateTo = $("#time_input2").children("input").val();
 
             var jsonData = $.ajax({
-                data: {date_from : $dateFrom, date_to : $dateTo},
+                data: {date_from: $dateFrom, date_to: $dateTo},
                 url: "{{ url('ajax_expense_by_date_range') }}",
                 dataType: "json",
                 async: true,
-            }).done(function(jsonData){
+            }).done(function (jsonData) {
                 $chartName = 'Expenses';
                 $chartData = jsonData;
                 drawChart();
@@ -211,16 +217,16 @@
 
         }
 
-        function getIncome(){
+        function getIncome() {
             var $dateFrom = $("#time_input").children("input").val();
             var $dateTo = $("#time_input2").children("input").val();
 
             $.ajax({
-                data: {date_from : $dateFrom, date_to : $dateTo},
+                data: {date_from: $dateFrom, date_to: $dateTo},
                 url: "{{ url('ajax_income_by_date_range') }}",
                 dataType: "json",
                 async: true,
-            }).done(function(jsonData){
+            }).done(function (jsonData) {
                 $chartName = 'Income';
                 $chartData = jsonData;
                 drawChart();
@@ -229,16 +235,16 @@
 
         }
 
-        function getBoth(){
+        function getBoth() {
             var $dateFrom = $("#time_input").children("input").val();
             var $dateTo = $("#time_input2").children("input").val();
 
             $.ajax({
-                data: {date_from : $dateFrom, date_to : $dateTo},
+                data: {date_from: $dateFrom, date_to: $dateTo},
                 url: "{{ url('ajax_budget_chart_data') }}",
                 dataType: "json",
                 async: true,
-            }).done(function(jsonData){
+            }).done(function (jsonData) {
                 $chartName = 'Income and Expenses';
                 $chartData = jsonData;
                 var data = new google.visualization.DataTable();
@@ -255,7 +261,7 @@
 
         }
 
-        function deleteIncome($button){
+        function deleteIncome($button) {
 
             var r = confirm("Are you sure you want to delete it?");
             if (r == true) {
@@ -266,7 +272,7 @@
                     url: "{{ url('ajax_delete_income') }}" + '/' + $Id,
                     dataType: "json",
                     async: true,
-                }).done(function(jsonData){
+                }).done(function (jsonData) {
 
                     $button.parent('th').parent('tr').remove();
                     getIncomeList(incomeDateFrom, incomeDateTo);
@@ -274,7 +280,7 @@
             }
         }
 
-        function deleteExpense($button){
+        function deleteExpense($button) {
             var r = confirm("Are you sureyou want to delete it?");
             if (r == true) {
                 var $Id = $button.attr("data-id");
@@ -293,15 +299,15 @@
 
         }
 
-        function getIncomeList($dateFrom, $dateTo){
+        function getIncomeList($dateFrom, $dateTo) {
             incomeDateFrom = $dateFrom;
             incomeDateTo = $dateTo;
             $.ajax({
-                data: {date_from : $dateFrom, date_to : $dateTo},
+                data: {date_from: $dateFrom, date_to: $dateTo},
                 url: "{{ url('ajax_income_list_by_date_range') }}",
                 dataType: "json",
                 async: true,
-            }).done(function(data){
+            }).done(function (data) {
 
 
                 $('#income-list').html(data['list']);
@@ -315,19 +321,19 @@
         }
 
         function getincomeList($dateFrom, $dateTo) {
-            getIncomeList($dateFrom,$dateTo);
+            getIncomeList($dateFrom, $dateTo);
         }
 
-        function getExpenseList($dateFrom, $dateTo){
+        function getExpenseList($dateFrom, $dateTo) {
 
             expenseDateFrom = $dateFrom;
             expenseDateTo = $dateTo;
             $.ajax({
-                data: {date_from : $dateFrom, date_to : $dateTo},
+                data: {date_from: $dateFrom, date_to: $dateTo},
                 url: "{{ url('ajax_expense_list_by_date_range') }}",
                 dataType: "json",
                 async: true,
-            }).done(function(data){
+            }).done(function (data) {
                 $('#expense-list').html(data['list']);
 
                 var $text = data['date_from'] + " : " + data['date_to'] + " Total: " + data['total'];
@@ -352,8 +358,8 @@
                 url: "{{ url('ajax_update_income') }}/" + $Id,
                 dataType: "json",
                 async: true,
-            }).done(function(data){
-                if(data['success'] == true){
+            }).done(function (data) {
+                if (data['success'] == true) {
                     $button.button('reset');
                     $('.modal-body').html(data['form']);
                     $('#myModal').modal('show');
@@ -373,8 +379,8 @@
                 url: "{{ url('ajax_update_expense') }}/" + $expenseId,
                 dataType: "json",
                 async: true,
-            }).done(function(data){
-                if(data['success'] == true){
+            }).done(function (data) {
+                if (data['success'] == true) {
                     $button.button('reset');
 
                     $('.modal-body').html(data['form']);
@@ -396,14 +402,14 @@
         }
 
         $('.collapse-button').click(function () {
-            if($(this).children("span").hasClass('glyphicon glyphicon-menu-up')) {
+            if ($(this).children("span").hasClass('glyphicon glyphicon-menu-up')) {
                 $(this).children("span").attr('class', 'glyphicon glyphicon-menu-down');
             } else {
                 $(this).children("span").attr('class', 'glyphicon glyphicon-menu-up');
             }
         });
 
-        $('#get-income-list-by-range').click(function(){
+        $('#get-income-list-by-range').click(function () {
 
             $('#get-income-list-by-range').button('loading');
             var $dateFrom = $("#time_input").children("input").val();
@@ -413,7 +419,7 @@
 
         })
 
-        $('#get-expense-list-by-range').click(function(){
+        $('#get-expense-list-by-range').click(function () {
             $('#get-expense-list-by-range').button('loading');
 
             var $dateFrom = $("#time_input").children("input").val();
@@ -423,43 +429,43 @@
 
         })
 
-        $('#get-expense-by-range').click(function(){
+        $('#get-expense-by-range').click(function () {
             $('#get-expense-by-range').button('loading');
             getExpenses();
 
         })
 
-        $('#get-income-by-range').click(function(){
+        $('#get-income-by-range').click(function () {
             $('#get-income-by-range').button('loading');
             getIncome();
 
         })
 
-        $('#graph-both').click(function() {
+        $('#graph-both').click(function () {
             getBoth();
         })
 
-        $('.expense-pencil').click(function() {
+        $('.expense-pencil').click(function () {
             $button = $(this);
             getExpenseEdit($button);
         })
 
-        $('.expense-delete').click(function() {
+        $('.expense-delete').click(function () {
             $button = $(this);
             deleteExpense($button);
         })
 
-        $('.income-delete').click(function() {
+        $('.income-delete').click(function () {
             $button = $(this);
             deleteIncome($button);
         })
 
-        $('.income-pencil').click(function() {
+        $('.income-pencil').click(function () {
             $button = $(this);
             getIncomeEdit($button);
         })
 
-        $('#new_expense').click(function() {
+        $('#new_expense').click(function () {
             $(this).button('loading');
             var $button = $(this);
             var $url = "{{ url('ajax_new_expense') }}";
@@ -467,7 +473,7 @@
             newBudgetForm($url, $button);
         });
 
-        $('#new_income').click(function() {
+        $('#new_income').click(function () {
             $(this).button('loading');
             var $button = $(this);
             var $url = "{{ url('ajax_new_income') }}";
@@ -475,15 +481,16 @@
             newBudgetForm($url, $button);
         });
 
-        $('#reset').click(function (){
-            getIncomeList("","");
-            getExpenseList("","");
+        $('#reset').click(function () {
+            getIncomeList("", "");
+            getExpenseList("", "");
         })
 
-        var ROUNDING = 30 * 60 * 1000; /*ms*/
+        var ROUNDING = 30 * 60 * 1000;
+        /*ms*/
         start = moment();
         start = moment(Math.ceil((+start) / ROUNDING) * ROUNDING);
-        jQuery(document).ready(function() {
+        jQuery(document).ready(function () {
 
             $('#time_input').datetimepicker({
                 format: 'YYYY-MM-DD HH:mm',
@@ -510,18 +517,18 @@
                 url: $(this).attr('action') + '/' + $expenseId,
                 data: $(this).serialize()
             })
-            .done(function (data) {
-                $button.button('reset');
+                    .done(function (data) {
+                        $button.button('reset');
 
-                if (data['valid'] == true) {
-                    $('.modal-body').html('');
-                    $('#myModal').modal('hide');
-                    Notificate('Data has been saved')
-                } else if (data['valid'] == false) {
-                    $('.modal-body').html(data['form']);
-                    Notificate('Something went wrong:' + data['cause'])
-                }
-            });
+                        if (data['valid'] == true) {
+                            $('.modal-body').html('');
+                            $('#myModal').modal('hide');
+                            Notificate('Data has been saved')
+                        } else if (data['valid'] == false) {
+                            $('.modal-body').html(data['form']);
+                            Notificate('Something went wrong:' + data['cause'])
+                        }
+                    });
         });
 
         $('body').on('submit', '.create_budget', function (e) {
@@ -532,28 +539,28 @@
 
             $button.button('loading');
 
-            var name =  $(this).attr('name');
+            var name = $(this).attr('name');
             $.ajax({
                 type: $(this).attr('method'),
                 url: $(this).attr('action'),
                 data: $(this).serialize()
             })
-            .done(function (data) {
-                $button.button('reset');
+                    .done(function (data) {
+                        $button.button('reset');
 
-                var function_name = "get" + name + "List";
-                var dateFromName = name + "DateFrom";
-                var dateToName = name + "DateTo";
-                window[function_name](window[dateFromName],window[dateToName]);
+                        var function_name = "get" + name + "List";
+                        var dateFromName = name + "DateFrom";
+                        var dateToName = name + "DateTo";
+                        window[function_name](window[dateFromName], window[dateToName]);
 
-                if (data['valid'] == true) {
-                    $('.modal-body').html('');
-                    $('#myModal').modal('hide');
-                    Notificate('Data has been saved')
-                } else if (data['valid'] == false) {
-                    $('.modal-body').html(data['form']);
-                }
-            });
+                        if (data['valid'] == true) {
+                            $('.modal-body').html('');
+                            $('#myModal').modal('hide');
+                            Notificate('Data has been saved')
+                        } else if (data['valid'] == false) {
+                            $('.modal-body').html(data['form']);
+                        }
+                    });
         });
 
     </script>

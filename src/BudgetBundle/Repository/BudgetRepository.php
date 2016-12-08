@@ -31,7 +31,7 @@ class BudgetRepository extends EntityRepository
     {
         $query = $this->_em->createQuery(
             'SELECT p
-            FROM '. $this->getEntityName() .' p
+            FROM ' . $this->getEntityName() . ' p
             WHERE (p.dateTime BETWEEN :date_from AND :date_to)
             AND p.user = :id
             ORDER BY p.dateTime
@@ -57,7 +57,7 @@ class BudgetRepository extends EntityRepository
 
         $query = $this->_em->createQuery(
             'SELECT p
-            FROM '. $this->getEntityName() .' p
+            FROM ' . $this->getEntityName() . ' p
             WHERE (p.dateTime BETWEEN :date_from AND :date_to)
             AND p.user = :id
             AND p.category IN (:ids)
@@ -83,7 +83,7 @@ class BudgetRepository extends EntityRepository
 
         $query = $this->_em->createQuery(
             'SELECT p
-            FROM '. $this->getEntityName() .' p
+            FROM ' . $this->getEntityName() . ' p
             WHERE (p.dateTime BETWEEN :date_from AND :date_to)
             AND p.user = :id
             AND p.category is null
@@ -105,7 +105,7 @@ class BudgetRepository extends EntityRepository
     {
         $query = $this->_em->createQuery(
             'SELECT p
-            FROM '. $this->getEntityName() .' p
+            FROM ' . $this->getEntityName() . ' p
             WHERE p.user = :id
             ORDER BY p.dateTime ASC'
         )->setParameter('id', $user)
@@ -125,7 +125,7 @@ class BudgetRepository extends EntityRepository
     {
         $query = $this->_em->createQuery(
             'SELECT p
-            FROM '. $this->getEntityName() .' p
+            FROM ' . $this->getEntityName() . ' p
             WHERE p.user = :id
             AND p.category IN (:ids)
             ORDER BY p.dateTime'
@@ -145,7 +145,7 @@ class BudgetRepository extends EntityRepository
     {
         $query = $this->_em->createQuery(
             'SELECT p
-            FROM '. $this->getEntityName() .' p
+            FROM ' . $this->getEntityName() . ' p
             WHERE p.user = :id
             AND p.category is null
             ORDER BY p.dateTime'
@@ -164,7 +164,7 @@ class BudgetRepository extends EntityRepository
     {
         $query = $this->_em->createQuery(
             'SELECT p
-            FROM '. $this->getEntityName() .' p
+            FROM ' . $this->getEntityName() . ' p
             WHERE p.user = :id
             AND p.category is not null
             ORDER BY p.dateTime'

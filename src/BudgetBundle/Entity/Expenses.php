@@ -11,7 +11,6 @@ use Doctrine\ORM\Mapping as ORM;
  * @ORM\Table(name="expense")
  * @ORM\Entity(repositoryClass="BudgetBundle\Repository\ExpensesRepository")
  */
-
 class Expenses extends Budget
 {
 

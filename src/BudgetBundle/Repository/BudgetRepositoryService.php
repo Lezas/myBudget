@@ -42,7 +42,7 @@ class BudgetRepositoryService
     public function getMonthBudget(\DateTime $date = null, User $user)
     {
         //if $dat is null, return this month budget
-        if($date === null){
+        if ($date === null) {
             $date = new \DateTime('now');
         }
 

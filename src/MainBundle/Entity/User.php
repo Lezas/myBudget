@@ -142,5 +142,5 @@ class User extends BaseUser
     {
         $this->Category->removeElement($category);
     }
-    
+
 }

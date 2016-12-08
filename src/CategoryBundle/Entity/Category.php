@@ -34,7 +34,7 @@ class Category
      * @ORM\Column(name="Name", type="string", length=50)
      */
     private $name;
-    
+
 
     /**
      * @var string
@@ -163,8 +163,8 @@ class Category
     {
         return $this->type;
     }
-    
-    
+
+
     /**
      * Constructor
      */

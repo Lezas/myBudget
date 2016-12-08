@@ -51,7 +51,7 @@ class BudgetType extends AbstractType
         }
 
         $builder->add('name', TextType::class, ['label' => 'Name'])
-            ->add('dateTime', DateTimeType::class , [
+            ->add('dateTime', DateTimeType::class, [
                     'input' => 'datetime',
                     'widget' => 'single_text',
                     'format' => 'y-MM-dd HH:mm',
@@ -85,7 +85,7 @@ class BudgetType extends AbstractType
     /**
      * @param OptionsResolver $resolver
      */
-    public function setDefaultOptions(OptionsResolver  $resolver)
+    public function setDefaultOptions(OptionsResolver $resolver)
     {
         $resolver->setDefaults([
             'data_class' => 'BudgetBundle/Entity/Budget',

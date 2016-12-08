@@ -12,6 +12,10 @@ use Symfony\Component\Form\Extension\Core\Type\TextType;
 use Symfony\Component\Form\FormBuilderInterface;
 use Symfony\Component\OptionsResolver\OptionsResolver;
 
+/**
+ * Class CategoryType
+ * @package CategoryBundle\Form\Type
+ */
 class CategoryType extends AbstractType
 {
     /**
@@ -19,10 +23,18 @@ class CategoryType extends AbstractType
      */
     private $user;
 
+    /**
+     * CategoryType constructor.
+     * @param User|null $user
+     */
     public function __construct(User $user = null)
     {
         $this->user = $user;
     }
+
+    /**
+     * {@inheritdoc}
+     */
     public function buildForm(FormBuilderInterface $builder, array $options)
     {
         $this->user = $options['user'];
@@ -46,7 +58,7 @@ class CategoryType extends AbstractType
                 'multiple' => false,
                 'required' => false,
                 'group_by' => 'parent',
-                'query_builder' => function(EntityRepository $er ) use ($user) {
+                'query_builder' => function (EntityRepository $er) use ($user) {
                     return $er->createQueryBuilder('c')
                         ->orderBy('c.name', 'ASC')
                         ->where('c.user = :user')
@@ -55,10 +67,13 @@ class CategoryType extends AbstractType
                         ->setParameter('user', $user);
                 },
             ))
-            ->add('submit', SubmitType::class)
-            ;
+            ->add('submit', SubmitType::class);
 
     }
+
+    /**
+     * @return string
+     */
     public function getName()
     {
         return 'category';

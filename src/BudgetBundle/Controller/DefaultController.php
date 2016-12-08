@@ -21,6 +21,10 @@ use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 use Symfony\Component\Validator\Constraints\Date;
 
 
+/**
+ * Class DefaultController
+ * @package BudgetBundle\Controller
+ */
 class DefaultController extends Controller
 {
     /**
@@ -35,20 +39,20 @@ class DefaultController extends Controller
         $totalIncome = 0;
         $totalExpenses = 0;
 
-        foreach($budget_array['income'] as $array){
+        foreach ($budget_array['income'] as $array) {
             /** @var $array Income */
             $totalIncome += (float)$array->getMoney();
         }
 
-        foreach($budget_array['expenses'] as $array){
+        foreach ($budget_array['expenses'] as $array) {
             /** @var $array Expenses */
             $totalExpenses += (float)$array->getMoney();
         }
 
         $date = new \DateTime('now');
 
-        return $this->render('BudgetBundle:Default:index.html.twig',[
-            'total_expense' =>$totalExpenses,
+        return $this->render('BudgetBundle:Default:index.html.twig', [
+            'total_expense' => $totalExpenses,
             'total_income' => $totalIncome,
             'income' => $budget_array['income'],
             'expenses' => $budget_array['expenses'],
@@ -75,7 +79,7 @@ class DefaultController extends Controller
 
         $form->handleRequest($request);
 
-        if($form->isValid()){
+        if ($form->isValid()) {
             $user = $this->getUser();
             $raw_data = $form->getData();
 
@@ -93,10 +97,10 @@ class DefaultController extends Controller
             return $this->redirectToRoute('dashboard');
         }
 
-        return $this->render('BudgetBundle:Default:newIncome.html.twig',[
+        return $this->render('BudgetBundle:Default:newIncome.html.twig', [
             'form' => $form->createView(),
         ]);
-        
+
     }
 
     /**
@@ -117,7 +121,7 @@ class DefaultController extends Controller
 
         $form->handleRequest($request);
 
-        if($form->isValid()){
+        if ($form->isValid()) {
             $user = $this->getUser();
             $raw_data = $form->getData();
 
@@ -137,9 +141,9 @@ class DefaultController extends Controller
             return $this->redirectToRoute('dashboard');
         }
 
-        return $this->render('BudgetBundle:Default:newExpense.html.twig',[
+        return $this->render('BudgetBundle:Default:newExpense.html.twig', [
             'form' => $form->createView(),
         ]);
     }
-    
+
 }

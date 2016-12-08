@@ -23,6 +23,7 @@ use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 use Symfony\Component\Routing\Annotation\Route;
+use Sensio\Bundle\FrameworkExtraBundle\Configuration\Security;
 use Symfony\Component\Validator\Constraints\Date;
 
 /**
@@ -135,6 +136,7 @@ class AjaxController extends Controller
 
     /**
      * @Route("/update-expense/{expense}", name="ajax_update_expense")
+     * @Security("user.getId() == expense.getUser().getId()")
      * @param Expenses $expense
      * @param Request $request
      * @return JsonResponse
@@ -149,12 +151,6 @@ class AjaxController extends Controller
             return new JsonResponse($response);
         } else {
             $user = $this->getUser();
-            $expenseUser = $expense->getUser();
-
-            if ($expenseUser->getId() !== $user->getId()) {
-                $response['cause'] = 'Cant found expense with that id';
-                return new JsonResponse($response);
-            }
             $expenseCategories = $this->get('category.repository.service')->getAllUserExpenseCategories($user);
 
             $form = $this->createForm(ExpenseType::class, $expense, array(
@@ -195,6 +191,7 @@ class AjaxController extends Controller
 
     /**
      * @Route("/update-income/{income}", name="ajax_update_income")
+     * @Security("user.getId() == income.getUser().getId()")
      * @param Income $income
      * @param Request $request
      * @return JsonResponse
@@ -209,12 +206,6 @@ class AjaxController extends Controller
             return new JsonResponse($response);
         } else {
             $user = $this->getUser();
-            $incomeUser = $income->getUser();
-
-            if ($incomeUser->getId() !== $user->getId()) {
-                $response['cause'] = 'Can\'t found income with that id';
-                return new JsonResponse($response);
-            }
 
             $incomeCategories = $this->get('category.repository.service')->getAllUserIncomeCategories($user);
             $form = $this->createForm(IncomeType::class, $income, [
@@ -256,6 +247,7 @@ class AjaxController extends Controller
 
     /**
      * @Route("/delete-income/{income}", name="ajax_delete_income")
+     * @Security("user.getId() == income.getUser().getId()")
      * @param Income $income
      * @return JsonResponse
      */
@@ -272,6 +264,7 @@ class AjaxController extends Controller
 
     /**
      * @Route("/delete-expense/{expense}", name="ajax_delete_expense")
+     * @Security("user.getId() == expense.getUser().getId()")
      * @param Expenses $expense
      * @return JsonResponse
      */
@@ -296,14 +289,6 @@ class AjaxController extends Controller
         $response['success'] = false;
 
         $em = $this->getDoctrine()->getManager();
-        $user = $this->getUser();
-        $budgetUser = $budget->getUser();
-
-        if ($budgetUser !== $user) {
-            $response['cause'] = 'Can\'t found expense with that id';
-            return $response;
-        }
-
         $em->remove($budget);
         $em->flush();
 

@@ -17,7 +17,7 @@ class DataFormatter
         $arrayCol = new ArrayCollection($data);
 
         $returnArray = new ArrayCollection();
-        foreach ($arrayCol as $mkey=>$data) {
+        foreach ($arrayCol as $mkey => $data) {
 
             if ($returnArray->get($data->getDateTime()->format('Y-m-d')) != null) {
                 $row = $returnArray->get($data->getDateTime()->format('Y-m-d')) + (float)$data->getMoney();
@@ -28,10 +28,10 @@ class DataFormatter
         }
 
         $true = [];
-        foreach ($returnArray as $key=>$array) {
-            $true[] =  [$key, $array];
+        foreach ($returnArray as $key => $array) {
+            $true[] = [$key, $array];
         }
-        
+
         return $true;
     }
 
@@ -47,22 +47,22 @@ class DataFormatter
         foreach ($first as $first_row) {
 
             $found = false;
-            foreach ($second as $sk => $second_row){
-                if($first_row[0] == $second_row[0]){
-                    $return[] = [$first_row[0],$first_row[1],$second_row[1]];
+            foreach ($second as $sk => $second_row) {
+                if ($first_row[0] == $second_row[0]) {
+                    $return[] = [$first_row[0], $first_row[1], $second_row[1]];
                     unset($second[$sk]);
                     $found = true;
                     break;
                 }
             }
 
-            if($found == false){
-                $return[] = [$first_row[0],$first_row[1],0];
+            if ($found == false) {
+                $return[] = [$first_row[0], $first_row[1], 0];
             }
         }
 
-        foreach ($second as $srow){
-            $return[] = [$srow[0],0,$srow[1]];
+        foreach ($second as $srow) {
+            $return[] = [$srow[0], 0, $srow[1]];
         }
         sort($return);
 

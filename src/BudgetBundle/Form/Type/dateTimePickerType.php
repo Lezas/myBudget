@@ -11,15 +11,16 @@ class dateTimePickerType extends AbstractType
     public function buildForm(FormBuilderInterface $builder, array $options)
     {
         $builder->add('date_time', datetimetype::class, [
-                    'input' => 'datetime',
-                    'widget' => 'single_text',
-                    'format' => 'y-MM-dd HH:mm',
-                    'attr' => ['class' => 'date'],
-                    'label' => false,
-                ]
-            );
+                'input' => 'datetime',
+                'widget' => 'single_text',
+                'format' => 'y-MM-dd HH:mm',
+                'attr' => ['class' => 'date'],
+                'label' => false,
+            ]
+        );
 
     }
+
     public function getName()
     {
         return 'dateTimePicker';
