@@ -134,30 +134,23 @@ class AjaxController extends Controller
     }
 
     /**
-     * @Route("/update-expense/{id}", name="ajax_update_expense")
-     * @param null $id
+     * @Route("/update-expense/{expense}", name="ajax_update_expense")
+     * @param Expenses $expense
      * @param Request $request
      * @return JsonResponse
      */
-    public function UpdateExpense($id = null, Request $request)
+    public function UpdateExpense(Expenses $expense = null, Request $request)
     {
         $response = [];
         $response['success'] = false;
 
-        if ($id === null) {
+        if ($expense === null) {
             $response['cause'] = 'You must specify expense id';
             return new JsonResponse($response);
         } else {
-
-            $em = $this->getDoctrine()->getManager();
-            $expense = $em->getRepository('BudgetBundle:Expenses')->find($id);
             $user = $this->getUser();
             $expenseUser = $expense->getUser();
 
-            if ($expense === null) {
-                $response['cause'] = 'Cant found expense with that id';
-                return new JsonResponse($response);
-            }
             if ($expenseUser->getId() !== $user->getId()) {
                 $response['cause'] = 'Cant found expense with that id';
                 return new JsonResponse($response);
@@ -201,30 +194,23 @@ class AjaxController extends Controller
     }
 
     /**
-     * @Route("/update-income/{id}", name="ajax_update_income")
-     * @param null $id
+     * @Route("/update-income/{income}", name="ajax_update_income")
+     * @param Income $income
      * @param Request $request
      * @return JsonResponse
      */
-    public function UpdateIncome($id = null, Request $request)
+    public function UpdateIncome(Income $income = null, Request $request)
     {
         $response = [];
         $response['success'] = false;
 
-        if ($id === null) {
+        if ($income === null) {
             $response['cause'] = 'You must specify income id';
             return new JsonResponse($response);
         } else {
-
-            $em = $this->getDoctrine()->getManager();
-            $income = $em->getRepository('BudgetBundle:Income')->find($id);
             $user = $this->getUser();
             $incomeUser = $income->getUser();
 
-            if ($income === null) {
-                $response['cause'] = 'Can\'t found income with that id';
-                return new JsonResponse($response);
-            }
             if ($incomeUser->getId() !== $user->getId()) {
                 $response['cause'] = 'Can\'t found income with that id';
                 return new JsonResponse($response);
@@ -269,67 +255,54 @@ class AjaxController extends Controller
     }
 
     /**
-     * @Route("/delete-income/{id}", name="ajax_delete_income")
-     * @param null $id
-     * @param Request $request
+     * @Route("/delete-income/{income}", name="ajax_delete_income")
+     * @param Income $income
      * @return JsonResponse
      */
-    public function DeleteIncome($id = null, Request $request)
+    public function DeleteIncome(Income $income = null)
     {
-        $em = $this->getDoctrine()->getManager();
-        $income = $em->getRepository('BudgetBundle:Income');
-        $response = $this->deleteBudget($id, $income);
+        $response = $this->deleteBudget($income);
 
         return new JsonResponse($response);
     }
 
     /**
-     * @Route("/delete-expense/{id}", name="ajax_delete_expense")
-     * @param null $id
-     * @param Request $request
+     * @Route("/delete-expense/{expense}", name="ajax_delete_expense")
+     * @param Expenses $expense
      * @return JsonResponse
      */
-    public function DeleteExpense($id = null, Request $request)
+    public function DeleteExpense(Expenses $expense = null)
     {
-        $em = $this->getDoctrine()->getManager();
-        $expense = $em->getRepository('BudgetBundle:Expenses');
-        $response = $this->deleteBudget($id, $expense);
+        $response = $this->deleteBudget($expense);
 
         return new JsonResponse($response);
     }
 
     /**
-     * @param null $id
-     * @param BudgetRepository $repository
+     * @param Budget $budget
      * @return mixed
      */
-    private function deleteBudget($id = null, BudgetRepository $repository)
+    private function deleteBudget(Budget $budget)
     {
         $response = [];
         $response['success'] = false;
 
-        if ($id === null) {
-            $response['cause'] = 'You must specify expense id';
-            return $response;
-        } else {
+        $em = $this->getDoctrine()->getManager();
+        $user = $this->getUser();
+        $budgetUser = $budget->getUser();
 
-            $em = $this->getDoctrine()->getManager();
-            $budget = $repository->find($id);
-            $user = $this->getUser();
-            $budgetUser = $budget->getUser();
-
-            if ($budget === null || $budgetUser !== $user) {
-                $response['cause'] = 'Can\'t found expense with that id';
-                return $response;
-            }
-
-            $em->remove($budget);
-            $em->flush();
-
-            $response['success'] = true;
-
+        if ($budgetUser !== $user) {
+            $response['cause'] = 'Can\'t found expense with that id';
             return $response;
         }
+
+        $em->remove($budget);
+        $em->flush();
+
+        $response['success'] = true;
+
+        return $response;
+
     }
 
     /**
@@ -470,10 +443,9 @@ class AjaxController extends Controller
 
     /**
      * @Route("/expenses", name="ajax_expense")
-     * @param Request $request
      * @return JsonResponse
      */
-    public function GetExpenseAction(Request $request)
+    public function GetExpenseAction()
     {
         $user = $this->get('security.token_storage')->getToken()->getUser();
 

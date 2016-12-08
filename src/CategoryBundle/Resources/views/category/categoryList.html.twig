@@ -24,8 +24,8 @@
                         <th>{{  category.parent }}</th>
                         <th>{% if category.valid %} Yes {% else %} No {% endif %}</th>
                         <th>
-                            <a href="{{ path('edit_category', {'id' : category.id})  }}" class="btn btn-xs"><span class="glyphicon glyphicon-pencil"></span></a>
-                            <a href="{{ path('delete_category', {'id' : category.id}) }}" class="btn btn-xs" onclick="return confirm('are u sure?')"><span class="glyphicon glyphicon-remove"></span></a>
+                            <a href="{{ path('edit_category', {'category' : category.id})  }}" class="btn btn-xs"><span class="glyphicon glyphicon-pencil"></span></a>
+                            <a href="{{ path('delete_category', {'category' : category.id}) }}" class="btn btn-xs" onclick="return confirm('are u sure?')"><span class="glyphicon glyphicon-remove"></span></a>
                         </th>
                     </tr>
                 {% endfor %}

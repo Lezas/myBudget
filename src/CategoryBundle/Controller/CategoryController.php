@@ -16,22 +16,22 @@ class CategoryController extends Controller
 {
     /**
      * @Route("/category/new", name="new_category")
-     *
+     * @param Request $request
+     * @return \Symfony\Component\HttpFoundation\RedirectResponse|\Symfony\Component\HttpFoundation\Response
      */
     public function newCategoryAction(Request $request)
     {
         $user = $this->getUser();
-        
         $category = new Category();
         $form = $this->createForm(CategoryType::class, $category, ['user' => $user]);
-
         $form->handleRequest($request);
 
         if ($form->isValid()){
             $category->setUser($this->getUser());
-            
-            $this->getDoctrine()->getManager()->persist($category);
-            $this->getDoctrine()->getManager()->flush();
+            $em = $this->getDoctrine()->getManager();
+            $em->persist($category);
+            $em->flush();
+
             return $this->redirectToRoute('category_list');
         }
 
@@ -42,9 +42,9 @@ class CategoryController extends Controller
 
     /**
      * @Route("/category/all", name="category_list")
-     *
+     * @return \Symfony\Component\HttpFoundation\Response
      */
-    public function listCategoryAction(Request $request)
+    public function listCategoryAction()
     {
         $user = $this->getUser();
         
@@ -69,20 +69,17 @@ class CategoryController extends Controller
     }
 
     /**
-     * @Route("category/{id}", name="edit_category")
-     *
+     * @Route("category/{category}", name="edit_category")
+     * @param Category $category
      * @param Request $request
-     * @param $id
      * @return \Symfony\Component\HttpFoundation\RedirectResponse
      */
-    public function editCategoryAction(Request $request, $id)
+    public function editCategoryAction(Category $category, Request $request)
     {
-        $categoryRepository = $this->getDoctrine()->getRepository('CategoryBundle:Category');
-        $category = $categoryRepository->findOneBy(['id'=>$id]);
         $user = $this->getUser();
         $categoryUser = $category->getUser();
 
-        if ($categoryUser !== $user || $category === null) {
+        if ($categoryUser !== $user) {
             throw $this->createNotFoundException('The category does not exist');
         }
 
@@ -90,13 +87,15 @@ class CategoryController extends Controller
         $form->handleRequest($request);
 
         if ($form->isValid()){
-            $this->getDoctrine()->getManager()->persist($category);
-            $this->getDoctrine()->getManager()->flush();
+            $em = $this->getDoctrine()->getManager();
+            $em->persist($category);
+            $em->flush();
 
             $this->addFlash(
                 'notice',
                 'Your category has been saved!'
             );
+
             return $this->redirectToRoute('category_list');
         }
 
@@ -106,29 +105,23 @@ class CategoryController extends Controller
     }
 
     /**
-     * @Route("category/{id}/delete", name="delete_category")
-     *
-     * @param Request $request
-     * @param $id
+     * @Route("category/{category}/delete", name="delete_category")
+     * @param Category $category
      * @return \Symfony\Component\HttpFoundation\RedirectResponse
+     * @internal param Request $request
+     * @internal param $id
      */
-    public function deleteCategoryAction(Request $request, $id)
+    public function deleteCategoryAction(Category $category)
     {
-        $categoryRepository = $this->getDoctrine()->getRepository('CategoryBundle:Category');
-
-        /** @var $category Category*/
-        $category = $categoryRepository->findOneBy(['id'=>$id]);
-
         $user = $this->getUser();
         $categoryUser = $category->getUser();
 
-        if ($categoryUser !== $user || $category === null) {
+        if ($categoryUser !== $user) {
             throw $this->createNotFoundException('The category does not exist');
         }
 
         /** @var $em EntityManager */
         $em = $this->getDoctrine()->getManager();
-
 
         if ($category->getExpense()->count() == 0 && $category->getChildren()->count() == 0 && $category->getIncome()->count() == 0) {
             $em->remove($category);
