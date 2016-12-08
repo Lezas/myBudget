@@ -47,18 +47,27 @@ class GroupingHelperTest extends \PHPUnit_Framework_TestCase
         $categories[] = $parent;
 
         $grouped = $groupingHelper->groupByParent($categories);
-
+        /** @var Category $categoryWithoutParent */
+        $categoryWithoutParent = $grouped[0][0];
+        /** @var Category $parentCategory */
+        $parentCategory = $grouped[$parent->getId()][0];
         $grouped = $grouped->toArray();
+
         $this->assertEquals(2,count($grouped));
         $this->assertEquals(1,count($grouped[0]));
         $this->assertArrayHasKey($parent->getId(),$grouped);
         $this->assertEquals(1,count($grouped[$parent->getId()]));
-        $this->assertEquals($category->getName(),$grouped[$parent->getId()][0]->getName());
-
-        /** @var Category $categoryWithoutParent */
-        $categoryWithoutParent = $grouped[0][0];
-
+        $this->assertEquals($category->getName(),$parentCategory->getName());
         $this->assertEquals($categoryWithoutParent->getId(),$parent->getId());
 
+    }
+
+    public function testGroupByParent_methodReturnsArrayCollection()
+    {
+        $groupingHelper = new GroupingHelper();
+        $categories = [];
+        $data = $groupingHelper->groupByParent($categories);
+
+        $this->assertInstanceOf(ArrayCollection::class,$data);
     }
 }
