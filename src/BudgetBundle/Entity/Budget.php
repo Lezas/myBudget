@@ -113,7 +113,7 @@ class Budget
      *
      * @return Budget
      */
-    public function setUser($user = null)
+    public function setUser(User $user = null)
     {
         $this->user = $user;
 
