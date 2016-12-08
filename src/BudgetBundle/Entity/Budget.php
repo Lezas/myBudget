@@ -2,6 +2,7 @@
 namespace BudgetBundle\Entity;
 
 use CategoryBundle\Entity\Category;
+use FOS\UserBundle\Model\UserInterface;
 use MainBundle\Entity\User;
 use Doctrine\ORM\Mapping as ORM;
 
@@ -109,11 +110,11 @@ class Budget
     /**
      * Set user
      *
-     * @param \MainBundle\Entity\User $user
+     * @param UserInterface $user
      *
      * @return Budget
      */
-    public function setUser(\MainBundle\Entity\User $user = null)
+    public function setUser(UserInterface $user = null)
     {
         $this->user = $user;
 
