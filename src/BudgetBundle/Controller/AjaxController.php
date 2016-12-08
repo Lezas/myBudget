@@ -261,6 +261,10 @@ class AjaxController extends Controller
      */
     public function DeleteIncome(Income $income = null)
     {
+        if ($income === null) {
+            throw $this->createNotFoundException();
+        }
+
         $response = $this->deleteBudget($income);
 
         return new JsonResponse($response);
@@ -273,6 +277,10 @@ class AjaxController extends Controller
      */
     public function DeleteExpense(Expenses $expense = null)
     {
+        if ($expense === null) {
+            throw $this->createNotFoundException();
+        }
+
         $response = $this->deleteBudget($expense);
 
         return new JsonResponse($response);
