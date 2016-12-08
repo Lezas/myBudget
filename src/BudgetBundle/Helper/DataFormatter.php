@@ -56,7 +56,7 @@ class DataFormatter
                 }
             }
 
-            if ($found == false) {
+            if ($found === false) {
                 $return[] = [$first_row[0], $first_row[1], 0];
             }
         }
