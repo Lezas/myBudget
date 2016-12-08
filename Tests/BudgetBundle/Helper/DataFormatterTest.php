@@ -1,6 +1,7 @@
 <?php
 
 namespace Tests\BudgetBundle\Helper;
+
 use BudgetBundle\Entity\Budget;
 use BudgetBundle\Helper\DataFormatter;
 use Doctrine\Common\Collections\ArrayCollection;
@@ -28,8 +29,8 @@ class DataFormatterTest extends \PHPUnit_Framework_TestCase
 
         $return = DataFormatter::groupByDay($arr);
 
-        $this->assertEquals(1,count($return));
-        $this->assertEquals(300,$return[0][1]);
+        $this->assertEquals(1, count($return));
+        $this->assertEquals(300, $return[0][1]);
 
         $b = new Budget();
         $b->setMoney('200.99')
@@ -43,11 +44,11 @@ class DataFormatterTest extends \PHPUnit_Framework_TestCase
 
         $return = DataFormatter::groupByDay($arr);
 
-        $this->assertEquals(2,count($return));
-        $this->assertEquals(300,$return[0][1]);
-        $this->assertEquals('2016-01-01',$return[0][0]);
-        $this->assertEquals(401.04,$return[1][1]);
-        $this->assertEquals('2016-01-02',$return[1][0]);
+        $this->assertEquals(2, count($return));
+        $this->assertEquals(300, $return[0][1]);
+        $this->assertEquals('2016-01-01', $return[0][0]);
+        $this->assertEquals(401.04, $return[1][1]);
+        $this->assertEquals('2016-01-02', $return[1][0]);
 
     }
 
@@ -103,12 +104,12 @@ class DataFormatterTest extends \PHPUnit_Framework_TestCase
 
         $data = DataFormatter::connectData($filteredBudget1, $filteredBudget2);
 
-        $this->assertEquals(2,count($data));
-        $this->assertEquals(300,$data[0][1]);
-        $this->assertEquals(125,$data[0][2]);
-        $this->assertEquals('2016-01-01',$data[0][0]);
-        $this->assertEquals(401.04,$data[1][1]);
-        $this->assertEquals(401.00,$data[1][2]);
-        $this->assertEquals('2016-01-02',$data[1][0]);
+        $this->assertEquals(2, count($data));
+        $this->assertEquals(300, $data[0][1]);
+        $this->assertEquals(125, $data[0][2]);
+        $this->assertEquals('2016-01-01', $data[0][0]);
+        $this->assertEquals(401.04, $data[1][1]);
+        $this->assertEquals(401.00, $data[1][2]);
+        $this->assertEquals('2016-01-02', $data[1][0]);
     }
 }
