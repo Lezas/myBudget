@@ -117,5 +117,55 @@ class BudgetRepositoryTest extends WebTestCase
         $this->assertCount(2, $expenses);
     }
 
+    public function testGetWithoutCategories()
+    {
+        $user = $this->em->getRepository('MainBundle:User')->findOneBy(['username' => 'admin']);
+
+        $expenses = $this->em
+            ->getRepository('BudgetBundle:Expenses')
+            ->getWithoutCategories($user);
+        ;
+
+        $this->assertCount(2, $expenses);
+    }
+
+    public function testGetWithCategories()
+    {
+        $user = $this->em->getRepository('MainBundle:User')->findOneBy(['username' => 'admin']);
+        $expenses = $this->em
+            ->getRepository('BudgetBundle:Expenses')
+            ->getWithCategories($user);
+        ;
+
+        $this->assertCount(2, $expenses);
+    }
+
+    public function testGetFirst()
+    {
+        $user = $this->em->getRepository('MainBundle:User')->findOneBy(['username' => 'admin']);
+        $expense = $this->em
+            ->getRepository('BudgetBundle:Expenses')
+            ->getFirst($user);
+        ;
+
+        $this->assertEquals('maistas',$expense[0]->getName());
+    }
+
+    public function testGetByCategories()
+    {
+        $user = $this->em->getRepository('MainBundle:User')->findOneBy(['username' => 'admin']);
+        $category = $this->em->getRepository('CategoryBundle:Category')->findOneBy(['name' => 'expense']);
+
+        $categoryIds = new ArrayCollection();
+        $categoryIds->add($category->getId());
+
+        $expenses = $this->em
+            ->getRepository('BudgetBundle:Expenses')
+            ->getByCategories($user, $categoryIds->toArray());
+        ;
+
+        $this->assertCount(2, $expenses);
+    }
+
 
 }
