@@ -13,3 +13,6 @@ build:
                 coverage:
                     file: 'coverage.xml'
                     format: 'clover'
+    project_setup:
+        before:
+            - mysql -e "CREATE DATABASE testdb"
