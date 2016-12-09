@@ -12,7 +12,7 @@
     },
     "require": {
         "php": ">=5.5.9",
-        "symfony/symfony": "3.1.*",
+        "symfony/symfony": "3.2.*",
         "doctrine/orm": "^2.5",
         "doctrine/doctrine-bundle": "^1.6",
         "doctrine/doctrine-cache-bundle": "^1.2",
@@ -26,7 +26,8 @@
     },
     "require-dev": {
         "sensio/generator-bundle": "^3.0",
-        "symfony/phpunit-bridge": "^2.7"
+        "symfony/phpunit-bridge": "^2.7",
+        "doctrine/doctrine-fixtures-bundle": "^2.3"
     },
     "scripts": {
         "post-install-cmd": [

@@ -14,6 +14,10 @@ use Symfony\Component\OptionsResolver\OptionsResolver;
 use Symfony\Bridge\Doctrine\Form\Type\EntityType;
 
 
+/**
+ * Class ExpenseType
+ * @package BudgetBundle\Form\Type
+ */
 class ExpenseType extends BudgetType
 {
 

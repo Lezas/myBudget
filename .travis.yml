@@ -28,6 +28,7 @@ before-install:
 # Create database, schema and fixtures
 install:
   - mysql -e "create database IF NOT EXISTS symfony;" -uroot
+  - mysql -e "create database IF NOT EXISTS testdb;" -uroot
   - composer install
   - cp app/config/parameters.yml.dist app/config/parameters.yml
   - php bin/console doctrine:schema:create

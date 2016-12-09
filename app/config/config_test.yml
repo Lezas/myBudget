@@ -1,6 +1,11 @@
 imports:
     - { resource: config_dev.yml }
-
+doctrine:
+    dbal:
+        host:     localhost
+        dbname:   testdb
+        user:     root
+        password: null
 framework:
     test: ~
     session:
