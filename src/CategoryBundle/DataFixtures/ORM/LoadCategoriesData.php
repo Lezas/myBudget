@@ -3,11 +3,13 @@
 namespace CategoryBundle\DataFixtures\ORM;
 
 use CategoryBundle\Entity\Category;
+use Doctrine\Common\DataFixtures\AbstractFixture;
 use Doctrine\Common\DataFixtures\FixtureInterface;
+use Doctrine\Common\DataFixtures\OrderedFixtureInterface;
 use Doctrine\Common\Persistence\ObjectManager;
 use MainBundle\Entity\User;
 
-class LoadCategoriesData implements FixtureInterface
+class LoadCategoriesData extends AbstractFixture implements OrderedFixtureInterface
 {
     public function load(ObjectManager $manager)
     {
@@ -23,5 +25,10 @@ class LoadCategoriesData implements FixtureInterface
 
         $manager->persist($category);
         $manager->flush();
+    }
+
+    public function getOrder()
+    {
+        return 2;
     }
 }

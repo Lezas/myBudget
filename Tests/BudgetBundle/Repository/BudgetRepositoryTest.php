@@ -1,6 +1,7 @@
 <?php
 namespace Tests\BudgetBundle\Repository;
 
+use Doctrine\Common\Collections\ArrayCollection;
 use Symfony\Bundle\FrameworkBundle\Console\Application;
 use Symfony\Bundle\FrameworkBundle\Test\KernelTestCase;
 use Symfony\Bundle\FrameworkBundle\Test\WebTestCase;
@@ -71,12 +72,46 @@ class BudgetRepositoryTest extends WebTestCase
 
         $this->assertCount(2, $expenses);
 
-        $dateFrom = new \DateTime('2016-01-01');
-        $dateTo = new \DateTime('2016-01-10');
+        $dateFrom = new \DateTime('2016-01-05 23:32');
+        $dateTo = new \DateTime('2016-01-06 23:34');
 
         $expenses = $this->em
             ->getRepository('BudgetBundle:Expenses')
             ->getByDateRange($user, $dateFrom, $dateTo);
+        ;
+
+        $this->assertCount(2, $expenses);
+    }
+
+    public function testGetByDateRangeWithoutCategories()
+    {
+        $user = $this->em->getRepository('MainBundle:User')->findOneBy(['username' => 'admin']);
+
+        $dateFrom = new \DateTime('2016-01-05 23:32');
+        $dateTo = new \DateTime('2016-01-06 23:34');
+
+        $expenses = $this->em
+            ->getRepository('BudgetBundle:Expenses')
+            ->getByDateRangeWithoutCategories($user, $dateFrom, $dateTo);
+        ;
+
+        $this->assertCount(2, $expenses);
+    }
+
+    public function testGetByDateRangeWithCategories()
+    {
+        $user = $this->em->getRepository('MainBundle:User')->findOneBy(['username' => 'admin']);
+        $category = $this->em->getRepository('CategoryBundle:Category')->findOneBy(['name' => 'expense']);
+
+        $dateFrom = new \DateTime('2016-01-10 23:32');
+        $dateTo = new \DateTime('2016-01-20 23:34');
+
+        $categoryIds = new ArrayCollection();
+        $categoryIds->add($category->getId());
+
+        $expenses = $this->em
+            ->getRepository('BudgetBundle:Expenses')
+            ->getByDateRangeAndCategories($user, $dateFrom, $dateTo, $categoryIds->toArray());
         ;
 
         $this->assertCount(2, $expenses);
