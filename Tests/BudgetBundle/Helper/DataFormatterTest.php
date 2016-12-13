@@ -130,6 +130,7 @@ class DataFormatterTest extends \PHPUnit_Framework_TestCase
 
         $filteredBudget1 = DataFormatter::groupByDay($arr);
 
+        $arr = [];
         $b = new Budget();
         $b->setMoney(50)
             ->setDateTime(new \DateTime('2016-01-03'));
@@ -147,9 +148,9 @@ class DataFormatterTest extends \PHPUnit_Framework_TestCase
 
         $this->assertEquals(4, count($data));
         $this->assertEquals(100, $data[0][1]);
-        $this->assertEquals(100, $data[0][2]);
+        $this->assertEquals(0, $data[0][2]);
         $this->assertEquals(200.05, $data[1][1]);
-        $this->assertEquals(200.05, $data[1][2]);
+        $this->assertEquals(0, $data[1][2]);
         $this->assertEquals(0, $data[2][1]);
         $this->assertEquals(50, $data[2][2]);
         $this->assertEquals(0, $data[3][1]);
