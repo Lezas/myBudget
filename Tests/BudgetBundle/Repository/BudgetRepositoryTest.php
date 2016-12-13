@@ -67,7 +67,7 @@ class BudgetRepositoryTest extends WebTestCase
 
         $expenses = $this->em
             ->getRepository('BudgetBundle:Expenses')
-            ->getByDateRange($user, $dateFrom, $dateTo);;
+            ->getByDateRange($user, $dateFrom, $dateTo);
 
         $this->assertCount(2, $expenses);
 
@@ -76,7 +76,7 @@ class BudgetRepositoryTest extends WebTestCase
 
         $expenses = $this->em
             ->getRepository('BudgetBundle:Expenses')
-            ->getByDateRange($user, $dateFrom, $dateTo);;
+            ->getByDateRange($user, $dateFrom, $dateTo);
 
         $this->assertCount(2, $expenses);
     }
@@ -90,7 +90,7 @@ class BudgetRepositoryTest extends WebTestCase
 
         $expenses = $this->em
             ->getRepository('BudgetBundle:Expenses')
-            ->getByDateRangeWithoutCategories($user, $dateFrom, $dateTo);;
+            ->getByDateRangeWithoutCategories($user, $dateFrom, $dateTo);
 
         $this->assertCount(2, $expenses);
     }
@@ -108,7 +108,7 @@ class BudgetRepositoryTest extends WebTestCase
 
         $expenses = $this->em
             ->getRepository('BudgetBundle:Expenses')
-            ->getByDateRangeAndCategories($user, $dateFrom, $dateTo, $categoryIds->toArray());;
+            ->getByDateRangeAndCategories($user, $dateFrom, $dateTo, $categoryIds->toArray());
 
         $this->assertCount(2, $expenses);
     }
@@ -119,7 +119,7 @@ class BudgetRepositoryTest extends WebTestCase
 
         $expenses = $this->em
             ->getRepository('BudgetBundle:Expenses')
-            ->getWithoutCategories($user);;
+            ->getWithoutCategories($user);
 
         $this->assertCount(2, $expenses);
     }
@@ -129,7 +129,7 @@ class BudgetRepositoryTest extends WebTestCase
         $user = $this->em->getRepository('MainBundle:User')->findOneBy(['username' => 'admin']);
         $expenses = $this->em
             ->getRepository('BudgetBundle:Expenses')
-            ->getWithCategories($user);;
+            ->getWithCategories($user);
 
         $this->assertCount(2, $expenses);
     }
@@ -139,7 +139,7 @@ class BudgetRepositoryTest extends WebTestCase
         $user = $this->em->getRepository('MainBundle:User')->findOneBy(['username' => 'admin']);
         $expense = $this->em
             ->getRepository('BudgetBundle:Expenses')
-            ->getFirst($user);;
+            ->getFirst($user);
 
         $this->assertEquals('maistas', $expense[0]->getName());
     }
@@ -154,7 +154,7 @@ class BudgetRepositoryTest extends WebTestCase
 
         $expenses = $this->em
             ->getRepository('BudgetBundle:Expenses')
-            ->getByCategories($user, $categoryIds->toArray());;
+            ->getByCategories($user, $categoryIds->toArray());
 
         $this->assertCount(2, $expenses);
     }
