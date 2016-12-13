@@ -1,6 +1,7 @@
 <?php
 
 namespace CategoryBundle\Repository;
+
 use Doctrine\ORM\EntityManager;
 use MainBundle\Entity\User;
 use Symfony\Bridge\Doctrine\ManagerRegistry;
@@ -31,19 +32,7 @@ class CategoryRepositoryService
      */
     public function getAllUserIncomeCategories(User $user)
     {
-        $em = $this->managerRegistry->getManager();
-        $repository = $em->getRepository('CategoryBundle:Category');
-        $query = $repository->createQueryBuilder('c')
-            ->orderBy('c.name', 'ASC')
-            ->where('c.user = :user')
-            ->orWhere('c.user is null')
-            ->andWhere('c.type = :income')
-            ->orWhere('c.type is null')
-            ->andWhere('c.valid = true')
-            ->setParameter('user', $user)
-            ->setParameter('income','income');
-
-        $income = $query->getQuery()->getResult();
+        $income = $this->getAllUserBudgetCategories($user, 'income');
 
         return $income;
     }
@@ -54,17 +43,29 @@ class CategoryRepositoryService
      */
     public function getAllUserExpenseCategories(User $user)
     {
+        $expense = $this->getAllUserBudgetCategories($user, 'expense');
+
+        return $expense;
+    }
+
+    /**
+     * @param User $user
+     * @param $BudgetType
+     * @return array
+     */
+    private function getAllUserBudgetCategories(User $user, $BudgetType)
+    {
         $em = $this->managerRegistry->getManager();
         $repository = $em->getRepository('CategoryBundle:Category');
         $query = $repository->createQueryBuilder('c')
             ->orderBy('c.name', 'ASC')
             ->where('c.user = :user')
             ->orWhere('c.user is null')
-            ->andWhere('c.type = :expense')
+            ->andWhere('c.type = :type')
             ->orWhere('c.type is null')
             ->andWhere('c.valid = true')
             ->setParameter('user', $user)
-            ->setParameter('expense','expense');
+            ->setParameter('type', $BudgetType);
 
         $expense = $query->getQuery()->getResult();
 

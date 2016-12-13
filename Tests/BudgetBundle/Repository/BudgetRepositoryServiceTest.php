@@ -68,13 +68,13 @@ class BudgetRepositoryServiceTest extends WebTestCase
         $service = new BudgetRepositoryService(static::$kernel->getContainer()
             ->get('doctrine'));
 
-        $budget = $service->getMonthBudget($date,$user);
+        $budget = $service->getMonthBudget($date, $user);
 
-        $this->assertCount(2,$budget);
+        $this->assertCount(2, $budget);
         $this->assertArrayHasKey('income', $budget);
         $this->assertArrayHasKey('expenses', $budget);
-        $this->assertCount(4,$budget['income']);
-        $this->assertCount(4,$budget['expenses']);
+        $this->assertCount(4, $budget['income']);
+        $this->assertCount(4, $budget['expenses']);
 
     }
 
@@ -85,13 +85,13 @@ class BudgetRepositoryServiceTest extends WebTestCase
         $service = new BudgetRepositoryService(static::$kernel->getContainer()
             ->get('doctrine'));
 
-        $budget = $service->getMonthBudget(null,$user);
+        $budget = $service->getMonthBudget(null, $user);
 
-        $this->assertCount(2,$budget);
+        $this->assertCount(2, $budget);
         $this->assertArrayHasKey('income', $budget);
         $this->assertArrayHasKey('expenses', $budget);
-        $this->assertCount(0,$budget['income']);
-        $this->assertCount(0,$budget['expenses']);
+        $this->assertCount(0, $budget['income']);
+        $this->assertCount(0, $budget['expenses']);
 
     }
 }
