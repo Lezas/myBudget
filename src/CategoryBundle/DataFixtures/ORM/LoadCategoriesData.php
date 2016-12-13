@@ -23,6 +23,13 @@ class LoadCategoriesData extends AbstractFixture implements OrderedFixtureInterf
         $category->setName('expense');
         $category->setValid('1');
 
+        $IncomeCategory = new Category();
+
+        $IncomeCategory->setUser($user);
+        $IncomeCategory->setType('income');
+        $IncomeCategory->setName('income');
+        $IncomeCategory->setValid('1');
+
         $manager->persist($category);
         $manager->flush();
     }
