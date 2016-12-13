@@ -31,6 +31,7 @@ class LoadCategoriesData extends AbstractFixture implements OrderedFixtureInterf
         $IncomeCategory->setValid('1');
 
         $manager->persist($category);
+        $manager->persist($IncomeCategory);
         $manager->flush();
     }
 
