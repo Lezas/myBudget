@@ -112,4 +112,52 @@ class DataFormatterTest extends \PHPUnit_Framework_TestCase
         $this->assertEquals(401.00, $data[1][2]);
         $this->assertEquals('2016-01-02', $data[1][0]);
     }
+
+    public function testConnectData_allDifferent()
+    {
+        $arr = [];
+
+        $b = new Budget();
+        $b->setMoney(100)
+            ->setDateTime(new \DateTime('2016-01-01'));
+        $arr[] = $b;
+
+
+        $b = new Budget();
+        $b->setMoney(200.05)
+            ->setDateTime(new \DateTime('2016-01-02'));
+        $arr[] = $b;
+
+        $filteredBudget1 = DataFormatter::groupByDay($arr);
+
+        $b = new Budget();
+        $b->setMoney(50)
+            ->setDateTime(new \DateTime('2016-01-03'));
+        $arr[] = $b;
+
+
+        $b = new Budget();
+        $b->setMoney(255.05)
+            ->setDateTime(new \DateTime('2016-01-04'));
+        $arr[] = $b;
+
+        $filteredBudget2 = DataFormatter::groupByDay($arr);
+
+        $data = DataFormatter::connectData($filteredBudget1, $filteredBudget2);
+
+        $this->assertEquals(4, count($data));
+        $this->assertEquals(100, $data[0][1]);
+        $this->assertEquals(100, $data[0][2]);
+        $this->assertEquals(200.05, $data[1][1]);
+        $this->assertEquals(200.05, $data[1][2]);
+        $this->assertEquals(0, $data[2][1]);
+        $this->assertEquals(50, $data[2][2]);
+        $this->assertEquals(0, $data[3][1]);
+        $this->assertEquals(255.05, $data[3][2]);
+        $this->assertEquals('2016-01-01', $data[0][0]);
+        $this->assertEquals('2016-01-02', $data[1][0]);
+        $this->assertEquals('2016-01-03', $data[2][0]);
+        $this->assertEquals('2016-01-04', $data[3][0]);
+
+    }
 }
