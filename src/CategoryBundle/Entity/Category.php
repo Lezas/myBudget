@@ -62,13 +62,13 @@ class Category
     private $user;
 
     /**
-     * @ORM\OneToMany(targetEntity="BudgetBundle\Entity\Expenses", mappedBy="category")
+     * @ORM\OneToMany(targetEntity="BudgetBundle\Entity\Expenses", mappedBy="category", cascade={"persist"})
      * @var Expenses[]|ArrayCollection
      */
     protected $Expense;
 
     /**
-     * @ORM\OneToMany(targetEntity="BudgetBundle\Entity\Income", mappedBy="category")
+     * @ORM\OneToMany(targetEntity="BudgetBundle\Entity\Income", mappedBy="category", cascade={"persist"})
      * @var Income[]|ArrayCollection
      */
     protected $Income;

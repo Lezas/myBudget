@@ -94,6 +94,8 @@ class CategoryTest extends WebTestCase
         $this->assertEquals('income', $category->getType());
         $this->assertInstanceOf(Income::class, $income[0]);
         $this->assertInstanceOf(Income::class, $income[1]);
+        $this->assertEquals($category, $income[0]->getCategory());
+        $this->assertEquals($category, $income[0]->getCategory());
     }
 
     public function testGetUser()
@@ -149,6 +151,80 @@ class CategoryTest extends WebTestCase
         $child = $repository->findOneBy(['name' => 'childCategory']);
         $this->assertEquals(null, $child->getParent());
         $this->assertEquals(0, $category->getChildren()->count());
+    }
+
+    public function testBudgetFunctionality()
+    {
+        $repository = $this->em->getRepository('CategoryBundle:Category');
+        $category = $repository->findOneBy(['name' => 'income']);
+
+        $incomeCollection = $category->getIncome();
+
+        $this->assertEquals(2, $incomeCollection->count());
+
+        $income = new Income();
+        $income->setName('testingCategories');
+        $income->setDateTime(new \DateTime('now'));
+        $income->setMoney(95);
+        $income->setCategory($category);
+        $income->setUser($category->getUser());
+
+        $category->addIncome($income);
+        $this->em->persist($category);
+        $this->em->flush();
+
+        $incomeCollection = $category->getIncome();
+
+        $this->assertEquals(3, $incomeCollection->count());
+
+        $income = $this->em->getRepository('BudgetBundle:Income')->findOneBy(['name' => 'testingCategories']);
+        $this->assertEquals($category, $income->getCategory());
+
+        $category->removeIncome($income);
+        $income->setCategory(null);
+
+        $this->em->persist($category);
+        $this->em->persist($income);
+        $this->em->flush();
+
+        $income = $this->em->getRepository('BudgetBundle:Income')->findOneBy(['name' => 'testingCategories']);
+        $this->assertEquals(null, $income->getCategory());
+        $this->assertEquals(2, $incomeCollection->count());
+        //------------
+        $category = $repository->findOneBy(['name' => 'expense']);
+
+        $expenseCollection = $category->getExpense();
+
+        $this->assertEquals(2, $expenseCollection->count());
+
+        $expense = new Expenses();
+        $expense->setName('testingCategories');
+        $expense->setDateTime(new \DateTime('now'));
+        $expense->setMoney(95);
+        $expense->setCategory($category);
+        $expense->setUser($category->getUser());
+
+        $category->addExpense($expense);
+        $this->em->persist($category);
+        $this->em->flush();
+
+        $expenseCollection = $category->getExpense();
+
+        $this->assertEquals(3, $expenseCollection->count());
+
+        $expense = $this->em->getRepository('BudgetBundle:Expenses')->findOneBy(['name' => 'testingCategories']);
+        $this->assertEquals($category, $expense->getCategory());
+
+        $category->removeExpense($expense);
+        $expense->setCategory(null);
+
+        $this->em->persist($category);
+        $this->em->persist($expense);
+        $this->em->flush();
+
+        $expense = $this->em->getRepository('BudgetBundle:Expenses')->findOneBy(['name' => 'testingCategories']);
+        $this->assertEquals(null, $expense->getCategory());
+        $this->assertEquals(2, $expenseCollection->count());
     }
 
 }
