@@ -166,7 +166,6 @@ class CategoryTest extends WebTestCase
         $income->setName('testingCategories');
         $income->setDateTime(new \DateTime('now'));
         $income->setMoney(95);
-        $income->setCategory($category);
         $income->setUser($category->getUser());
 
         $category->addIncome($income);
@@ -181,7 +180,6 @@ class CategoryTest extends WebTestCase
         $this->assertEquals($category, $income->getCategory());
 
         $category->removeIncome($income);
-        $income->setCategory(null);
 
         $this->em->persist($category);
         $this->em->persist($income);
@@ -201,7 +199,6 @@ class CategoryTest extends WebTestCase
         $expense->setName('testingCategories');
         $expense->setDateTime(new \DateTime('now'));
         $expense->setMoney(95);
-        $expense->setCategory($category);
         $expense->setUser($category->getUser());
 
         $category->addExpense($expense);
@@ -216,7 +213,6 @@ class CategoryTest extends WebTestCase
         $this->assertEquals($category, $expense->getCategory());
 
         $category->removeExpense($expense);
-        $expense->setCategory(null);
 
         $this->em->persist($category);
         $this->em->persist($expense);

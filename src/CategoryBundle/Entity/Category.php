@@ -193,7 +193,7 @@ class Category
     public function addChild(\CategoryBundle\Entity\Category $child)
     {
         $this->children[] = $child;
-
+        $child->setParent($this);
         return $this;
     }
 
@@ -205,6 +205,7 @@ class Category
     public function removeChild(\CategoryBundle\Entity\Category $child)
     {
         $this->children->removeElement($child);
+        $child->setParent(null);
     }
 
     /**
@@ -227,7 +228,7 @@ class Category
     public function setParent(\CategoryBundle\Entity\Category $parent = null)
     {
         $this->parent = $parent;
-
+        $parent->addChild($this);
         return $this;
     }
 
@@ -251,7 +252,7 @@ class Category
     public function setUser(User $user = null)
     {
         $this->user = $user;
-
+        $user->addCategory($this);
         return $this;
     }
 
@@ -275,7 +276,7 @@ class Category
     public function addExpense(Expenses $expense)
     {
         $this->Expense[] = $expense;
-
+        $expense->setCategory($this);
         return $this;
     }
 
@@ -287,6 +288,7 @@ class Category
     public function removeExpense(Expenses $expense)
     {
         $this->Expense->removeElement($expense);
+        $expense->setCategory(null);
     }
 
     /**
@@ -308,7 +310,7 @@ class Category
     public function addIncome(Income $income)
     {
         $this->Income[] = $income;
-
+        $income->setCategory($this);
         return $this;
     }
 
@@ -320,6 +322,7 @@ class Category
     public function removeIncome(Income $income)
     {
         $this->Income->removeElement($income);
+        $income->setCategory(null);
     }
 
     /**
