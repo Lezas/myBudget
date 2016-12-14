@@ -71,7 +71,7 @@ class CategoryTest extends WebTestCase
         $category = new Category();
         $category->setName('SpecialCaseString');
 
-        $this->assertEquals('SpecialCaseString',$category->__toString());
+        $this->assertEquals('SpecialCaseString', $category->__toString());
     }
 
     public function testGetExpense()
@@ -79,10 +79,10 @@ class CategoryTest extends WebTestCase
         $category = $this->em->getRepository('CategoryBundle:Category')->findOneBy(['name' => 'expense']);
         $expenses = $category->getExpense();
 
-        $this->assertCount(2,$expenses);
-        $this->assertEquals('expense',$category->getType());
-        $this->assertInstanceOf(Expenses::class,$expenses[0]);
-        $this->assertInstanceOf(Expenses::class,$expenses[1]);
+        $this->assertCount(2, $expenses);
+        $this->assertEquals('expense', $category->getType());
+        $this->assertInstanceOf(Expenses::class, $expenses[0]);
+        $this->assertInstanceOf(Expenses::class, $expenses[1]);
     }
 
     public function testGetIncome()
@@ -90,10 +90,10 @@ class CategoryTest extends WebTestCase
         $category = $this->em->getRepository('CategoryBundle:Category')->findOneBy(['name' => 'income']);
         $income = $category->getIncome();
 
-        $this->assertCount(2,$income);
-        $this->assertEquals('income',$category->getType());
-        $this->assertInstanceOf(Income::class,$income[0]);
-        $this->assertInstanceOf(Income::class,$income[1]);
+        $this->assertCount(2, $income);
+        $this->assertEquals('income', $category->getType());
+        $this->assertInstanceOf(Income::class, $income[0]);
+        $this->assertInstanceOf(Income::class, $income[1]);
     }
 
     public function testGetUser()
@@ -101,8 +101,8 @@ class CategoryTest extends WebTestCase
         $category = $this->em->getRepository('CategoryBundle:Category')->findOneBy(['name' => 'income']);
         $user = $category->getUser();
 
-        $this->assertEquals('income',$category->getType());
-        $this->assertInstanceOf(User::class,$user);
+        $this->assertEquals('income', $category->getType());
+        $this->assertInstanceOf(User::class, $user);
         $this->assertEquals('admin', $user->getUsername());
     }
 
@@ -110,7 +110,7 @@ class CategoryTest extends WebTestCase
     {
         $category = $this->em->getRepository('CategoryBundle:Category')->findOneBy(['name' => 'income']);
 
-        $this->assertEquals('income',$category->getType());
+        $this->assertEquals('income', $category->getType());
         $this->assertTrue($category->getValid());
     }
 
@@ -133,12 +133,12 @@ class CategoryTest extends WebTestCase
 
         $child = $repository->findOneBy(['name' => 'childCategory']);
 
-        $this->assertEquals($childCategory->getName(),$child->getName());
-        $this->assertEquals($childCategory->getValid(),$child->getValid());
-        $this->assertEquals($childCategory->getUser(),$child->getUser());
-        $this->assertEquals($childCategory->getType(),$child->getType());
-        $this->assertEquals($category,$child->getParent());
-        $this->assertEquals(1,$category->getChildren()->count());
+        $this->assertEquals($childCategory->getName(), $child->getName());
+        $this->assertEquals($childCategory->getValid(), $child->getValid());
+        $this->assertEquals($childCategory->getUser(), $child->getUser());
+        $this->assertEquals($childCategory->getType(), $child->getType());
+        $this->assertEquals($category, $child->getParent());
+        $this->assertEquals(1, $category->getChildren()->count());
 
         $category->removeChild($child);
         $child->setParent(null);
@@ -147,8 +147,8 @@ class CategoryTest extends WebTestCase
         $this->em->flush();
 
         $child = $repository->findOneBy(['name' => 'childCategory']);
-        $this->assertEquals(null,$child->getParent());
-        $this->assertEquals(0,$category->getChildren()->count());
+        $this->assertEquals(null, $child->getParent());
+        $this->assertEquals(0, $category->getChildren()->count());
     }
 
 }
