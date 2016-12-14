@@ -44,7 +44,7 @@ class Category
     private $valid;
 
     /**
-     * @OneToMany(targetEntity="Category", mappedBy="parent")
+     * @OneToMany(targetEntity="Category", mappedBy="parent", cascade={"persist"}))
      */
     private $children;
 
