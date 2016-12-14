@@ -151,8 +151,4 @@ class CategoryTest extends WebTestCase
         $this->assertEquals(0,$category->getChildren()->count());
     }
 
-    public function testRelationToBudget()
-    {
-        $category = $repository->findOneBy(['name' => 'income']);
-    }
 }
