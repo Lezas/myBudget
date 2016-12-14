@@ -224,6 +224,7 @@ class CategoryTest extends WebTestCase
 
         $expense = $this->em->getRepository('BudgetBundle:Expenses')->findOneBy(['name' => 'testingCategories']);
         $this->assertEquals(null, $expense->getCategory());
+        $this->assertEquals($category->getUser(),$expense->getUser());
         $this->assertEquals(2, $expenseCollection->count());
     }
 
