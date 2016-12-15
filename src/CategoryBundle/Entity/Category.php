@@ -58,7 +58,7 @@ class Category
     /**
      * @ORM\ManyToOne(targetEntity = "MainBundle\Entity\User", inversedBy = "CategoryUser")
      * @ORM\JoinColumn(name = "user_id", referencedColumnName = "id")
-     * @var User
+     * @var UserInterface
      */
     private $user;
 
@@ -259,7 +259,7 @@ class Category
     /**
      * Get user
      *
-     * @return \MainBundle\Entity\User
+     * @return User|UserInterface
      */
     public function getUser()
     {
