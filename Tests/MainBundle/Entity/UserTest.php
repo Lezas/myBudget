@@ -5,18 +5,13 @@ namespace Tests\MainBundle\Entity;
 use BudgetBundle\Entity\Expenses;
 use BudgetBundle\Entity\Income;
 use CategoryBundle\Entity\Category;
-use Doctrine\Common\Collections\ArrayCollection;
 use MainBundle\Entity\User;
-use Symfony\Bundle\FrameworkBundle\Console\Application;
-use Symfony\Bundle\FrameworkBundle\Test\KernelTestCase;
-use Symfony\Bundle\FrameworkBundle\Test\WebTestCase;
-use Symfony\Component\Console\Input\StringInput;
 
 /**
  * Class UserTest
  * @package Tests\MainBundle\Entity
  */
-class UserTest extends WebTestCase
+class UserTest extends \PHPUnit_Framework_TestCase
 {
 
     public function testCategoryFunctionality()
