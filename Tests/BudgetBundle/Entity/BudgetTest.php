@@ -1,5 +1,7 @@
 <?php
 
+namespace Tests\BudgetBundle\Entity;
+
 use BudgetBundle\Repository\BudgetRepositoryService;
 use Doctrine\Common\Collections\ArrayCollection;
 use Symfony\Bundle\FrameworkBundle\Console\Application;
