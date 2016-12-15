@@ -228,7 +228,7 @@ class Category
     public function setParent(\CategoryBundle\Entity\Category $parent = null)
     {
         $this->parent = $parent;
-        $parent->addChild($this);
+
         return $this;
     }
 
@@ -252,7 +252,7 @@ class Category
     public function setUser(User $user = null)
     {
         $this->user = $user;
-        $user->addCategory($this);
+
         return $this;
     }
 
