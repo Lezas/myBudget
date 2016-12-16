@@ -2,7 +2,7 @@
 
 namespace Tests\BudgetBundle\Entity;
 
-use Tests\TestCase\FunctionalTestCase;
+use Tests\TestCases\FunctionalTestCase;
 
 /**
  * Class BudgetTest

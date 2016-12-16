@@ -1,6 +1,6 @@
 <?php
 
-namespace Tests\TestCase;
+namespace Tests\TestCases;
 
 use Symfony\Bundle\FrameworkBundle\Console\Application;
 use Symfony\Bundle\FrameworkBundle\Test\WebTestCase;
@@ -8,7 +8,7 @@ use Symfony\Component\Console\Input\StringInput;
 
 /**
  * Class FunctionalTestCase
- * @package Tests\TestCase
+ * @package Tests\TestCases
  */
 class FunctionalTestCase extends WebTestCase
 {
