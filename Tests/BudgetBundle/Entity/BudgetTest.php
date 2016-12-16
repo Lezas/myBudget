@@ -72,6 +72,6 @@ class BudgetTest extends WebTestCase
 
         $expense = $expenses[0];
 
-        $this->assertInternalType('integer', $expense->getId());
+        $this->assertInternalType('integer',$expense->getId());
     }
 }
