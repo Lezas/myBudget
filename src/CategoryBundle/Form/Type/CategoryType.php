@@ -53,24 +53,6 @@ class CategoryType extends AbstractType
     }
 
     /**
-     * @return string
-     */
-    public function getName()
-    {
-        return 'category';
-    }
-
-    /**
-     * {@inheritdoc}
-     */
-    public function setDefaultOptions(OptionsResolver $resolver)
-    {
-        $resolver->setDefaults([
-            'data_class' => 'CategoryBundle/Entity/Category',
-        ]);
-    }
-
-    /**
      * {@inheritdoc}
      */
     public function configureOptions(OptionsResolver $resolver)
