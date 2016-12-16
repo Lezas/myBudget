@@ -79,7 +79,6 @@ class GroupingHelperTest extends \PHPUnit_Framework_TestCase
         $category4->setId(4);
 
 
-
         $parent1 = new Category();
         $parent1->setId(11);
         $category1->setParent($parent1);

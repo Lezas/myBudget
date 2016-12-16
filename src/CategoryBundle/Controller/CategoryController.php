@@ -12,6 +12,7 @@ use Symfony\Bundle\FrameworkBundle\Controller\Controller;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
 use Symfony\Component\HttpFoundation\Request;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Security;
+use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 
 /**
  * Class CategoryController
@@ -20,19 +21,30 @@ use Sensio\Bundle\FrameworkExtraBundle\Configuration\Security;
 class CategoryController extends Controller
 {
     /**
-     * @Route("/category/new", name="new_category")
+     * @Route("/category/new/{category}", name="new_category")
+     * @param Category $category
      * @param Request $request
      * @return \Symfony\Component\HttpFoundation\RedirectResponse|\Symfony\Component\HttpFoundation\Response
      */
-    public function newCategoryAction(Request $request)
+    public function newCategoryAction(Category $category = null, Request $request)
     {
         $user = $this->getUser();
-        $category = new Category();
-        $form = $this->createForm(CategoryType::class, $category, ['user' => $user]);
+
+        if ($category == null) {
+            $category = new Category();
+        } else {
+            if ($category->getUser() != $this->getUser()) {
+                throw new NotFoundHttpException();
+            }
+        }
+
+        $parents = $this->getDoctrine()->getRepository('CategoryBundle:Category')->findBy(['user' => $user]);
+
+        $form = $this->createForm(CategoryType::class, $category, ['parents' => $parents]);
         $form->handleRequest($request);
 
         if ($form->isValid()) {
-            $category->setUser($this->getUser());
+            $category->setUser($user);
             $em = $this->getDoctrine()->getManager();
             $em->persist($category);
             $em->flush();
@@ -70,37 +82,6 @@ class CategoryController extends Controller
         return $this->render('@Category/category/categoryList.html.twig', [
             'groupedCategories' => $groupedData,
             'parentCategories' => $parentCategories,
-        ]);
-    }
-
-    /**
-     * @Route("category/{category}", name="edit_category")
-     * @Security("user.getId() == category.getUser().getId()")
-     * @param Category $category
-     * @param Request $request
-     * @return \Symfony\Component\HttpFoundation\RedirectResponse
-     */
-    public function editCategoryAction(Category $category, Request $request)
-    {
-        $user = $this->getUser();
-        $form = $this->createForm(CategoryType::class, $category, ['user' => $user]);
-        $form->handleRequest($request);
-
-        if ($form->isValid()) {
-            $em = $this->getDoctrine()->getManager();
-            $em->persist($category);
-            $em->flush();
-
-            $this->addFlash(
-                'notice',
-                'Your category has been saved!'
-            );
-
-            return $this->redirectToRoute('category_list');
-        }
-
-        return $this->render('@Category/category/newCategory.html.twig', [
-            'form' => $form->createView(),
         ]);
     }
 

@@ -18,39 +18,27 @@ use Symfony\Component\OptionsResolver\OptionsResolver;
  */
 class CategoryType extends AbstractType
 {
-    /**
-     * @var User
-     */
-    private $user;
-
-    /**
-     * CategoryType constructor.
-     * @param User|null $user
-     */
-    public function __construct(User $user = null)
-    {
-        $this->user = $user;
-    }
 
     /**
      * {@inheritdoc}
      */
     public function buildForm(FormBuilderInterface $builder, array $options)
     {
-        $this->user = $options['user'];
-
-        $user = $this->user;
+        $data = $options['parents'];
+        if ($data == null) {
+            $data = [];
+        }
 
         $builder->add('name', TextType::class, ['label' => 'Category name'])
-            ->add('valid', CheckboxType::class, array(
-                    'required' => false
-                )
+            ->add('valid', CheckboxType::class, [
+                    'required' => false,
+                    'data' => true,
+                ]
             )
-            ->add('type', ChoiceType::class, array(
-                'choices' => array('For expense' => 'expense', 'For Income' => 'income'),
-                'choices_as_values' => true,
-            ))
-            ->add('parent', EntityType::class, array(
+            ->add('type', ChoiceType::class, [
+                'choices' => ['For expense' => 'expense', 'For Income' => 'income'],
+            ])
+            ->add('parent', EntityType::class, [
                 'label' => 'Parent Category',
                 'placeholder' => 'Don\'t have parent category',
                 'class' => 'CategoryBundle\Entity\Category',
@@ -58,15 +46,8 @@ class CategoryType extends AbstractType
                 'multiple' => false,
                 'required' => false,
                 'group_by' => 'parent',
-                'query_builder' => function (EntityRepository $er) use ($user) {
-                    return $er->createQueryBuilder('c')
-                        ->orderBy('c.name', 'ASC')
-                        ->where('c.user = :user')
-                        ->orWhere('c.user is null')
-                        ->andWhere('c.parent is null')
-                        ->setParameter('user', $user);
-                },
-            ))
+                'choices' => $data,
+            ])
             ->add('submit', SubmitType::class);
 
     }
@@ -86,7 +67,6 @@ class CategoryType extends AbstractType
     {
         $resolver->setDefaults([
             'data_class' => 'CategoryBundle/Entity/Category',
-            'user' => null
         ]);
     }
 
@@ -96,7 +76,7 @@ class CategoryType extends AbstractType
     public function configureOptions(OptionsResolver $resolver)
     {
         $resolver->setDefaults([
-            'user' => null
+            'parents' => null,
         ]);
     }
 }

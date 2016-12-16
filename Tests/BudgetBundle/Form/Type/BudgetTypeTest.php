@@ -4,56 +4,15 @@ namespace Tests\BudgetBundle\Form\Type;
 
 use BudgetBundle\Entity\Budget;
 use BudgetBundle\Form\Type\BudgetType;
-use BudgetBundle\Form\Type\ExpenseType;
 use CategoryBundle\Entity\Category;
-use Doctrine\Common\Collections\ArrayCollection;
-use Symfony\Bridge\Doctrine\Form\Type\EntityType;
-use Symfony\Component\Form\PreloadedExtension;
-use Symfony\Component\Form\Test\TypeTestCase;
-use Doctrine\ORM\Mapping\ClassMetadata;
+use Tests\TestCase\CustomTypeTestCase;
 
-
-class BudgetTypeTest extends TypeTestCase
+/**
+ * Class BudgetTypeTest
+ * @package Tests\BudgetBundle\Form\Type
+ */
+class BudgetTypeTest extends CustomTypeTestCase
 {
-    private $entityManager;
-
-    protected function setUp()
-    {
-        // mock any dependencies
-        $this->entityManager = $this->getMockBuilder('Doctrine\Common\Persistence\ManagerRegistry')->getMock();
-
-        parent::setUp();
-    }
-
-    protected function getExtensions()
-    {
-        $category = new Category();
-        $category->setId(10);
-        $category->setName('category');
-
-        // Mock the FormType: entity
-        $mockEntityManager = $this->getMockBuilder('\Doctrine\ORM\EntityManager')
-            ->disableOriginalConstructor()
-            ->getMock();
-
-        $mockRegistry = $this->getMockBuilder('Doctrine\Bundle\DoctrineBundle\Registry')
-            ->disableOriginalConstructor()
-            ->getMock();
-
-        $mockRegistry->expects($this->any())->method('getManagerForClass')
-            ->will($this->returnValue($mockEntityManager));
-
-        $mockEntityManager->expects($this->any())->method('getClassMetadata')
-            ->withAnyParameters()
-            ->will($this->returnValue(new ClassMetadata('entity')));
-
-        $entityType = new EntityType($mockRegistry);
-
-        return [
-            new PreloadedExtension(['entity' => $entityType,], [])
-        ];
-    }
-
 
     /**
      * Currently there isn't any option to test field created from EntityType,
