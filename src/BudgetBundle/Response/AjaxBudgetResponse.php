@@ -9,7 +9,6 @@ use Symfony\Component\Form\Form;
  */
 class AjaxBudgetResponse
 {
-
     protected $form = null;
 
     protected $success = false;
