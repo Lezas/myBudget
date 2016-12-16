@@ -23,12 +23,10 @@ class BudgetTypeTest extends TypeTestCase
         $this->entityManager = $this->getMockBuilder('Doctrine\Common\Persistence\ManagerRegistry')->getMock();
 
         parent::setUp();
-
     }
 
     protected function getExtensions()
     {
-
         $category = new Category();
         $category->setId(10);
         $category->setName('category');
@@ -45,30 +43,15 @@ class BudgetTypeTest extends TypeTestCase
         $mockRegistry->expects($this->any())->method('getManagerForClass')
             ->will($this->returnValue($mockEntityManager));
 
-        $mockEntityManager ->expects($this->any())->method('getClassMetadata')
+        $mockEntityManager->expects($this->any())->method('getClassMetadata')
             ->withAnyParameters()
             ->will($this->returnValue(new ClassMetadata('entity')));
 
-        $repo = $this->getMockBuilder('Doctrine\ORM\EntityRepository')
-            ->disableOriginalConstructor()
-            ->getMock();
-
-        $mockEntityManager ->expects($this->any())->method('getRepository')
-            ->withAnyParameters()
-            ->will($this->returnValue($repo));
-
-        $repo->expects($this->any())->method('find')
-            ->withAnyParameters()
-            ->will($this->returnValue($category));
-
-
         $entityType = new EntityType($mockRegistry);
 
-
-
-        return array(new PreloadedExtension(array(
-            'entity' => $entityType,
-        ), array()));
+        return [
+            new PreloadedExtension(['entity' => $entityType,], [])
+        ];
     }
 
 
@@ -79,7 +62,6 @@ class BudgetTypeTest extends TypeTestCase
      */
     public function testSubmitValidData()
     {
-
         $formData = [
             'name' => 'test',
             'dateTime' => '2016-12-15 00:00',
@@ -91,8 +73,7 @@ class BudgetTypeTest extends TypeTestCase
         $category->setId(10);
         $category->setName('category');
 
-
-        $form = $this->factory->create(BudgetType::class,$budget,['categories' => [$category]]);
+        $form = $this->factory->create(BudgetType::class, $budget, ['categories' => [$category]]);
 
         // submit the data to the form directly
         $form->submit($formData);
@@ -105,5 +86,14 @@ class BudgetTypeTest extends TypeTestCase
         $this->assertEquals('2016-12-15 00:00', $budget->getDateTime()->format('Y-m-d H:i'));
         $this->assertEquals('10', $budget->getMoney());
 
+        $form = $this->factory->create(BudgetType::class);
+
+        // submit the data to the form directly
+        $form->submit($formData);
+        $data = $form->getData();
+
+        $this->assertEquals('test', $data['name']);
+        $this->assertEquals('2016-12-15 00:00', $data['dateTime']->format('Y-m-d H:i'));
+        $this->assertEquals('10', $data['money']);
     }
 }
