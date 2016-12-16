@@ -32,7 +32,8 @@ install:
   - composer install
   - cp app/config/parameters.yml.dist app/config/parameters.yml
   - php bin/console doctrine:schema:create
+  - php bin/console cache:clear
 
 # Run script
 script:
-  - phpunit --coverage-clover clover.xml
+  - phpunit
