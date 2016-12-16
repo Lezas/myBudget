@@ -75,25 +75,6 @@ class BudgetType extends AbstractType
     }
 
     /**
-     * @return string
-     */
-    public function getName()
-    {
-        return 'budget';
-    }
-
-    /**
-     * @param OptionsResolver $resolver
-     */
-    public function setDefaultOptions(OptionsResolver $resolver)
-    {
-        $resolver->setDefaults([
-            'data_class' => 'BudgetBundle/Entity/Budget',
-            'categories' => null,
-        ]);
-    }
-
-    /**
      * {@inheritdoc}
      */
     public function configureOptions(OptionsResolver $resolver)
