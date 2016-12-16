@@ -30,7 +30,6 @@ install:
   - mysql -e "create database IF NOT EXISTS symfony;" -uroot
   - mysql -e "create database IF NOT EXISTS testdb;" -uroot
   - composer install
-  - composer update
   - cp app/config/parameters.yml.dist app/config/parameters.yml
   - php bin/console doctrine:schema:create
   - php bin/console cache:clear
