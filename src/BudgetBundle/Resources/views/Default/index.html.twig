@@ -445,25 +445,25 @@
             getBoth();
         })
 
-        $('.expense-pencil').click(function () {
+        $('.expense-pencil').on("click", function () {
             $button = $(this);
             getExpenseEdit($button);
         })
 
-        $('.expense-delete').click(function () {
+        $('.expense-delete').on("click", function () {
             $button = $(this);
             deleteExpense($button);
         })
 
-        $('.income-delete').click(function () {
+        $('.income-delete').on("click", function () {
             $button = $(this);
             deleteIncome($button);
-        })
+        });
 
-        $('.income-pencil').click(function () {
+        $(".income-pencil").on("click", function(event){
             $button = $(this);
             getIncomeEdit($button);
-        })
+        });
 
         $('#new_expense').click(function () {
             $(this).button('loading');

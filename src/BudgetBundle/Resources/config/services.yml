@@ -3,3 +3,17 @@ services:
         class: BudgetBundle\Repository\BudgetRepositoryService
         arguments:
           - '@doctrine'
+
+    budget.entity.form:
+        class: BudgetBundle\Form\Services\BudgetFormService
+        arguments:
+          - '@doctrine'
+
+    budget.money.counter:
+        class: BudgetBundle\Helper\BudgetMoneyCounter
+
+    budget.request.budgetbydaterange:
+        class: BudgetBundle\Helper\Request\BudgetByDateRangeRequest
+        scope: request
+        calls:
+          - [setRequest, ["@request_stack"]]

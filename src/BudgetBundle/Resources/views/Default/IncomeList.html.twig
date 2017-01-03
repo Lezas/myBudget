@@ -1,14 +1,1 @@
 {% include 'BudgetBundle:Default:budgetList.html.twig' with {'list':list, 'name':name} %}
-<script>
-    $(".income-pencil").click(function() {
-        $button = $(this);
-
-        getIncomeEdit($button);
-    });
-
-    $('.income-delete').click(function() {
-        $button = $(this);
-
-        deleteIncome($button);
-    })
-</script>

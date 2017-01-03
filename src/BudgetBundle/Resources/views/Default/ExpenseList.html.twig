@@ -1,15 +1,1 @@
 {% include 'BudgetBundle:Default:budgetList.html.twig' with {'list':list, 'name':name} %}
-
-<script>
-    $(".expense-pencil").click(function() {
-        $button = $(this);
-
-        getExpenseEdit($button);
-    });
-
-    $('.expense-delete').click(function() {
-        $button = $(this);
-
-        deleteExpense($button);
-    })
-</script>

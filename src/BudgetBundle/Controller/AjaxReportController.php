@@ -95,7 +95,7 @@ class AjaxReportController extends Controller
         $expenses = new ArrayCollection($expenses);
         $data = $this->createDataFromBudget($expenses);
         $result = array_merge($result, $data->toArray());
-        $sum += BudgetMoneyCounter::countBudget($expenses);
+        $sum += $this->get('budget.money.counter')->countBudget($expenses);
 
         if ($IdsArrayCollection->contains("NULL")) {
             $additionalExpenses = $repository->getByDateRangeWithoutCategories($user, $dateFrom, $dateTo);
@@ -103,7 +103,7 @@ class AjaxReportController extends Controller
 
             $data = $this->createDataFromBudget($expenses);
             $result = array_merge($result, $data->toArray());
-            $sum += BudgetMoneyCounter::countBudget($expenses);
+            $sum += $this->get('budget.money.counter')->countBudget($expenses);
         }
 
         $return = [
@@ -166,7 +166,7 @@ class AjaxReportController extends Controller
         $data = $this->createDataFromBudget($budget);
 
         $result = array_merge($result, $data->toArray());
-        $sum += BudgetMoneyCounter::countBudget($budget);
+        $sum += $this->get('budget.money.counter')->countBudget($budget);
 
         if ($IdsArrayCollection->contains("NULL")) {
             $additionalBudget = $repository->getWithoutCategories($user);
@@ -174,7 +174,7 @@ class AjaxReportController extends Controller
 
             $data = $this->createDataFromBudget($additionalBudget);
             $result = array_merge($result, $data->toArray());
-            $sum += BudgetMoneyCounter::countBudget($additionalBudget);
+            $sum += $this->get('budget.money.counter')->countBudget($additionalBudget);
         }
 
         $return = [

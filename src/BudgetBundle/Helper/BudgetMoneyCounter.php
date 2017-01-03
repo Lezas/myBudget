@@ -3,6 +3,7 @@ namespace BudgetBundle\Helper;
 
 use BudgetBundle\Entity\Budget;
 use Doctrine\Common\Collections\ArrayCollection;
+use Symfony\Component\Finder\Tests\Iterator\Iterator;
 
 /**
  * Class BudgetMoneyCounter
@@ -11,10 +12,10 @@ use Doctrine\Common\Collections\ArrayCollection;
 class BudgetMoneyCounter
 {
     /**
-     * @param ArrayCollection|\IteratorAggregate $arrayCollection
+     * @param array $arrayCollection
      * @return float
      */
-    public static function countBudget(\IteratorAggregate $arrayCollection)
+    public static function countBudget(array $arrayCollection)
     {
         $sum = 0.0;
         foreach ($arrayCollection as $item) {

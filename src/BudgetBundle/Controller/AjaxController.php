@@ -34,17 +34,21 @@ use Symfony\Component\Validator\Constraints\Date;
 class AjaxController extends Controller
 {
     /**
+     * @param Expenses $expense
      * @param Request $request
-     * @Route("/new-expense", name="ajax_new_expense")
      * @return array|JsonResponse
+     * @Route("/new-expense/{expense}", name="ajax_new_expense")
      */
-    public function NewExpenseAction(Request $request)
+    public function NewExpenseAction(Expenses $expense = null, Request $request)
     {
         $ajaxBudgetResponse = new AjaxBudgetResponse();
 
+        if ($expense === null) {
+            $expense = new Expenses();
+        }
+
         /** @var User $user */
         $user = $this->getUser();
-        $expense = new Expenses();
         $expenseCategories = $this->get('category.repository.service')->getAllUserExpenseCategories($user);
 
         $form = $this->createForm(ExpenseType::class, $expense, [
@@ -58,7 +62,6 @@ class AjaxController extends Controller
         $form->handleRequest($request);
 
         if ($form->isValid()) {
-            $user = $this->getUser();
             $raw_data = $form->getData();
 
             $expense->setDateTime($raw_data->getDateTime());
@@ -81,55 +84,6 @@ class AjaxController extends Controller
             'form' => $form->createView(),
         ])->getContent()
         );
-
-        return new JsonResponse($ajaxBudgetResponse->getResponse());
-    }
-
-    /**
-     * @param Request $request
-     * @Route("/new-income", name="ajax_new_income")
-     * @return array|JsonResponse
-     */
-    public function NewIncomeAction(Request $request)
-    {
-        $ajaxBudgetResponse = new AjaxBudgetResponse();
-        /** @var User $user */
-        $user = $this->getUser();
-        $income = new Income();
-        $incomeCategories = $this->get('category.repository.service')->getAllUserIncomeCategories($user);
-
-        $form = $this->createForm(IncomeType::class, $income, array(
-            'action' => $this->generateUrl('ajax_new_income'),
-            'attr' => array('class' => 'create_budget'),
-            'method' => 'POST',
-            'user' => $user,
-            'categories' => $incomeCategories,
-        ));
-
-        $form->handleRequest($request);
-
-        if ($form->isValid()) {
-            $user = $this->getUser();
-            $raw_data = $form->getData();
-
-            $income->setDateTime($raw_data->getDateTime());
-            $income->setUser($user);
-
-            $em = $this->getDoctrine()->getManager();
-
-            $em->persist($income);
-            $em->flush();
-
-            $ajaxBudgetResponse->setDataToValid();
-            $ajaxBudgetResponse->setResponseToSuccessful();
-            return new JsonResponse($ajaxBudgetResponse->getResponse());
-        }
-
-        $ajaxBudgetResponse->setDataToInvalid();
-        $ajaxBudgetResponse->setResponseToSuccessful();
-        $ajaxBudgetResponse->setRenderedForm($this->render('BudgetBundle:Default:ajaxIncomeForm.html.twig', [
-            'form' => $form->createView(),
-        ])->getContent());
 
         return new JsonResponse($ajaxBudgetResponse->getResponse());
     }
@@ -188,6 +142,57 @@ class AjaxController extends Controller
 
         }
     }
+
+    /**
+     * @param Request $request
+     * @Route("/new-income", name="ajax_new_income")
+     * @return array|JsonResponse
+     */
+    public function NewIncomeAction(Request $request)
+    {
+        $ajaxBudgetResponse = new AjaxBudgetResponse();
+        /** @var User $user */
+        $user = $this->getUser();
+        $income = new Income();
+        $incomeCategories = $this->get('category.repository.service')->getAllUserIncomeCategories($user);
+
+        $form = $this->createForm(IncomeType::class, $income, array(
+            'action' => $this->generateUrl('ajax_new_income'),
+            'attr' => array('class' => 'create_budget'),
+            'method' => 'POST',
+            'user' => $user,
+            'categories' => $incomeCategories,
+        ));
+
+        $form->handleRequest($request);
+
+        if ($form->isValid()) {
+            $user = $this->getUser();
+            $raw_data = $form->getData();
+
+            $income->setDateTime($raw_data->getDateTime());
+            $income->setUser($user);
+
+            $em = $this->getDoctrine()->getManager();
+
+            $em->persist($income);
+            $em->flush();
+
+            $ajaxBudgetResponse->setDataToValid();
+            $ajaxBudgetResponse->setResponseToSuccessful();
+            return new JsonResponse($ajaxBudgetResponse->getResponse());
+        }
+
+        $ajaxBudgetResponse->setDataToInvalid();
+        $ajaxBudgetResponse->setResponseToSuccessful();
+        $ajaxBudgetResponse->setRenderedForm($this->render('BudgetBundle:Default:ajaxIncomeForm.html.twig', [
+            'form' => $form->createView(),
+        ])->getContent());
+
+        return new JsonResponse($ajaxBudgetResponse->getResponse());
+    }
+
+
 
     /**
      * @Route("/update-income/{income}", name="ajax_update_income")
@@ -333,16 +338,10 @@ class AjaxController extends Controller
     {
         $user = $this->get('security.token_storage')->getToken()->getUser();
 
-        if ($request->query->get('date_from') != "" || $request->query->get('date_to') != "") {
-            $date_from = new \DateTime($request->query->get('date_from'));
-            $date_to = new \DateTime($request->query->get('date_to'));
-        } else {
-            $date = new \DateTime('now');
+        $requestData = $this->get('budget.request.budgetbydaterange');
 
-            //how to get first and last day of the month
-            $date_from = new \DateTime(date('Y-m-01', $date->getTimestamp()));
-            $date_to = new \DateTime(date('Y-m-t', $date->getTimestamp()));
-        }
+        $date_from = $requestData->getDateFrom();
+        $date_to = $requestData->getDateTo();
 
         $budget = $repository->getByDateRange($user, $date_from, $date_to);
 
@@ -361,26 +360,14 @@ class AjaxController extends Controller
         $user = $this->get('security.token_storage')->getToken()->getUser();
         $response = [];
 
-        if ($request->query->get('date_from') != "" || $request->query->get('date_to') != "") {
-            $date_from = new \DateTime($request->query->get('date_from'));
-            $date_to = new \DateTime($request->query->get('date_to'));
-        } else {
-            $date = new \DateTime('now');
+        $requestData = $this->get('budget.request.budgetbydaterange');
 
-            //how to get first and last day of the month
-            $date_from = new \DateTime(date('Y-m-01', $date->getTimestamp()));
-            $date_to = new \DateTime(date('Y-m-t', $date->getTimestamp()));
-
-        }
+        $date_from = $requestData->getDateFrom();
+        $date_to = $requestData->getDateTo();
 
         $income = $this->getDoctrine()->getRepository('BudgetBundle:Income')->getByDateRange($user, $date_from, $date_to);
 
-        $total = 0;
-
-        foreach ($income as $var) {
-            /** @var Budget $var */
-            $total += (float)$var->getMoney();
-        }
+        $total = $this->get('budget.money.counter')->countBudget($income);
 
         $response['list'] = $this->render('BudgetBundle:Default:IncomeList.html.twig', [
             'list' => $income,
@@ -403,25 +390,14 @@ class AjaxController extends Controller
         $response = [];
         $user = $this->get('security.token_storage')->getToken()->getUser();
 
-        if ($request->query->get('date_from') != "" || $request->query->get('date_to') != "") {
-            $date_from = new \DateTime($request->query->get('date_from'));
-            $date_to = new \DateTime($request->query->get('date_to'));
-        } else {
-            $date = new \DateTime('now');
+        $requestData = $this->get('budget.request.budgetbydaterange');
 
-            //how to get first and last day of the month
-            $date_from = new \DateTime(date('Y-m-01', $date->getTimestamp()));
-            $date_to = new \DateTime(date('Y-m-t', $date->getTimestamp()));
-        }
+        $date_from = $requestData->getDateFrom();
+        $date_to = $requestData->getDateTo();
 
         $expense = $this->getDoctrine()->getRepository('BudgetBundle:Expenses')->getByDateRange($user, $date_from, $date_to);
 
-        $total = 0;
-
-        foreach ($expense as $var) {
-            /** @var Budget $var */
-            $total += (float)$var->getMoney();
-        }
+        $total = $this->get('budget.money.counter')->countBudget($expense);
 
         $response['list'] = $this->render('BudgetBundle:Default:ExpenseList.html.twig', [
             'list' => $expense,
@@ -460,16 +436,10 @@ class AjaxController extends Controller
     {
         $user = $this->get('security.token_storage')->getToken()->getUser();
 
-        if ($request->query->get('date_from') != "" || $request->query->get('date_to') != "") {
-            $date_from = new \DateTime($request->query->get('date_from'));
-            $date_to = new \DateTime($request->query->get('date_to'));
-        } else {
-            $date = new \DateTime('now');
+        $requestData = $this->get('budget.request.budgetbydaterange');
 
-            //how to get first and last day of the month
-            $date_from = new \DateTime(date('Y-m-01', $date->getTimestamp()));
-            $date_to = new \DateTime(date('Y-m-t', $date->getTimestamp()));
-        }
+        $date_from = $requestData->getDateFrom();
+        $date_to = $requestData->getDateTo();
 
         $expense = $this->getDoctrine()->getRepository('BudgetBundle:Expenses')->getByDateRange($user, $date_from, $date_to);
         $income = $this->getDoctrine()->getRepository('BudgetBundle:Income')->getByDateRange($user, $date_from, $date_to);
