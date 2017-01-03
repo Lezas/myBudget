@@ -15,7 +15,7 @@ class BudgetMoneyCounter
      * @param array $arrayCollection
      * @return float
      */
-    public static function countBudget(array $arrayCollection)
+    public static function countBudget($arrayCollection)
     {
         $sum = 0.0;
         foreach ($arrayCollection as $item) {
