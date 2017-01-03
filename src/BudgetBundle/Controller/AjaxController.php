@@ -8,7 +8,6 @@
 
 namespace BudgetBundle\Controller;
 
-
 use BudgetBundle\Entity\Budget;
 use BudgetBundle\Entity\Expenses;
 use BudgetBundle\Entity\Income;
@@ -193,7 +192,6 @@ class AjaxController extends Controller
     }
 
 
-
     /**
      * @Route("/update-income/{income}", name="ajax_update_income")
      * @Security("user.getId() == income.getUser().getId()")
@@ -300,41 +298,37 @@ class AjaxController extends Controller
         $response['success'] = true;
 
         return $response;
-
     }
 
     /**
-     * @param Request $request
      * @Route("/expenses-date-range", name="ajax_expense_by_date_range")
      * @return JsonResponse
      */
-    public function GetExpenseByDateRangeAction(Request $request)
+    public function GetExpenseByDateRangeAction()
     {
         $repository = $this->getDoctrine()->getManager()->getRepository('BudgetBundle:Expenses');
-        $return = $this->GetBudgetByDateRange($request, $repository);
+        $return = $this->GetBudgetByDateRange($repository);
 
         return JsonResponse::create($return);
     }
 
     /**
-     * @param Request $request
      * @Route("/income-date-range", name="ajax_income_by_date_range")
      * @return JsonResponse
      */
-    public function GetIncomeByDateRangeAction(Request $request)
+    public function GetIncomeByDateRangeAction()
     {
         $repository = $this->getDoctrine()->getManager()->getRepository('BudgetBundle:Income');
-        $return = $this->GetBudgetByDateRange($request, $repository);
+        $return = $this->GetBudgetByDateRange($repository);
 
         return JsonResponse::create($return);
     }
 
     /**
-     * @param Request $request
      * @param BudgetRepository $repository
      * @return array
      */
-    private function GetBudgetByDateRange(Request $request, BudgetRepository $repository)
+    private function GetBudgetByDateRange(BudgetRepository $repository)
     {
         $user = $this->get('security.token_storage')->getToken()->getUser();
 
@@ -351,11 +345,10 @@ class AjaxController extends Controller
     }
 
     /**
-     * @param Request $request
      * @Route("/income-list", name="ajax_income_list_by_date_range")
      * @return JsonResponse
      */
-    public function GetIncomeListByDateRangeAction(Request $request)
+    public function GetIncomeListByDateRangeAction()
     {
         $user = $this->get('security.token_storage')->getToken()->getUser();
         $response = [];
@@ -381,11 +374,10 @@ class AjaxController extends Controller
     }
 
     /**
-     * @param Request $request
      * @Route("/expense-list", name="ajax_expense_list_by_date_range")
      * @return JsonResponse
      */
-    public function GetExpenseListByDateRangeAction(Request $request)
+    public function GetExpenseListByDateRangeAction()
     {
         $response = [];
         $user = $this->get('security.token_storage')->getToken()->getUser();
@@ -428,11 +420,10 @@ class AjaxController extends Controller
     }
 
     /**
-     * @param Request $request
      * @Route("/budget/chart-data", name="ajax_budget_chart_data")
      * @return JsonResponse
      */
-    public function GetBudgetForChart(Request $request)
+    public function GetBudgetForChart()
     {
         $user = $this->get('security.token_storage')->getToken()->getUser();
 
