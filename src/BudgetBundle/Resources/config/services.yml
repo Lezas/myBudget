@@ -14,6 +14,5 @@ services:
 
     budget.request.budgetbydaterange:
         class: BudgetBundle\Helper\Request\BudgetByDateRangeRequest
-        scope: request
         calls:
           - [setRequest, ["@request_stack"]]
