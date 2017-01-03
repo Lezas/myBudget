@@ -355,7 +355,7 @@
             $button.button('loading');
             var jsonData = $.ajax({
                 type: 'GET',
-                url: "{{ url('ajax_update_income') }}/" + $Id,
+                url: "{{ url('ajax_new_income') }}/" + $Id,
                 dataType: "json",
                 async: true,
             }).done(function (data) {
@@ -376,7 +376,7 @@
 
             var jsonData = $.ajax({
                 type: 'GET',
-                url: "{{ url('ajax_update_expense') }}/" + $expenseId,
+                url: "{{ url('ajax_new_expense') }}/" + $expenseId,
                 dataType: "json",
                 async: true,
             }).done(function (data) {
@@ -433,34 +433,34 @@
             $('#get-expense-by-range').button('loading');
             getExpenses();
 
-        })
+        });
 
         $('#get-income-by-range').click(function () {
             $('#get-income-by-range').button('loading');
             getIncome();
 
-        })
+        });
 
         $('#graph-both').click(function () {
             getBoth();
-        })
+        });
 
-        $('.expense-pencil').on("click", function () {
+        $(document).on("click", '.expense-pencil', function () {
             $button = $(this);
             getExpenseEdit($button);
-        })
+        });
 
-        $('.expense-delete').on("click", function () {
+        $(document).on("click", '.expense-delete', function () {
             $button = $(this);
             deleteExpense($button);
-        })
+        });
 
-        $('.income-delete').on("click", function () {
+        $(document).on("click", '.income-delete', function () {
             $button = $(this);
             deleteIncome($button);
         });
 
-        $(".income-pencil").on("click", function(event){
+        $(document).on("click", '.income-pencil',  function(){
             $button = $(this);
             getIncomeEdit($button);
         });

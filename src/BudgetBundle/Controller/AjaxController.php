@@ -51,7 +51,7 @@ class AjaxController extends Controller
         $expenseCategories = $this->get('category.repository.service')->getAllUserExpenseCategories($user);
 
         $form = $this->createForm(ExpenseType::class, $expense, [
-            'action' => $this->generateUrl('ajax_new_expense'),
+            'action' => $this->generateUrl('ajax_new_expense') . '/' . $expense->getId(),
             'attr' => ['class' => 'create_budget'],
             'method' => 'POST',
             'user' => $user,
@@ -87,76 +87,26 @@ class AjaxController extends Controller
         return new JsonResponse($ajaxBudgetResponse->getResponse());
     }
 
-    /**
-     * @Route("/update-expense/{expense}", name="ajax_update_expense")
-     * @Security("user.getId() == expense.getUser().getId()")
-     * @param Expenses $expense
-     * @param Request $request
-     * @return JsonResponse
-     */
-    public function UpdateExpense(Expenses $expense = null, Request $request)
-    {
-        $response = [];
-        $response['success'] = false;
-
-        if ($expense === null) {
-            $response['cause'] = 'You must specify expense id';
-            return new JsonResponse($response);
-        } else {
-            $user = $this->getUser();
-            $expenseCategories = $this->get('category.repository.service')->getAllUserExpenseCategories($user);
-
-            $form = $this->createForm(ExpenseType::class, $expense, array(
-                'action' => $this->generateUrl('ajax_update_expense'),
-                'attr' => array('class' => 'create_event_form', 'data-id' => $expense->getId()),
-                'method' => 'POST',
-                'user' => $user,
-                'categories' => $expenseCategories,
-            ));
-
-            $form->handleRequest($request);
-
-            if ($form->isValid()) {
-                $raw_data = $form->getData();
-
-                $expense->setDateTime($raw_data->getDateTime());
-
-                $em = $this->getDoctrine()->getManager();
-
-                $em->persist($expense);
-                $em->flush();
-
-                $response['valid'] = true;
-                $response['success'] = true;
-                return new JsonResponse($response);
-            }
-
-            $response['valid'] = false;
-            $response['success'] = true;
-            $response['form'] = $this->render('BudgetBundle:Default:expenseForm.html.twig', [
-                'form' => $form->createView(),
-            ])->getContent();
-
-            return new JsonResponse($response);
-
-        }
-    }
 
     /**
+     * @param Income $income
      * @param Request $request
-     * @Route("/new-income", name="ajax_new_income")
      * @return array|JsonResponse
+     * @Route("/new-income/{income}", name="ajax_new_income")
      */
-    public function NewIncomeAction(Request $request)
+    public function NewIncomeAction(Income $income = null, Request $request)
     {
         $ajaxBudgetResponse = new AjaxBudgetResponse();
         /** @var User $user */
         $user = $this->getUser();
-        $income = new Income();
+
+        if ($income === null) {
+            $income = new Income();
+        }
         $incomeCategories = $this->get('category.repository.service')->getAllUserIncomeCategories($user);
 
         $form = $this->createForm(IncomeType::class, $income, array(
-            'action' => $this->generateUrl('ajax_new_income'),
+            'action' => $this->generateUrl('ajax_new_income') . '/' . $income->getId(),
             'attr' => array('class' => 'create_budget'),
             'method' => 'POST',
             'user' => $user,
@@ -189,63 +139,6 @@ class AjaxController extends Controller
         ])->getContent());
 
         return new JsonResponse($ajaxBudgetResponse->getResponse());
-    }
-
-
-    /**
-     * @Route("/update-income/{income}", name="ajax_update_income")
-     * @Security("user.getId() == income.getUser().getId()")
-     * @param Income $income
-     * @param Request $request
-     * @return JsonResponse
-     */
-    public function UpdateIncome(Income $income = null, Request $request)
-    {
-        $response = [];
-        $response['success'] = false;
-
-        if ($income === null) {
-            $response['cause'] = 'You must specify income id';
-            return new JsonResponse($response);
-        } else {
-            $user = $this->getUser();
-
-            $incomeCategories = $this->get('category.repository.service')->getAllUserIncomeCategories($user);
-            $form = $this->createForm(IncomeType::class, $income, [
-                'action' => $this->generateUrl('ajax_update_income'),
-                'attr' => ['class' => 'create_event_form', 'data-id' => $income->getId()],
-                'method' => 'POST',
-                'user' => $user,
-                'categories' => $incomeCategories,
-            ]);
-
-            $form->handleRequest($request);
-
-            if ($form->isValid()) {
-                $raw_data = $form->getData();
-
-                $income->setDateTime($raw_data->getDateTime());
-
-                $em = $this->getDoctrine()->getManager();
-
-                $em->persist($income);
-                $em->flush();
-
-                $response['success'] = true;
-                $response['valid'] = true;
-                return new JsonResponse($response);
-            }
-
-            $response['valid'] = false;
-
-            $response['success'] = true;
-            $response['form'] = $this->render('BudgetBundle:Default:ajaxIncomeForm.html.twig', [
-                'form' => $form->createView(),
-            ])->getContent();
-
-            return new JsonResponse($response);
-
-        }
     }
 
     /**
