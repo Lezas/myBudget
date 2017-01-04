@@ -1,6 +1,5 @@
-
 {% block form %}
-    {{ form_start(form )  }}
+    {{ form_start(form ) }}
     <div class="form-group">
         {{ form_label(form.name) }}
         {{ form_errors(form.name) }}
@@ -25,13 +24,12 @@
         {{ form_errors(form.category) }}
         {{ form_widget(form.category, { 'attr' : { 'class' : 'form-control'}  }) }}
     </div>
-
     <div class="form-group">
         {{ form_label(form.submit) }}
         {{ form_widget(form.submit, { 'attr' : { 'class' : 'btn btn-success btn-block save'}  }) }}
     </div>
 
-    {{form_rest(form)}}
+    {{ form_rest(form) }}
 
     <script>
         $('#modal_time_input').datetimepicker({

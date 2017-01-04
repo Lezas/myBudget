@@ -7,7 +7,7 @@ services:
     budget.entity.form:
         class: BudgetBundle\Form\Services\BudgetFormService
         arguments:
-          - '@doctrine'
+          - '@service_container'
 
     budget.money.counter:
         class: BudgetBundle\Helper\BudgetMoneyCounter

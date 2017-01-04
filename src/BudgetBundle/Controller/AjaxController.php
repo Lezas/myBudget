@@ -40,53 +40,18 @@ class AjaxController extends Controller
      */
     public function NewExpenseAction(Expenses $expense = null, Request $request)
     {
-        $ajaxBudgetResponse = new AjaxBudgetResponse();
-
         if ($expense === null) {
             $expense = new Expenses();
         }
 
-        /** @var User $user */
-        $user = $this->getUser();
-        $expenseCategories = $this->get('category.repository.service')->getAllUserExpenseCategories($user);
+        $action = $this->generateUrl('ajax_new_expense');
 
-        $form = $this->createForm(ExpenseType::class, $expense, [
-            'action' => $this->generateUrl('ajax_new_expense') . '/' . $expense->getId(),
-            'attr' => ['class' => 'create_budget'],
-            'method' => 'POST',
-            'user' => $user,
-            'categories' => $expenseCategories,
-        ]);
-
-        $form->handleRequest($request);
-
-        if ($form->isValid()) {
-            $raw_data = $form->getData();
-
-            $expense->setDateTime($raw_data->getDateTime());
-            $expense->setUser($user);
-
-            $em = $this->getDoctrine()->getManager();
-
-            $em->persist($expense);
-            $em->flush();
-
-            $ajaxBudgetResponse->setDataToValid();
-            $ajaxBudgetResponse->setResponseToSuccessful();
-
-            return new JsonResponse($ajaxBudgetResponse->getResponse());
+        if ($expense->getId() != null) {
+            $action .= '/' . $expense->getId();
         }
 
-        $ajaxBudgetResponse->setDataToInvalid();
-        $ajaxBudgetResponse->setResponseToSuccessful();
-        $ajaxBudgetResponse->setRenderedForm($this->render('BudgetBundle:Default:expenseForm.html.twig', [
-            'form' => $form->createView(),
-        ])->getContent()
-        );
-
-        return new JsonResponse($ajaxBudgetResponse->getResponse());
+        return $this->NewBudgetAction($request, $expense, $action);
     }
-
 
     /**
      * @param Income $income
@@ -96,47 +61,54 @@ class AjaxController extends Controller
      */
     public function NewIncomeAction(Income $income = null, Request $request)
     {
-        $ajaxBudgetResponse = new AjaxBudgetResponse();
-        /** @var User $user */
-        $user = $this->getUser();
-
         if ($income === null) {
             $income = new Income();
         }
-        $incomeCategories = $this->get('category.repository.service')->getAllUserIncomeCategories($user);
 
-        $form = $this->createForm(IncomeType::class, $income, array(
-            'action' => $this->generateUrl('ajax_new_income') . '/' . $income->getId(),
-            'attr' => array('class' => 'create_budget'),
-            'method' => 'POST',
-            'user' => $user,
-            'categories' => $incomeCategories,
-        ));
+        $action = $this->generateUrl('ajax_new_income');
+        if ($income->getId() != null) {
+            $action .= '/' . $income->getId();
+        }
+
+        return $this->NewBudgetAction($request, $income, $action);
+    }
+
+    /**
+     * @param Request $request
+     * @param Budget $budget
+     * @param $action
+     * @return JsonResponse
+     */
+    public function NewBudgetAction(Request $request, Budget $budget, $action)
+    {
+        $user = $this->getUser();
+
+        $form = $this->get('budget.entity.form')->createBudgetForm($budget, $action, $user);
+
+        $ajaxBudgetResponse = new AjaxBudgetResponse();
 
         $form->handleRequest($request);
 
         if ($form->isValid()) {
-            $user = $this->getUser();
-            $raw_data = $form->getData();
-
-            $income->setDateTime($raw_data->getDateTime());
-            $income->setUser($user);
+            $budget->setUser($user);
 
             $em = $this->getDoctrine()->getManager();
 
-            $em->persist($income);
+            $em->persist($budget);
             $em->flush();
 
             $ajaxBudgetResponse->setDataToValid();
             $ajaxBudgetResponse->setResponseToSuccessful();
+
             return new JsonResponse($ajaxBudgetResponse->getResponse());
         }
 
         $ajaxBudgetResponse->setDataToInvalid();
         $ajaxBudgetResponse->setResponseToSuccessful();
-        $ajaxBudgetResponse->setRenderedForm($this->render('BudgetBundle:Default:ajaxIncomeForm.html.twig', [
+        $ajaxBudgetResponse->setRenderedForm($this->render('BudgetBundle:Default:budgetForm.html.twig', [
             'form' => $form->createView(),
-        ])->getContent());
+        ])->getContent()
+        );
 
         return new JsonResponse($ajaxBudgetResponse->getResponse());
     }
@@ -147,7 +119,7 @@ class AjaxController extends Controller
      * @param Income $income
      * @return JsonResponse
      */
-    public function DeleteIncome(Income $income = null)
+    public function DeleteIncomeAction(Income $income = null)
     {
         if ($income === null) {
             throw $this->createNotFoundException();
@@ -164,7 +136,7 @@ class AjaxController extends Controller
      * @param Expenses $expense
      * @return JsonResponse
      */
-    public function DeleteExpense(Expenses $expense = null)
+    public function DeleteExpenseAction(Expenses $expense = null)
     {
         if ($expense === null) {
             throw $this->createNotFoundException();
