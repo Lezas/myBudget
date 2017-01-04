@@ -60,8 +60,8 @@ class BudgetRepositoryService
     }
 
     /**
-     * @param string $date_from
-     * @param string $date_to
+     * @param \DateTime $date_from
+     * @param \DateTime $date_to
      * @param User $user
      * @return array
      */
