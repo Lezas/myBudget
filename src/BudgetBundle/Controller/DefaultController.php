@@ -5,7 +5,6 @@ namespace BudgetBundle\Controller;
 use BudgetBundle\Entity\Budget;
 use BudgetBundle\Entity\Expenses;
 use BudgetBundle\Entity\Income;
-use BudgetBundle\Form\Type\BudgetType;
 use BudgetBundle\Form\Type\ExpenseType;
 use BudgetBundle\Form\Type\IncomeType;
 use BudgetBundle\Helper\DataFormatter;
@@ -14,11 +13,8 @@ use DateTime;
 use MainBundle\Entity\User;
 use Symfony\Bundle\FrameworkBundle\Controller\Controller;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
-use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
-use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
-use Symfony\Component\Validator\Constraints\Date;
 
 
 /**

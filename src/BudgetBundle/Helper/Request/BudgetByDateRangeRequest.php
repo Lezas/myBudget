@@ -2,60 +2,81 @@
 
 namespace BudgetBundle\Helper\Request;
 
-use Symfony\Component\DependencyInjection\ContainerInterface;
-use Symfony\Component\HttpFoundation\Request;
+use BudgetBundle\Helper\DateTime\DateTimeHelper;
 use Symfony\Component\HttpFoundation\RequestStack;
 
 /**
- * Created by PhpStorm.
- * User: Lezas
- * Date: 2017-01-03
- * Time: 18:14
+ * Class BudgetByDateRangeRequest
+ * @package BudgetBundle\Helper\Request
  */
 final class BudgetByDateRangeRequest
 {
     private $request;
 
+    private $dateTimeHelper;
+
     private $dateTo = null;
 
     private $dateFrom = null;
 
-    public function setRequest(RequestStack $request_stack) {
-
-        $this->request = $request_stack->getCurrentRequest();
+    /**
+     * BudgetByDateRangeRequest constructor.
+     * @param DateTimeHelper $dateTimeHelper
+     */
+    public function __construct(DateTimeHelper $dateTimeHelper)
+    {
+        $this->dateTimeHelper = $dateTimeHelper;
     }
 
+    /**
+     * @param RequestStack $request_stack
+     */
+    public function setRequest(RequestStack $request_stack)
+    {
+        $this->request = $request_stack->getCurrentRequest();
+
+    }
+
+    /**
+     * @return \DateTime|null
+     */
     public function getDateFrom()
     {
         $dateFrom = $this->dateFrom;
         if ($dateFrom == null) {
-            if ($this->request->query->get('date_from') != "") {
-                $dateFrom = new \DateTime($this->request->query->get('date_from'));
+            if ($this->getVariable('date_from') != "") {
+                $dateFrom = new \DateTime($this->getVariable('date_from'));
             } else {
-                $date = new \DateTime('now');
-
-                //how to get first and last day of the month
-                $dateFrom = new \DateTime(date('Y-m-01', $date->getTimestamp()));
+                $dateFrom = $this->dateTimeHelper->getFirstDayOfMonth(new \DateTime('now'));
             }
         }
 
         return $dateFrom;
     }
 
+    /**
+     * @return \DateTime|null
+     */
     public function getDateTo()
     {
         $dateTo = $this->dateTo;
         if ($dateTo == null) {
-            if ($this->request->query->get('date_to') != "") {
-
-                $dateTo = new \DateTime($this->request->query->get('date_to'));
+            if ($this->getVariable('date_to') != "") {
+                $dateTo = new \DateTime($this->getVariable('date_to'));
             } else {
-                $date = new \DateTime('now');
-
-                $dateTo = new \DateTime(date('Y-m-t', $date->getTimestamp()));
+                $dateTo = $this->dateTimeHelper->getLastDayOfMonth(new \DateTime('now'));
             }
         }
 
         return $dateTo;
+    }
+
+    /**
+     * @param string $variableName
+     * @return string
+     */
+    protected function getVariable($variableName)
+    {
+        return $this->request->query->get($variableName);
     }
 }

@@ -1,4 +1,7 @@
 services:
+    helper.datetime:
+        class: BudgetBundle\Helper\DateTime\DateTimeHelper
+
     budget.repository.budget:
         class: BudgetBundle\Repository\BudgetRepositoryService
         arguments:
@@ -14,5 +17,8 @@ services:
 
     budget.request.budgetbydaterange:
         class: BudgetBundle\Helper\Request\BudgetByDateRangeRequest
+        arguments: ['@helper.datetime']
         calls:
           - [setRequest, ["@request_stack"]]
+
+

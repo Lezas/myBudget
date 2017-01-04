@@ -11,8 +11,6 @@ namespace BudgetBundle\Controller;
 use BudgetBundle\Entity\Budget;
 use BudgetBundle\Entity\Expenses;
 use BudgetBundle\Entity\Income;
-use BudgetBundle\Form\Type\ExpenseType;
-use BudgetBundle\Form\Type\IncomeType;
 use BudgetBundle\Helper\DataFormatter;
 use BudgetBundle\Repository\BudgetRepository;
 use BudgetBundle\Response\AjaxBudgetResponse;
@@ -76,7 +74,7 @@ class AjaxController extends Controller
     /**
      * @param Request $request
      * @param Budget $budget
-     * @param $action
+     * @param string $action
      * @return JsonResponse
      */
     public function NewBudgetAction(Request $request, Budget $budget, $action)
