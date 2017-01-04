@@ -22,7 +22,7 @@ class CategoryRepositoryServiceTest extends FunctionalTestCase
         /** @var Category $category */
         $category = $categories[0];
         $this->assertCount(1, $categories);
-        $this->assertEquals('income',$category->getName());
+        $this->assertEquals('income', $category->getName());
     }
 
     public function testGetExpenseCategories()
@@ -35,7 +35,7 @@ class CategoryRepositoryServiceTest extends FunctionalTestCase
         /** @var Category $category */
         $category = $categories[0];
         $this->assertCount(1, $categories);
-        $this->assertEquals('expense',$category->getName());
+        $this->assertEquals('expense', $category->getName());
     }
 
 }

@@ -103,12 +103,12 @@ class CategoryController extends Controller
             $em->flush();
             $this->addFlash(
                 'notice',
-                'Category ' . $category->getName() . ' has been deleted!'
+                'Category '.$category->getName().' has been deleted!'
             );
         } else {
             $this->addFlash(
                 'notice',
-                'Category ' . $category->getName() . ' has relations with budget or has children categories.'
+                'Category '.$category->getName().' has relations with budget or has children categories.'
             );
         }
 
