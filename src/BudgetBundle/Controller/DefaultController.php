@@ -46,14 +46,18 @@ class DefaultController extends Controller
         }
 
         $date = new \DateTime('now');
+        $dateTimeHelper = $this->get('helper.datetime');
+
+        $firstDay = $dateTimeHelper->getFirstDayOfMonth($date);
+        $lastDay = $dateTimeHelper->getLastDayOfMonth($date);
 
         return $this->render('BudgetBundle:Default:index.html.twig', [
             'total_expense' => $totalExpenses,
             'total_income' => $totalIncome,
             'income' => $budget_array['income'],
             'expenses' => $budget_array['expenses'],
-            'month_first_day' => date('Y-m-01', $date->getTimestamp()),
-            'month_last_day' => date('Y-m-t', $date->getTimestamp()),
+            'month_first_day' => $firstDay->format('Y-m-d H:i'),
+            'month_last_day' => $lastDay->format('Y-m-d H:i'),
         ]);
     }
 

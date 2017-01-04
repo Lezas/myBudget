@@ -9,6 +9,7 @@
 namespace BudgetBundle\Repository;
 
 use BudgetBundle\Entity\Expenses;
+use BudgetBundle\Helper\DateTime\DateTimeHelper;
 use Doctrine\ORM\EntityManager;
 use MainBundle\Entity\User;
 use Symfony\Bridge\Doctrine\ManagerRegistry;
@@ -22,14 +23,18 @@ class BudgetRepositoryService
 {
     private $managerRegistry;
 
+    private $dateTimeHelper;
+
     /**
      * BudgetRepositoryService constructor.
      * @param ManagerRegistry $managerRegistry
+     * @param DateTimeHelper $dateTimeHelper
      * @internal param EntityManager $em
      */
-    public function __construct(ManagerRegistry $managerRegistry)
+    public function __construct(ManagerRegistry $managerRegistry, DateTimeHelper $dateTimeHelper)
     {
         $this->managerRegistry = $managerRegistry;
+        $this->dateTimeHelper = $dateTimeHelper;
     }
 
     /**
@@ -46,8 +51,8 @@ class BudgetRepositoryService
         }
 
         //how to get first and last day of the month
-        $month_first_day = date('Y-m-01', $date->getTimestamp());
-        $month_last_day = date('Y-m-t', $date->getTimestamp());
+        $month_first_day = $this->dateTimeHelper->getFirstDayOfMonth($date);
+        $month_last_day = $this->dateTimeHelper->getLastDayOfMonth($date);
 
         $budget_array = $this->getBudgetByDateRange($month_first_day, $month_last_day, $user);
 

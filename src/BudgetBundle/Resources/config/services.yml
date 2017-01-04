@@ -6,6 +6,7 @@ services:
         class: BudgetBundle\Repository\BudgetRepositoryService
         arguments:
           - '@doctrine'
+          - '@helper.datetime'
 
     budget.entity.form:
         class: BudgetBundle\Form\Services\BudgetFormService

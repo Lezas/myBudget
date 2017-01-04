@@ -15,7 +15,7 @@ class DateTimeHelper
      */
     public function getFirstDayOfMonth(\DateTime $dateTime)
     {
-        return  new \DateTime(date('Y-m-01', $dateTime->getTimestamp()));
+        return  new \DateTime(date('Y-m-01 00:00', $dateTime->getTimestamp()));
     }
 
     /**
@@ -24,7 +24,7 @@ class DateTimeHelper
      */
     public function getLastDayOfMonth(\DateTime $dateTime)
     {
-        return  new \DateTime(date('Y-m-t', $dateTime->getTimestamp()));
+        return  new \DateTime(date('Y-m-t 23:59', $dateTime->getTimestamp()));
     }
 
 }

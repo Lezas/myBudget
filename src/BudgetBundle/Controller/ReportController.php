@@ -10,7 +10,6 @@ use BudgetBundle\Form\Type\IncomeType;
 use BudgetBundle\Helper\BudgetMoneyCounter;
 use BudgetBundle\Helper\DataFormatter;
 use BudgetBundle\Repository\BudgetRepository;
-use DateTime;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\ORM\Tools\Pagination\Paginator;
 use MainBundle\Entity\User;
@@ -20,7 +19,6 @@ use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
-use Symfony\Component\Validator\Constraints\Date;
 
 /**
  * Class ReportController
@@ -57,6 +55,10 @@ class ReportController extends Controller
         }
 
         $date = new \DateTime('now');
+        $dateTimeHelper = $this->get('helper.datetime');
+
+        $firstDay = $dateTimeHelper->getFirstDayOfMonth($date);
+        $lastDay = $dateTimeHelper->getLastDayOfMonth($date);
 
         return $this->render('BudgetBundle:Default:reports.html.twig', [
             'income_categories' => $incomeCategories,
@@ -65,8 +67,8 @@ class ReportController extends Controller
             'total_income' => $totalIncome,
             'income' => $budget_array['income'],
             'expenses' => $budget_array['expenses'],
-            'month_first_day' => date('Y-m-01', $date->getTimestamp()),
-            'month_last_day' => date('Y-m-t', $date->getTimestamp()),
+            'month_first_day' => $firstDay,
+            'month_last_day' => $lastDay,
         ]);
 
     }
