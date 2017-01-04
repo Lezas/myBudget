@@ -189,7 +189,7 @@ class AjaxReportController extends Controller
 
 
     /**
-     * @param $budgets ArrayCollection of Budget
+     * @param ArrayCollection $budgets ArrayCollection of Budget
      * @return ArrayCollection
      */
     private function createDataFromBudget($budgets)

@@ -15,6 +15,6 @@ class BudgetTest extends FunctionalTestCase
         $expenses = $category->getExpense();
         $expense = $expenses[0];
 
-        $this->assertInternalType('integer',$expense->getId());
+        $this->assertInternalType('integer', $expense->getId());
     }
 }

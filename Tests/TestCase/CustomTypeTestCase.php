@@ -52,7 +52,7 @@ class CustomTypeTestCase extends TypeTestCase
         $entityType = new EntityType($mockRegistry);
 
         return [
-            new PreloadedExtension(['entity' => $entityType,], [])
+            new PreloadedExtension(['entity' => $entityType, ], [])
         ];
     }
 
