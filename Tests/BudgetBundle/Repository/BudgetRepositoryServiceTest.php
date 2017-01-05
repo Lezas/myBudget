@@ -2,6 +2,7 @@
 
 namespace Tests\BudgetBundle\Repository;
 
+use BudgetBundle\Helper\DateTime\DateTimeHelper;
 use BudgetBundle\Repository\BudgetRepositoryService;
 use Tests\TestCase\FunctionalTestCase;
 
@@ -15,8 +16,10 @@ class BudgetRepositoryServiceTest extends FunctionalTestCase
     {
         $date = new \DateTime('2016-01-15');
         $user = $this->em->getRepository('MainBundle:User')->findOneBy(['username' => 'admin']);
+        $dateTimeHelper = new DateTimeHelper();
         $service = new BudgetRepositoryService(
-            static::$kernel->getContainer()->get('doctrine')
+            static::$kernel->getContainer()->get('doctrine'),
+            $dateTimeHelper
         );
 
         $budget = $service->getMonthBudget($date, $user);
@@ -31,8 +34,10 @@ class BudgetRepositoryServiceTest extends FunctionalTestCase
     public function testGetMonthBudget_dateIsNotDefined()
     {
         $user = $this->em->getRepository('MainBundle:User')->findOneBy(['username' => 'admin']);
+        $dateTimeHelper = new DateTimeHelper();
         $service = new BudgetRepositoryService(
-            static::$kernel->getContainer()->get('doctrine')
+            static::$kernel->getContainer()->get('doctrine'),
+            $dateTimeHelper
         );
 
         $budget = $service->getMonthBudget(null, $user);
