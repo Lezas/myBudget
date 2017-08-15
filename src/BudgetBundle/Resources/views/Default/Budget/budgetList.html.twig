@@ -1,0 +1,25 @@
+{% for data in budgetData %}
+    <div class="row header-bottom-line-small">
+        <div class="col col-xs-6">
+            <h4>{{ data.category.name }}
+                <button type="button" class="btn btn-xs btn-default collapse-button"
+                        data-toggle="collapse"
+                        data-target="#{{ data.category.name|replace({' ':''}) }}{{ data.category.id }}"><span
+                            class="glyphicon glyphicon-menu-down"></span></button>
+            </h4>
+        </div>
+        <div class="col col-xs-6 text-right">
+            <h4>{{ data.total }}</h4>
+        </div>
+        <div class="col-xs-12">
+            <ul class="list-group list-window collapse"
+                id="{{ data.category.name|replace({' ':''}) }}{{ data.category.id }}">
+                {% for data in data.categoryBudget %}
+                    {{ data.name }} {{ data.money }}<br>
+                {% endfor %}
+            </ul>
+        </div>
+    </div>
+
+
+{% endfor %}

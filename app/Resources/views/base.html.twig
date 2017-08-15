@@ -1,102 +1,105 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=1440">
+    <meta charset="UTF-8"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>{% block title %}Your Budget - App for your budget management{% endblock %}</title>
-    <link rel="icon" type="image/x-icon" href="{{ asset('favicon.ico') }}" />
-    <link href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/css/bootstrap.min.css" rel="stylesheet" type="text/css"/>
-    <link href="{{asset('bundles/Budget/css/bootstrap-datetimepicker.min.css')}}" rel="stylesheet" type="text/css"/>
+    <link rel="icon" type="image/x-icon" href="{{ asset('favicon.ico') }}"/>
+    <link href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/css/bootstrap.min.css" rel="stylesheet"
+          type="text/css"/>
+    <link href="{{ asset('bundles/budget/css/bootstrap-datetimepicker.min.css') }}" rel="stylesheet" type="text/css"/>
     {% block stylesheets %}{% endblock %}
 
 </head>
 <body>
 
-{% block header %}
-    <nav class="navbar navbar-inverse " style="margin: 0;" role="navigation">
-        <div class="container">
-            <!-- Brand and toggle get grouped for better mobile display -->
-            <div class="navbar-header">
+{% block sidenavs %}
+{% endblock %}
 
-                    <button type="button" class="navbar-toggle" data-toggle="collapse" data-target="#bs-example-navbar-collapse-1">
+<div id="main">
+
+    {% block header %}
+        <nav class="navbar navbar-inverse" style="margin: 0; border-radius: 0" role="navigation">
+            <div class="container">
+                <!-- Brand and toggle get grouped for better mobile display -->
+                <div class="navbar-header">
+                    <button type="button" class="navbar-toggle" data-toggle="collapse"
+                            data-target="#bs-example-navbar-collapse-1">
                         <span class="sr-only">Toggle navigation</span>
                         <span class="icon-bar"></span>
                         <span class="icon-bar"></span>
                         <span class="icon-bar"></span>
                     </button>
+                    <a class="navbar-brand" href="{{ path('new_dashboard') }}">Your Budget</a>
+                </div>
 
-                <a class="navbar-brand" href="{{ path('dashboard') }}">Your Budget</a>
-
+                <!-- Collect the nav links, forms, and other content for toggling -->
+                <div class="collapse navbar-collapse" id="bs-example-navbar-collapse-1">
+                    <ul class="nav navbar-nav navbar-right">
+                        {% if app.user %}
+                            <li>
+                                <p class="navbar-text">Logged in as <strong>{{ app.user.username }}</strong></p>
+                            </li>
+                            <li>
+                                <a href="{{ path('new_dashboard') }}">Dashboard</a>
+                            </li>
+                            <li>
+                                <a href="#" class="dropdown-toggle" data-toggle="dropdown">Categories
+                                    <span class="caret"></span></a>
+                                <ul class="dropdown-menu">
+                                    <li><a href="{{ path('new_category') }}">Add Categoty</a></li>
+                                    <li><a href="{{ path('category_list') }}">All categories</a></li>
+                                </ul>
+                            </li>
+                            <li>
+                                <a href="{{ path('reports') }}">Reports</a>
+                            </li>
+                            <li>
+                                <a href="{{ path('fos_user_profile_show') }}">Your Profile</a>
+                            </li>
+                            <li>
+                                <a href="{{ path('fos_user_security_logout') }}">Logout</a>
+                            </li>
+                        {% else %}
+                            <li>
+                                <a href="{{ path('fos_user_security_login') }}">Sign up</a>
+                            </li>
+                            <li>
+                                <a href="{{ path('fos_user_registration_register') }}">Registration</a>
+                            </li>
+                        {% endif %}
+                    </ul>
+                </div>
+                <!-- /.navbar-collapse -->
+            </div>
+            <!-- /.container -->
+        </nav>
+        {% if app.session.flashbag.has('notice') %}
+            <div class="alert alert-info text-center" id="notification-div">
+                <strong>Info!</strong> {{ app.session.flashbag.get('notice').0 }}<br/>
             </div>
 
-            <!-- Collect the nav links, forms, and other content for toggling -->
-            <div class="collapse navbar-collapse" id="bs-example-navbar-collapse-1">
-                <ul class="nav navbar-nav navbar-right">
-                    {% if app.user %}
-                        <li>
-                            <p class="navbar-text">Logged in as <strong>{{app.user.username }}</strong></p>
-                        </li>
-                        <li>
-                            <a href="{{ path('dashboard') }}">Dashboard</a>
-                        </li>
-                        <li>
-                            <a href="#" class="dropdown-toggle" data-toggle="dropdown">Categories
-                                <span class="caret"></span></a>
-                            <ul class="dropdown-menu">
-                                <li><a href="{{ path('new_category') }}">Add Categoty</a></li>
-                                <li><a href="{{ path('category_list') }}">All categories</a></li>
-                            </ul>
-                        </li>
-                        <li>
-                            <a href="{{ path('reports') }}">Reports</a>
-                        </li>
-                        <li>
-                            <a href="{{ path('fos_user_profile_show') }}">Your Profile</a>
-                        </li>
-                        <li>
-                            <a href="{{ path('fos_user_security_logout') }}">Logout</a>
-                        </li>
-                    {% else %}
-                        <li>
-                            <a href="{{ path('fos_user_security_login') }}">Sign up</a>
-                        </li>
-                        <li>
-                            <a href="{{ path('fos_user_registration_register') }}">Registration</a>
-                        </li>
-                    {% endif %}
-                </ul>
-            </div>
-            <!-- /.navbar-collapse -->
-        </div>
-        <!-- /.container -->
-    </nav>
-    {% if app.session.flashbag.has('notice') %}
-        <div class="alert alert-info text-center" id="notification-div">
-            <strong>Info!</strong> {{ app.session.flashbag.get('notice').0 }}<br/>
+
+        {% endif %}
+        <div id="notification-div">
         </div>
 
+    {% endblock %}
+    <div class="container-fluid">
 
-    {% endif %}
-    <div id="notification-div">
+        {% block body %}{% endblock %}
+
     </div>
-
-{% endblock %}
-<div class="container-fluid">
-    <div class="container-fluid main " style="padding-top: 25px;">
-        <div class="col-md-10 col-md-offset-1">
-            {% block body %}{% endblock %}
+    <footer class="footer navbar-fixed-bottom" style="background: #e8dcdd;">
+        <div class="container">
+            <p class="text-muted">Created by Paulius Kupetis &copy; 2016</p>
         </div>
-    </div>
+    </footer>
 </div>
-<footer class="footer navbar-fixed-bottom" style="background: #e8dcdd;">
-    <div class="container">
-        <p class="text-muted">Created by Paulius Kupetis &copy; 2016</p>
-    </div>
-</footer>
 <script src="https://code.jquery.com/jquery-2.1.4.min.js" type="text/javascript"></script>
 <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/js/bootstrap.min.js" type="text/javascript"></script>
-<script src="{{asset('bundles/Budget/js/moment.min.js')}}" type="text/javascript"></script>
-<script src="{{asset('bundles/Budget/js/bootstrap-datetimepicker.min.js')}}" type="text/javascript"></script>
+<script src="{{ asset('bundles/Budget/js/moment.min.js') }}" type="text/javascript"></script>
+<script src="{{ asset('bundles/Budget/js/bootstrap-datetimepicker.min.js') }}" type="text/javascript"></script>
 {% block javascripts %}
 {% endblock %}
 </body>

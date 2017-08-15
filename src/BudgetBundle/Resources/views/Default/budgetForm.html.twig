@@ -7,12 +7,7 @@
     </div>
     <div class="form-group">
         {{ form_label(form.dateTime) }}
-        <div class="input-group" id="modal_time_input">
-            {{ form_widget(form.dateTime, { 'attr' : {'class' : 'form-control' } }) }}
-            <span class="input-group-addon">
-            <i class="glyphicon glyphicon-calendar"></i>
-        </span>
-        </div>
+        {{ form_widget(form.dateTime, { 'attr' : {'class' : 'form-control' } }) }}
     </div>
     <div class="form-group">
         {{ form_label(form.money) }}
@@ -25,16 +20,19 @@
         {{ form_widget(form.category, { 'attr' : { 'class' : 'form-control'}  }) }}
     </div>
     <div class="form-group">
-        {{ form_label(form.submit) }}
-        {{ form_widget(form.submit, { 'attr' : { 'class' : 'btn btn-success btn-block save'}  }) }}
+        <div class="row">
+            <div class="col-xs-6">
+                {{ form_label(form.submit) }}
+                {{ form_widget(form.submit, { 'attr' : { 'class' : 'btn btn-success btn-block save'}  }) }}
+            </div>
+            <div class="col-xs-6">
+                <button id="{{ form.submit.vars.id }}_add_next" class="btn btn-success btn-block save">Save & Next
+                </button>
+            </div>
+        </div>
     </div>
 
     {{ form_rest(form) }}
+    {{ form_end(form) }}
 
-    <script>
-        $('#modal_time_input').datetimepicker({
-            format: 'YYYY-MM-DD HH:mm',
-            stepping: 1
-        });
-    </script>
 {% endblock form %}

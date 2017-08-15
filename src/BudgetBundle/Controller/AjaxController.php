@@ -12,8 +12,11 @@ use BudgetBundle\Entity\Budget;
 use BudgetBundle\Entity\Expenses;
 use BudgetBundle\Entity\Income;
 use BudgetBundle\Helper\DataFormatter;
+use BudgetBundle\Helper\DateTime\DateTimeHelper;
 use BudgetBundle\Repository\BudgetRepository;
 use BudgetBundle\Response\AjaxBudgetResponse;
+use CategoryBundle\Entity\Category;
+use DateTime;
 use MainBundle\Entity\User;
 use Symfony\Bundle\FrameworkBundle\Controller\Controller;
 use Symfony\Component\HttpFoundation\JsonResponse;
@@ -30,6 +33,136 @@ use Symfony\Component\Validator\Constraints\Date;
  */
 class AjaxController extends Controller
 {
+    /**
+     * @param Request $request
+     * @return array|JsonResponse
+     * @Route("/income-data", name="ajax_get_income_data")
+     */
+    public function getIncomeDataAction(Request $request)
+    {
+        $user = $this->getUser();
+
+        $categoryRepository = $this->getDoctrine()->getManager()->getRepository('CategoryBundle:Category');
+        $incomeRepository = $this->getDoctrine()->getManager()->getRepository('BudgetBundle:Income');
+
+        list($month_first_day, $month_last_day) = $this->getDataRange($request);
+
+        /** @var DateTime $month_first_day */
+        $request->query->set('date_from', $month_first_day->format('Y-m-d'));
+        $request->query->set('date_to', $month_last_day->format('Y-m-d'));
+
+        $incomeCategories = $categoryRepository->findBy(['user' => $user, 'type' => 'income']);
+
+        $incomeData = [];
+        $totalIncome = 0;
+        foreach ($incomeCategories as $incomeCategory) {
+            $categoryIncome = $incomeRepository->getByDateRangeAndCategories($user, $month_first_day->format('Y-m-d H:i'), $month_last_day->format('Y-m-d H:i'), [$incomeCategory->getId()]);
+            $total = $this->get('budget.money.counter')->countBudget($categoryIncome);
+            if ($total > 0) {
+                $totalIncome += $total;
+                $incomeData[] = [
+                    'category' => $incomeCategory,
+                    'categoryBudget' => $categoryIncome,
+                    'total' => $total
+                ];
+            }
+        }
+
+        $view = $this->render('BudgetBundle:Default/Budget:budgetList.html.twig', [
+            'budgetData' => $incomeData,
+        ])->getContent();
+
+        return new JsonResponse([
+            'success' => true,
+            'view' => $view,
+            'total' => $totalIncome,
+            ]);
+    }
+
+    /**
+     * @param Request $request
+     * @return array|JsonResponse
+     * @Route("/expense-data", name="ajax_get_expense_data")
+     */
+    public function getExpenseDataAction(Request $request)
+    {
+        $user = $this->getUser();
+
+        $categoryRepository = $this->getDoctrine()->getManager()->getRepository('CategoryBundle:Category');
+        $expenseRepository = $this->getDoctrine()->getManager()->getRepository('BudgetBundle:Expenses');
+
+        list($month_first_day, $month_last_day) = $this->getDataRange($request);
+
+        /** @var DateTime $month_first_day */
+        $request->query->set('date_from', $month_first_day->format('Y-m-d'));
+        $request->query->set('date_to', $month_last_day->format('Y-m-d'));
+
+        $expenseCategories = $categoryRepository->findBy(['user' => $user, 'type' => 'expense']);
+
+        $expenseData = [];
+        $chartData = [];
+        $totalExpense = 0;
+        foreach ($expenseCategories as $expenseCategory) {
+            $categoryExpense = $expenseRepository->getByDateRangeAndCategories($user,$month_first_day->format('Y-m-d H:i'),$month_last_day->format('Y-m-d H:i'),[$expenseCategory->getId()]    );
+            $total =  $this->get('budget.money.counter')->countBudget($categoryExpense);
+            if ($total > 0) {
+                $chartData[] = ['label' => $expenseCategory->getName(), 'value' => $total];
+                $totalExpense += $total;
+                $expenseData[] = [
+                    'category' => $expenseCategory,
+                    'categoryBudget' => $categoryExpense,
+                    'total' => $total
+                ];
+            }
+        }
+
+        $expensesWithNoCat = $expenseRepository->getByDateRangeWithoutCategories($user,$month_first_day,$month_last_day);
+        $NoCat = new Category();
+        $NoCat->setName("Without Category");
+        $total =  $this->get('budget.money.counter')->countBudget($expensesWithNoCat);
+        if ($total > 0) {
+            $chartData[] = ['label' => "Without Category", 'value' => $total];
+            $totalExpense += $total;
+            $expenseData[] = [
+                'category' => $NoCat,
+                'categoryBudget' => $expensesWithNoCat,
+                'total' => $total
+            ];
+        }
+
+        $view = $this->render('BudgetBundle:Default/Budget:budgetList.html.twig', [
+            'budgetData' => $expenseData,
+        ])->getContent();
+
+        return new JsonResponse([
+            'success' => true,
+            'view' => $view,
+            'total' => $totalExpense,
+            'chartData' => $chartData,
+        ]);
+    }
+
+    /**
+     * @param $request
+     * @return array
+     */
+    protected function getDataRange(Request $request)
+    {
+        $date = new \DateTime('now');
+        $dateTimeHelper = new DateTimeHelper();
+
+        $dateFrom = $request->query->get('date_from');
+        $dateTo = $request->query->get('date_to');
+
+        $dateFrom = $dateFrom != null ? new DateTime($dateFrom) : $dateTimeHelper->getFirstDayOfMonth($date);
+        $dateTo = $dateTo != null ? new DateTime($dateTo) : $dateTimeHelper->getLastDayOfMonth($date);
+
+        return [
+            $dateFrom,
+            $dateTo
+        ];
+    }
+
     /**
      * @param Expenses $expense
      * @param Request $request
@@ -49,26 +182,6 @@ class AjaxController extends Controller
         }
 
         return $this->NewBudgetAction($request, $expense, $action);
-    }
-
-    /**
-     * @param Income $income
-     * @param Request $request
-     * @return array|JsonResponse
-     * @Route("/new-income/{income}", name="ajax_new_income")
-     */
-    public function NewIncomeAction(Income $income = null, Request $request)
-    {
-        if ($income === null) {
-            $income = new Income();
-        }
-
-        $action = $this->generateUrl('ajax_new_income');
-        if ($income->getId() != null) {
-            $action .= '/' . $income->getId();
-        }
-
-        return $this->NewBudgetAction($request, $income, $action);
     }
 
     /**
@@ -112,6 +225,26 @@ class AjaxController extends Controller
     }
 
     /**
+     * @param Income $income
+     * @param Request $request
+     * @return array|JsonResponse
+     * @Route("/new-income/{income}", name="ajax_new_income")
+     */
+    public function NewIncomeAction(Income $income = null, Request $request)
+    {
+        if ($income === null) {
+            $income = new Income();
+        }
+
+        $action = $this->generateUrl('ajax_new_income');
+        if ($income->getId() != null) {
+            $action .= '/' . $income->getId();
+        }
+
+        return $this->NewBudgetAction($request, $income, $action);
+    }
+
+    /**
      * @Route("/delete-income/{income}", name="ajax_delete_income")
      * @Security("user.getId() == income.getUser().getId()")
      * @param Income $income
@@ -124,23 +257,6 @@ class AjaxController extends Controller
         }
 
         $response = $this->deleteBudget($income);
-
-        return new JsonResponse($response);
-    }
-
-    /**
-     * @Route("/delete-expense/{expense}", name="ajax_delete_expense")
-     * @Security("user.getId() == expense.getUser().getId()")
-     * @param Expenses $expense
-     * @return JsonResponse
-     */
-    public function DeleteExpenseAction(Expenses $expense = null)
-    {
-        if ($expense === null) {
-            throw $this->createNotFoundException();
-        }
-
-        $response = $this->deleteBudget($expense);
 
         return new JsonResponse($response);
     }
@@ -164,24 +280,29 @@ class AjaxController extends Controller
     }
 
     /**
+     * @Route("/delete-expense/{expense}", name="ajax_delete_expense")
+     * @Security("user.getId() == expense.getUser().getId()")
+     * @param Expenses $expense
+     * @return JsonResponse
+     */
+    public function DeleteExpenseAction(Expenses $expense = null)
+    {
+        if ($expense === null) {
+            throw $this->createNotFoundException();
+        }
+
+        $response = $this->deleteBudget($expense);
+
+        return new JsonResponse($response);
+    }
+
+    /**
      * @Route("/expenses-date-range", name="ajax_expense_by_date_range")
      * @return JsonResponse
      */
     public function GetExpenseByDateRangeAction()
     {
         $repository = $this->getDoctrine()->getManager()->getRepository('BudgetBundle:Expenses');
-        $return = $this->GetBudgetByDateRange($repository);
-
-        return JsonResponse::create($return);
-    }
-
-    /**
-     * @Route("/income-date-range", name="ajax_income_by_date_range")
-     * @return JsonResponse
-     */
-    public function GetIncomeByDateRangeAction()
-    {
-        $repository = $this->getDoctrine()->getManager()->getRepository('BudgetBundle:Income');
         $return = $this->GetBudgetByDateRange($repository);
 
         return JsonResponse::create($return);
@@ -205,6 +326,18 @@ class AjaxController extends Controller
         $filtered_income = DataFormatter::groupByDay($budget);
 
         return $filtered_income;
+    }
+
+    /**
+     * @Route("/income-date-range", name="ajax_income_by_date_range")
+     * @return JsonResponse
+     */
+    public function GetIncomeByDateRangeAction()
+    {
+        $repository = $this->getDoctrine()->getManager()->getRepository('BudgetBundle:Income');
+        $return = $this->GetBudgetByDateRange($repository);
+
+        return JsonResponse::create($return);
     }
 
     /**

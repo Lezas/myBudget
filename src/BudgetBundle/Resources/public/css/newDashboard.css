@@ -1,0 +1,106 @@
+.header-bottom-line {
+    border-bottom: 3px solid #009fb7;
+}
+
+.header-bottom-line-small {
+    border-bottom: 1px solid #00857e;
+}
+
+.inline-headers h2, .inline-headers h4 {
+    display: inline-block;
+}
+
+.main-category-label {
+    background-color: #009fb7;
+    margin-top: 19px;
+    border-radius: 15px 15px 0 0;
+    color: #fff;
+}
+
+.main-category-label-text {
+    margin-top: 6px;
+    margin-bottom: 5px;
+    font-family: sans-serif;
+}
+
+
+
+
+
+body {
+    font-family: "Lato", sans-serif;
+    transition: background-color .5s;
+}
+
+.sidenav {
+    height: 100%;
+    width: 0;
+    position: fixed;
+    z-index: 1;
+    top: 0;
+    right: 0;
+    background-color: #222;
+    overflow-x: hidden;
+    transition: 0.5s;
+    padding-top: 60px;
+    color: #fff;
+}
+
+.sidenav a {
+    padding: 8px 8px 8px 32px;
+    text-decoration: none;
+    font-size: 25px;
+    color: #ffffff;
+    display: block;
+    transition: 0.3s;
+}
+
+.sidenav label {
+    color: #ffffff;
+}
+
+.sidenav a:hover, .offcanvas a:focus{
+    color: #f1f1f1;
+}
+
+.sidenav .closebtn {
+    position: absolute;
+    top: 0;
+    right: 25px;
+    font-size: 36px;
+    margin-left: 50px;
+}
+
+#main {
+    transition: margin-right .5s;
+}
+
+@media screen and (max-height: 450px) {
+    .sidenav {padding-top: 15px;}
+    .sidenav a {font-size: 18px;}
+}
+
+.datepicker {
+    background-color: #fff ;
+    color: #424242;
+}
+
+.glyphicon {
+    background-color: #fff ;
+    color: #424242 ;
+}
+
+.timepicker-hour {
+    background-color: #fff ;
+    color: #424242 ;
+}
+
+.timepicker-minute {
+    background-color: #fff ;
+    color: #424242 ;
+}
+
+.table-condensed {
+    background-color: #fff ;
+    color: #424242 ;
+}

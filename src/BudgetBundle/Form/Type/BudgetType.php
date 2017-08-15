@@ -50,17 +50,24 @@ class BudgetType extends AbstractType
             $data = [];
         }
 
-        $builder->add('name', TextType::class, ['label' => 'Name'])
+        $builder->add('name', TextType::class, [
+            'label' => 'Name',
+            'required' => true,
+        ])
             ->add('dateTime', DateTimeType::class, [
                     'input' => 'datetime',
                     'widget' => 'single_text',
                     'format' => 'y-MM-dd HH:mm',
                     'attr' => ['class' => 'date'],
                     'label' => 'Date and time',
+                    'required' => true,
+
                 ]
             )
-            ->add('money', MoneyType::class)
-            ->add('category', EntityType::class, array(
+            ->add('money', MoneyType::class, [
+                'required' => true,
+            ])
+            ->add('category', EntityType::class, [
                 'label' => 'Category',
                 'placeholder' => '-Don\'t have category-',
                 'class' => 'CategoryBundle\Entity\Category',
@@ -69,7 +76,7 @@ class BudgetType extends AbstractType
                 'required' => false,
                 'group_by' => 'parent',
                 'choices' => $data,
-            ))
+            ])
             ->add('submit', SubmitType::class, ['label' => 'Save']);
 
     }
