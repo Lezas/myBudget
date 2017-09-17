@@ -25,6 +25,7 @@ class CategoryController extends Controller
      * @param Category $category
      * @param Request $request
      * @return \Symfony\Component\HttpFoundation\RedirectResponse|\Symfony\Component\HttpFoundation\Response
+     * @Security("user.getId() == category.getUser().getId()")
      */
     public function newCategoryAction(Category $category = null, Request $request)
     {
@@ -32,10 +33,6 @@ class CategoryController extends Controller
 
         if ($category == null) {
             $category = new Category();
-        } else {
-            if ($category->getUser() != $this->getUser()) {
-                throw new NotFoundHttpException();
-            }
         }
 
         $parents = $this->getDoctrine()->getRepository('CategoryBundle:Category')->findBy(['user' => $user]);

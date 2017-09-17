@@ -44,31 +44,17 @@ final class BudgetByDateRangeRequest
     {
         $dateFrom = $this->dateFrom;
         if ($dateFrom == null) {
-            if ($this->getVariable('date_from') != "") {
+            if (mb_strtolower($this->getVariable('date_from')) == 'lifetime') {
+                $dateFrom = $this->getVariable('date_from');
+            } elseif ($this->getVariable('date_from') != "") {
                 $dateFrom = new \DateTime($this->getVariable('date_from'));
             } else {
                 $dateFrom = $this->dateTimeHelper->getFirstDayOfMonth(new \DateTime('now'));
             }
         }
 
+
         return $dateFrom;
-    }
-
-    /**
-     * @return \DateTime|null
-     */
-    public function getDateTo()
-    {
-        $dateTo = $this->dateTo;
-        if ($dateTo == null) {
-            if ($this->getVariable('date_to') != "") {
-                $dateTo = new \DateTime($this->getVariable('date_to'));
-            } else {
-                $dateTo = $this->dateTimeHelper->getLastDayOfMonth(new \DateTime('now'));
-            }
-        }
-
-        return $dateTo;
     }
 
     /**
@@ -78,5 +64,24 @@ final class BudgetByDateRangeRequest
     protected function getVariable($variableName)
     {
         return $this->request->query->get($variableName);
+    }
+
+    /**
+     * @return \DateTime|null
+     */
+    public function getDateTo()
+    {
+        $dateTo = $this->dateTo;
+        if ($dateTo == null) {
+            if (mb_strtolower($this->getVariable('date_from')) == 'lifetime') {
+                $dateTo = $this->getVariable('date_from');
+            } elseif ($this->getVariable('date_to') != "") {
+                $dateTo = new \DateTime($this->getVariable('date_to'));
+            } else {
+                $dateTo = $this->dateTimeHelper->getLastDayOfMonth(new \DateTime('now'));
+            }
+        }
+
+        return $dateTo;
     }
 }

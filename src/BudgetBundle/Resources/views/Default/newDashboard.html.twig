@@ -1,5 +1,11 @@
 {% extends 'base.html.twig' %}
 
+{% block stylesheets %}
+    <link href="{{ asset('bundles/budget/css/newDashboard.css') }}" rel="stylesheet" type="text/css"/>
+    <link href="{{ asset('bundles/budget/css/morris/morris.css') }}" rel="stylesheet" type="text/css"/>
+{% endblock %}
+
+
 {% block sidenavs %}
     <div id="mySidenav" class="sidenav">
         <a href="javascript:void(0)" class="closebtn" onclick="closeNav()">&times;</a>
@@ -21,10 +27,6 @@
     </div>
 {% endblock %}
 
-{% block stylesheets %}
-    <link href="{{ asset('bundles/budget/css/newDashboard.css') }}" rel="stylesheet" type="text/css"/>
-    <link href="{{ asset('bundles/budget/css/morris/morris.css') }}" rel="stylesheet" type="text/css"/>
-{% endblock %}
 
 {% block body %}
     <div class="container">

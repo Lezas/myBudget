@@ -27,4 +27,17 @@ class DateTimeHelper
         return  new \DateTime(date('Y-m-t 23:59', $dateTime->getTimestamp()));
     }
 
+    /**
+     * @param $date
+     * @return bool
+     */
+    public function validateDate($date)
+    {
+        if (is_a($date, DateTime::class)) {
+            return true;
+        }
+        $d = DateTime::createFromFormat('Y-m-d', $date);
+        return $d && $d->format('Y-m-d') === $date;
+    }
+
 }

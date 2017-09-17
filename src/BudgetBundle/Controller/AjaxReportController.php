@@ -37,8 +37,10 @@ class AjaxReportController extends Controller
      */
     public function ajaxGetIncomeListAction(Request $request)
     {
-        $dateFrom = $request->query->get('date_from');
-        $dateTo = $request->query->get('date_to');
+        $requestData = $this->get('budget.request.budgetbydaterange');
+
+        $dateFrom = $requestData->getDateFrom();
+        $dateTo = $requestData->getDateTo();
 
         if ($dateFrom == "Lifetime" && $dateTo == "Lifetime") {
             return $this->getLifetimeIncomeListAction($request);
@@ -47,73 +49,6 @@ class AjaxReportController extends Controller
         $return = $this->getBudgetList($request, $this->getDoctrine()->getRepository('BudgetBundle:Income'));
 
         return JsonResponse::create($return);
-    }
-
-
-    /**
-     * @Route("/get/expense", name="ajax_report_get_expense")
-     * @param Request $request
-     * @return JsonResponse
-     */
-    public function ajaxGetExpenseListAction(Request $request)
-    {
-        $dateFrom = $request->query->get('date_from');
-        $dateTo = $request->query->get('date_to');
-
-        if ($dateFrom == "Lifetime" && $dateTo == "Lifetime") {
-            return $this->getLifetimeExpenseListAction($request);
-        }
-
-        $return = $this->getBudgetList($request, $this->getDoctrine()->getRepository('BudgetBundle:Expenses'));
-
-        return JsonResponse::create($return);
-    }
-
-    /**
-     * @param Request $request
-     * @param BudgetRepository $repository
-     * @return array
-     */
-    private function getBudgetList(Request $request, BudgetRepository $repository)
-    {
-        $user = $this->get('security.token_storage')->getToken()->getUser();
-        $dateFrom = $request->query->get('date_from');
-        $dateTo = $request->query->get('date_to');
-        $Ids = $request->query->get('ids');
-
-        $result = [];
-        $sum = 0;
-        $IdsArrayCollection = new ArrayCollection();
-
-        if ($Ids != null) {
-            $expenses = $repository->getByDateRangeAndCategories($user, $dateFrom, $dateTo, $Ids);
-            $IdsArrayCollection = new ArrayCollection($Ids);
-        } else {
-            $expenses = $repository->getByDateRange($user, $dateFrom, $dateTo);
-        }
-
-        $expenses = new ArrayCollection($expenses);
-        $data = $this->createDataFromBudget($expenses);
-        $result = array_merge($result, $data->toArray());
-        $sum += $this->get('budget.money.counter')->countBudget($expenses);
-
-        if ($IdsArrayCollection->contains("NULL")) {
-            $additionalExpenses = $repository->getByDateRangeWithoutCategories($user, $dateFrom, $dateTo);
-            $expenses = new ArrayCollection($additionalExpenses);
-
-            $data = $this->createDataFromBudget($expenses);
-            $result = array_merge($result, $data->toArray());
-            $sum += $this->get('budget.money.counter')->countBudget($expenses);
-        }
-
-        $return = [
-            'dateFrom' => $dateFrom,
-            'dateTo' => $dateTo,
-            'data' => $result,
-            'sum' => $sum
-        ];
-
-        return $return;
     }
 
     /**
@@ -129,23 +64,12 @@ class AjaxReportController extends Controller
 
     /**
      * @param Request $request
-     * @return JsonResponse
-     */
-    public function getLifetimeExpenseListAction(Request $request)
-    {
-        $return = $this->getLifetimeBudget($request, $this->getDoctrine()->getRepository('BudgetBundle:Expenses'));
-
-        return JsonResponse::create($return);
-    }
-
-    /**
-     * @param Request $request
      * @param BudgetRepository $repository
      * @return array
      */
     private function getLifetimeBudget(Request $request, BudgetRepository $repository)
     {
-        $user = $this->get('security.token_storage')->getToken()->getUser();
+        $user = $this->getUser();
         $Ids = $request->query->get('ids');
 
         $result = [];
@@ -187,7 +111,6 @@ class AjaxReportController extends Controller
         return $return;
     }
 
-
     /**
      * @param ArrayCollection $budgets ArrayCollection of Budget
      * @return ArrayCollection
@@ -214,6 +137,87 @@ class AjaxReportController extends Controller
         }
 
         return $result;
+    }
+
+    /**
+     * @param Request $request
+     * @param BudgetRepository $repository
+     * @return array
+     */
+    private function getBudgetList(Request $request, BudgetRepository $repository)
+    {
+        $user = $this->get('security.token_storage')->getToken()->getUser();
+        $requestData = $this->get('budget.request.budgetbydaterange');
+
+        $dateFrom = $requestData->getDateFrom();
+        $dateTo = $requestData->getDateTo();
+        $Ids = $request->query->get('ids');
+
+        $result = [];
+        $sum = 0;
+        $IdsArrayCollection = new ArrayCollection();
+
+        if ($Ids != null) {
+            $expenses = $repository->getByDateRangeAndCategories($user, $dateFrom, $dateTo, $Ids);
+            $IdsArrayCollection = new ArrayCollection($Ids);
+        } else {
+            $expenses = $repository->getByDateRange($user, $dateFrom, $dateTo);
+        }
+
+        $expenses = new ArrayCollection($expenses);
+        $data = $this->createDataFromBudget($expenses);
+        $result = array_merge($result, $data->toArray());
+        $sum += $this->get('budget.money.counter')->countBudget($expenses);
+
+        if ($IdsArrayCollection->contains("NULL")) {
+            $additionalExpenses = $repository->getByDateRangeWithoutCategories($user, $dateFrom, $dateTo);
+            $expenses = new ArrayCollection($additionalExpenses);
+
+            $data = $this->createDataFromBudget($expenses);
+            $result = array_merge($result, $data->toArray());
+            $sum += $this->get('budget.money.counter')->countBudget($expenses);
+        }
+
+        $return = [
+            'dateFrom' => $dateFrom,
+            'dateTo' => $dateTo,
+            'data' => $result,
+            'sum' => $sum
+        ];
+
+        return $return;
+    }
+
+    /**
+     * @Route("/get/expense", name="ajax_report_get_expense")
+     * @param Request $request
+     * @return JsonResponse
+     */
+    public function ajaxGetExpenseListAction(Request $request)
+    {
+        $requestData = $this->get('budget.request.budgetbydaterange');
+
+        $dateFrom = $requestData->getDateFrom();
+        $dateTo = $requestData->getDateTo();
+
+        if ($dateFrom == "Lifetime" && $dateTo == "Lifetime") {
+            return $this->getLifetimeExpenseListAction($request);
+        }
+
+        $return = $this->getBudgetList($request, $this->getDoctrine()->getRepository('BudgetBundle:Expenses'));
+
+        return JsonResponse::create($return);
+    }
+
+    /**
+     * @param Request $request
+     * @return JsonResponse
+     */
+    public function getLifetimeExpenseListAction(Request $request)
+    {
+        $return = $this->getLifetimeBudget($request, $this->getDoctrine()->getRepository('BudgetBundle:Expenses'));
+
+        return JsonResponse::create($return);
     }
 
 }

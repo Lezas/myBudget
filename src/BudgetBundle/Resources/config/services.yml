@@ -16,10 +16,37 @@ services:
     budget.money.counter:
         class: BudgetBundle\Helper\BudgetMoneyCounter
 
+    budget.utility:
+        class: BudgetBundle\Helper\BudgetUtility
+
     budget.request.budgetbydaterange:
         class: BudgetBundle\Helper\Request\BudgetByDateRangeRequest
         arguments: ['@helper.datetime']
         calls:
           - [setRequest, ["@request_stack"]]
 
+    income.category.repository:
+        class: BudgetBundle\Repository\BudgetCategoryRepository
+        arguments:
+          - '@doctrine'
+          - 'income'
 
+    expense.category.repository:
+        class: BudgetBundle\Repository\BudgetCategoryRepository
+        arguments:
+          - '@doctrine'
+          - 'expense'
+
+    budget.expense.preview:
+        class: BudgetBundle\Entity\BudgetPreview
+        arguments:
+          - '@expense.category.repository'
+          - "@=service('doctrine.orm.entity_manager').getRepository('BudgetBundle:Expenses')"
+          - '@budget.money.counter'
+
+    budget.income.preview:
+        class: BudgetBundle\Entity\BudgetPreview
+        arguments:
+          - '@income.category.repository'
+          - "@=service('doctrine.orm.entity_manager').getRepository('BudgetBundle:Income')"
+          - '@budget.money.counter'
