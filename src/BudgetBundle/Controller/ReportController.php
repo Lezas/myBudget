@@ -20,7 +20,7 @@ class ReportController extends Controller
      */
     public function reportsAction()
     {
-        $user = $this->get('security.token_storage')->getToken()->getUser();
+        $user = $this->getUser();
         $repository = $this->get('budget.repository.budget');
         $oCategoryRepService = $this->get('category.repository.service');
         $budgetUtility = $this->get('budget.utility');
@@ -40,14 +40,14 @@ class ReportController extends Controller
         $lastDay = $dateTimeHelper->getLastDayOfMonth($date);
 
         return $this->render('BudgetBundle:Default:reports.html.twig', [
-            'income_categories' => $incomeCategories,
+            'income_categories'  => $incomeCategories,
             'expense_categories' => $expenseCategories,
-            'total_expense' => $totalExpenses,
-            'total_income' => $totalIncome,
-            'income' => $budget_array['income'],
-            'expenses' => $budget_array['expenses'],
-            'month_first_day' => $firstDay,
-            'month_last_day' => $lastDay,
+            'total_expense'      => $totalExpenses,
+            'total_income'       => $totalIncome,
+            'income'             => $budget_array['income'],
+            'expenses'           => $budget_array['expenses'],
+            'month_first_day'    => $firstDay,
+            'month_last_day'     => $lastDay,
         ]);
 
     }

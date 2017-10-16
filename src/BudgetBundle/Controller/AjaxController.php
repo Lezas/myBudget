@@ -31,11 +31,10 @@ use Sensio\Bundle\FrameworkExtraBundle\Configuration\Security;
 class AjaxController extends Controller
 {
     /**
-     * @param Request $request
      * @return array|JsonResponse
      * @Route("/income-data", name="ajax_get_income_data")
      */
-    public function getIncomeDataAction(Request $request)
+    public function getIncomeDataAction()
     {
         $user = $this->getUser();
 
@@ -45,7 +44,7 @@ class AjaxController extends Controller
         $month_last_day = $budgetByRange->getDateTo();
 
         $incomeBudgetPreview = $this->get('budget.income.preview');
-        $incomeBudgetPreview->calculateBudget($user, $month_first_day,$month_last_day);
+        $incomeBudgetPreview->calculateBudget($user, $month_first_day, $month_last_day);
 
         $view = $this->render('BudgetBundle:Default/Budget:budgetList.html.twig', [
             'budgetData' => $incomeBudgetPreview->getData(),
@@ -53,17 +52,16 @@ class AjaxController extends Controller
 
         return new JsonResponse([
             'success' => true,
-            'view' => $view,
-            'total' => $incomeBudgetPreview->getTotalMoneyCount(),
+            'view'    => $view,
+            'total'   => $incomeBudgetPreview->getTotalMoneyCount(),
         ]);
     }
 
     /**
-     * @param Request $request
      * @return array|JsonResponse
      * @Route("/expense-data", name="ajax_get_expense_data")
      */
-    public function getExpenseDataAction(Request $request)
+    public function getExpenseDataAction()
     {
         $user = $this->getUser();
         $budgetByRange = $this->get('budget.request.budgetbydaterange');
@@ -72,14 +70,13 @@ class AjaxController extends Controller
         $month_last_day = $budgetByRange->getDateTo();
 
         $expenseBudgetPreview = $this->get('budget.expense.preview');
-        $expenseBudgetPreview->calculateBudget($user, $month_first_day,$month_last_day);
+        $expenseBudgetPreview->calculateBudget($user, $month_first_day, $month_last_day);
 
         $donutChart = new DonutChart();
         foreach ($expenseBudgetPreview->getData() as $BudgetData) {
             /** @var Category $category */
             $category = $BudgetData['category'];
-            $total = $BudgetData['total'];
-            $donutChart->addData($category->getName(), round($total, 2));
+            $donutChart->addData($category->getName(), round($BudgetData['total'], 2));
         }
 
         $view = $this->render('BudgetBundle:Default/Budget:budgetList.html.twig', [
@@ -87,9 +84,9 @@ class AjaxController extends Controller
         ])->getContent();
 
         return new JsonResponse([
-            'success' => true,
-            'view' => $view,
-            'total' => $expenseBudgetPreview->getTotalMoneyCount(),
+            'success'   => true,
+            'view'      => $view,
+            'total'     => $expenseBudgetPreview->getTotalMoneyCount(),
             'chartData' => $donutChart->generateChartData(),
         ]);
     }
@@ -116,6 +113,44 @@ class AjaxController extends Controller
     }
 
     /**
+     * @param Request $request
+     * @param Budget $budget
+     * @param string $action
+     * @return JsonResponse
+     */
+    public function NewBudgetAction(Request $request, Budget $budget, $action)
+    {
+        $user = $this->getUser();
+        $form = $this->get('budget.entity.form')->createBudgetForm($budget, $action, $user);
+
+        $ajaxBudgetResponse = new AjaxBudgetResponse();
+
+        //TODO move form validation
+        $form->handleRequest($request);
+        if ($form->isValid()) {
+            $budget->setUser($user);
+
+            $em = $this->getDoctrine()->getManager();
+            $em->persist($budget);
+            $em->flush();
+
+            $ajaxBudgetResponse->setDataToValid();
+            $ajaxBudgetResponse->setResponseToSuccessful();
+
+            return new JsonResponse($ajaxBudgetResponse->getResponse());
+        }
+
+        $ajaxBudgetResponse->setDataToInvalid();
+        $ajaxBudgetResponse->setResponseToSuccessful();
+        $ajaxBudgetResponse->setRenderedForm($this->render('BudgetBundle:Default:budgetForm.html.twig', [
+                'form' => $form->createView(),
+            ])->getContent()
+        );
+
+        return new JsonResponse($ajaxBudgetResponse->getResponse());
+    }
+
+    /**
      * @param Income $income
      * @param Request $request
      * @return array|JsonResponse
@@ -135,44 +170,6 @@ class AjaxController extends Controller
         return $this->NewBudgetAction($request, $income, $action);
     }
 
-
-    /**
-     * @param Request $request
-     * @param Budget $budget
-     * @param string $action
-     * @return JsonResponse
-     */
-    public function NewBudgetAction(Request $request, Budget $budget, $action)
-    {
-        $user = $this->getUser();
-        $form = $this->get('budget.entity.form')->createBudgetForm($budget, $action, $user);
-
-        $ajaxBudgetResponse = new AjaxBudgetResponse();
-
-        $form->handleRequest($request);
-        if ($form->isValid()) {
-            $budget->setUser($user);
-
-            $em = $this->getDoctrine()->getManager();
-            $em->persist($budget);
-            $em->flush();
-
-            $ajaxBudgetResponse->setDataToValid();
-            $ajaxBudgetResponse->setResponseToSuccessful();
-
-            return new JsonResponse($ajaxBudgetResponse->getResponse());
-        }
-
-        $ajaxBudgetResponse->setDataToInvalid();
-        $ajaxBudgetResponse->setResponseToSuccessful();
-        $ajaxBudgetResponse->setRenderedForm($this->render('BudgetBundle:Default:budgetForm.html.twig', [
-            'form' => $form->createView(),
-        ])->getContent()
-        );
-
-        return new JsonResponse($ajaxBudgetResponse->getResponse());
-    }
-
     /**
      * @Route("/delete-expense/{expense}", name="ajax_delete_expense")
      * @Security("user.getId() == expense.getUser().getId()")
@@ -182,17 +179,6 @@ class AjaxController extends Controller
     public function DeleteExpenseAction(Expenses $expense = null)
     {
         return new JsonResponse($this->deleteBudget($expense));
-    }
-
-    /**
-     * @Route("/delete-income/{income}", name="ajax_delete_income")
-     * @Security("user.getId() == income.getUser().getId()")
-     * @param Income $income
-     * @return JsonResponse
-     */
-    public function DeleteIncomeAction(Income $income = null)
-    {
-        return new JsonResponse($this->deleteBudget($income));
     }
 
     /**
@@ -213,12 +199,24 @@ class AjaxController extends Controller
     }
 
     /**
+     * @Route("/delete-income/{income}", name="ajax_delete_income")
+     * @Security("user.getId() == income.getUser().getId()")
+     * @param Income $income
+     * @return JsonResponse
+     */
+    public function DeleteIncomeAction(Income $income = null)
+    {
+        return new JsonResponse($this->deleteBudget($income));
+    }
+
+    /**
      * @Route("/expenses-date-range", name="ajax_expense_by_date_range")
      * @return JsonResponse
      */
     public function GetExpenseByDateRangeAction()
     {
         $repository = $this->getDoctrine()->getManager()->getRepository('BudgetBundle:Expenses');
+        //TODO create service for that
         $return = $this->GetBudgetByDateRange($repository);
 
         return JsonResponse::create($return);
@@ -230,7 +228,7 @@ class AjaxController extends Controller
      */
     private function GetBudgetByDateRange(BudgetRepository $repository)
     {
-        $user = $this->get('security.token_storage')->getToken()->getUser();
+        $user = $this->getUser();
         $requestData = $this->get('budget.request.budgetbydaterange');
 
         $date_from = $requestData->getDateFrom();
@@ -288,8 +286,8 @@ class AjaxController extends Controller
     public function GetExpenseListByDateRangeAction()
     {
         $response = [];
-        $user = $this->get('security.token_storage')->getToken()->getUser();
-        $requestData = $this->get('budget.request.budgetbydaterange');
+        $user = $this->getUser();
+        $requestData = $this->get('budget.request.daterange');
 
         $date_from = $requestData->getDateFrom();
         $date_to = $requestData->getDateTo();
@@ -330,8 +328,8 @@ class AjaxController extends Controller
      */
     public function GetBudgetForChart()
     {
-        $user = $this->get('security.token_storage')->getToken()->getUser();
-        $requestData = $this->get('budget.request.budgetbydaterange');
+        $user = $this->getUser();
+        $requestData = $this->get('budget.request.daterange');
 
         $date_from = $requestData->getDateFrom();
         $date_to = $requestData->getDateTo();

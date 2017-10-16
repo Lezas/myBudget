@@ -164,6 +164,8 @@ jQuery(document).ready(function () {
         format: 'YYYY-MM-DD HH:mm',
         stepping: 1
     });
+
+    $('[data-toggle="popover"]').popover({html:true});
 });
 
 resetSideNavs = function () {

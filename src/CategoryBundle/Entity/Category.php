@@ -335,6 +335,14 @@ class Category
     }
 
     /**
+     * @return bool
+     */
+    public function canDelete()
+    {
+        return $this->getExpense()->count() == 0 && $this->getChildren()->count() == 0 && $this->getIncome()->count() == 0;
+    }
+    
+    /**
      * Get name of category
      *
      * @return string

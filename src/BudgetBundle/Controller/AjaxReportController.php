@@ -37,12 +37,12 @@ class AjaxReportController extends Controller
      */
     public function ajaxGetIncomeListAction(Request $request)
     {
-        $requestData = $this->get('budget.request.budgetbydaterange');
+        $requestData = $this->get('budget.request.daterange');
 
         $dateFrom = $requestData->getDateFrom();
         $dateTo = $requestData->getDateTo();
 
-        if ($dateFrom == "Lifetime" && $dateTo == "Lifetime") {
+        if (mb_strtolower($dateFrom) == "lifetime" && mb_strtolower($dateTo) == "lifetime") {
             return $this->getLifetimeIncomeListAction($request);
         }
 
@@ -76,7 +76,7 @@ class AjaxReportController extends Controller
         $sum = 0;
         $IdsArrayCollection = new ArrayCollection();
 
-        if ($Ids != null) {
+        if (null != $Ids) {
             $budget = $repository->getByCategories($user, $Ids);
             $IdsArrayCollection = new ArrayCollection($Ids);
         } else {
@@ -112,34 +112,6 @@ class AjaxReportController extends Controller
     }
 
     /**
-     * @param ArrayCollection $budgets ArrayCollection of Budget
-     * @return ArrayCollection
-     */
-    private function createDataFromBudget($budgets)
-    {
-        $result = new ArrayCollection();
-        foreach ($budgets as $budget) {
-            /** @var Budget $budget */
-
-            $categoryName = "-";
-            if ($budget->getCategory() != null) {
-                $categoryName = htmlspecialchars($budget->getCategory()->getName());
-            }
-
-            $data = [
-                $budget->getDateTime()->format('Y-m-d H:i:s'),
-                htmlspecialchars($budget->getName()),
-                $categoryName,
-                $budget->getMoney()
-            ];
-
-            $result->add($data);
-        }
-
-        return $result;
-    }
-
-    /**
      * @param Request $request
      * @param BudgetRepository $repository
      * @return array
@@ -147,7 +119,7 @@ class AjaxReportController extends Controller
     private function getBudgetList(Request $request, BudgetRepository $repository)
     {
         $user = $this->get('security.token_storage')->getToken()->getUser();
-        $requestData = $this->get('budget.request.budgetbydaterange');
+        $requestData = $this->get('budget.request.daterange');
 
         $dateFrom = $requestData->getDateFrom();
         $dateTo = $requestData->getDateTo();
@@ -189,13 +161,43 @@ class AjaxReportController extends Controller
     }
 
     /**
+     * @param ArrayCollection $budgets ArrayCollection of Budget
+     * @return ArrayCollection
+     */
+    private function createDataFromBudget($budgets)
+    {
+        $result = new ArrayCollection();
+        foreach ($budgets as $budget) {
+            /** @var Budget $budget */
+
+            $categoryName = "-";
+            if ($budget->getCategory() != null) {
+                $categoryName = htmlspecialchars($budget->getCategory()->getName());
+            }
+
+            $data = [
+                $budget->getDateTime()->format('Y-m-d H:i:s'),
+                htmlspecialchars($budget->getName()),
+                $categoryName,
+                $budget->getMoney()
+            ];
+
+            $result->add($data);
+        }
+
+        return $result;
+    }
+
+
+
+    /**
      * @Route("/get/expense", name="ajax_report_get_expense")
      * @param Request $request
      * @return JsonResponse
      */
     public function ajaxGetExpenseListAction(Request $request)
     {
-        $requestData = $this->get('budget.request.budgetbydaterange');
+        $requestData = $this->get('budget.request.daterange');
 
         $dateFrom = $requestData->getDateFrom();
         $dateTo = $requestData->getDateTo();

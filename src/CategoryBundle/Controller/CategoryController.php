@@ -95,7 +95,7 @@ class CategoryController extends Controller
         /** @var $em EntityManager */
         $em = $this->getDoctrine()->getManager();
 
-        if ($category->getExpense()->count() == 0 && $category->getChildren()->count() == 0 && $category->getIncome()->count() == 0) {
+        if ($category->canDelete()) {
             $em->remove($category);
             $em->flush();
             $this->addFlash(

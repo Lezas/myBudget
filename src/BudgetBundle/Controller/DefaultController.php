@@ -27,7 +27,7 @@ class DefaultController extends Controller
     public function indexAction()
     {
         $user = $this->getUser();
-        $repository = $this->get('budget.repository.budget');
+        $repository = $this->get('budget.request.budgetbydaterange');
         $budget_array = $repository->getMonthBudget(null, $user);
         $budgetUtility = $this->get('budget.utility');
 
@@ -41,22 +41,21 @@ class DefaultController extends Controller
         $lastDay = $dateTimeHelper->getLastDayOfMonth($date);
 
         return $this->render('BudgetBundle:Default:index.html.twig', [
-            'total_expense' => $totalExpenses,
-            'total_income' => $totalIncome,
-            'income' => $budget_array['income'],
-            'expenses' => $budget_array['expenses'],
+            'total_expense'   => $totalExpenses,
+            'total_income'    => $totalIncome,
+            'income'          => $budget_array['income'],
+            'expenses'        => $budget_array['expenses'],
             'month_first_day' => $firstDay->format('Y-m-d H:i'),
-            'month_last_day' => $lastDay->format('Y-m-d H:i'),
+            'month_last_day'  => $lastDay->format('Y-m-d H:i'),
         ]);
     }
 
     /**
      * @Route("/", name="new_dashboard")
-     * @param Request $request
      * @return Response
      * @Security("has_role('ROLE_USER')")
      */
-    public function newDashboardAction(Request $request)
+    public function newDashboardAction()
     {
         $user = $this->getUser();
         $budgetByRange = $this->get('budget.request.budgetbydaterange');
@@ -65,10 +64,10 @@ class DefaultController extends Controller
         $month_last_day = $budgetByRange->getDateTo();
 
         $incomeBudgetPreview = $this->get('budget.income.preview');
-        $incomeBudgetPreview->calculateBudget($user, $month_first_day,$month_last_day);
+        $incomeBudgetPreview->calculateBudget($user, $month_first_day, $month_last_day);
 
         $expenseBudgetPreview = $this->get('budget.expense.preview');
-        $expenseBudgetPreview->calculateBudget($user, $month_first_day,$month_last_day);
+        $expenseBudgetPreview->calculateBudget($user, $month_first_day, $month_last_day);
 
         $donutChart = new DonutChart();
         foreach ($expenseBudgetPreview->getData() as $BudgetData) {
@@ -83,15 +82,15 @@ class DefaultController extends Controller
         $dateRangeForm->get('dateTo')->setData($month_last_day);
 
         return $this->render("@Budget/Default/newDashboard.html.twig", [
-            'chartData' => json_encode($donutChart->generateChartData()),
-            'incomeData' => $incomeBudgetPreview->getData(),
-            'totalIncome' => $incomeBudgetPreview->getTotalMoneyCount(),
-            'expenseData' => $expenseBudgetPreview->getData(),
-            'totalExpense' => $expenseBudgetPreview->getTotalMoneyCount(),
-            'firstDay' => $month_first_day,
-            'lastDay' => $month_last_day,
-            'incomeForm' => $this->get('budget.entity.form')->createBudgetForm(new Income(), $this->generateUrl('ajax_new_income'), $user)->createView(),
-            'expenseForm' => $this->get('budget.entity.form')->createBudgetForm(new Expenses(), $this->generateUrl('ajax_new_expense'), $user)->createView(),
+            'chartData'     => json_encode($donutChart->generateChartData()),
+            'incomeData'    => $incomeBudgetPreview->getData(),
+            'totalIncome'   => $incomeBudgetPreview->getTotalMoneyCount(),
+            'expenseData'   => $expenseBudgetPreview->getData(),
+            'totalExpense'  => $expenseBudgetPreview->getTotalMoneyCount(),
+            'firstDay'      => $month_first_day,
+            'lastDay'       => $month_last_day,
+            'incomeForm'    => $this->get('budget.entity.form')->createBudgetForm(new Income(), $this->generateUrl('ajax_new_income'), $user)->createView(),
+            'expenseForm'   => $this->get('budget.entity.form')->createBudgetForm(new Expenses(), $this->generateUrl('ajax_new_expense'), $user)->createView(),
             'dateRangeForm' => $dateRangeForm->createView(),
         ]);
     }
@@ -125,6 +124,7 @@ class DefaultController extends Controller
                 'notice',
                 'Your income has been saved!'
             );
+
             return $this->redirectToRoute('new_dashboard');
         }
 

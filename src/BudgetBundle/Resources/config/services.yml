@@ -19,8 +19,14 @@ services:
     budget.utility:
         class: BudgetBundle\Helper\BudgetUtility
 
+    budget.request.daterange:
+        class: BudgetBundle\Helper\Request\BudgetDateRangeRequest
+        arguments: ['@helper.datetime']
+        calls:
+          - [setRequest, ["@request_stack"]]
+
     budget.request.budgetbydaterange:
-        class: BudgetBundle\Helper\Request\BudgetByDateRangeRequest
+        class: BudgetBundle\Helper\Request\BudgetDateRangeRequest
         arguments: ['@helper.datetime']
         calls:
           - [setRequest, ["@request_stack"]]
