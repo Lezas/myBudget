@@ -11,6 +11,7 @@ class DateTimeHelper
 {
     /**
      * @param DateTime $dateTime
+     *
      * @return DateTime
      */
     public function getFirstDayOfMonth(\DateTime $dateTime)
@@ -20,6 +21,7 @@ class DateTimeHelper
 
     /**
      * @param DateTime $dateTime
+     *
      * @return DateTime
      */
     public function getLastDayOfMonth(\DateTime $dateTime)
@@ -29,6 +31,7 @@ class DateTimeHelper
 
     /**
      * @param $date
+     *
      * @return bool
      */
     public function validateDate($date)
@@ -39,5 +42,4 @@ class DateTimeHelper
         $d = DateTime::createFromFormat('Y-m-d', $date);
         return $d && $d->format('Y-m-d') === $date;
     }
-
 }

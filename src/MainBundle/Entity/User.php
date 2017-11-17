@@ -15,6 +15,9 @@ use Doctrine\ORM\Mapping as ORM;
  */
 class User extends BaseUser
 {
+    /**
+     * User constructor.
+     */
     public function __construct()
     {
         parent::__construct();
@@ -33,25 +36,26 @@ class User extends BaseUser
 
     /**
      * @ORM\OneToMany(targetEntity="BudgetBundle\Entity\Income", mappedBy="user")
+     *
      * @var Income[]|ArrayCollection
      */
     protected $Income;
 
     /**
      * @ORM\OneToMany(targetEntity="BudgetBundle\Entity\Expenses", mappedBy="user")
+     *
      * @var Expenses[]|ArrayCollection
      */
     protected $Expense;
 
     /**
      * @ORM\OneToMany(targetEntity="CategoryBundle\Entity\Category", mappedBy="user")
+     *
      * @var Category[]|ArrayCollection
      */
     protected $Category;
 
     /**
-     * Add income
-     *
      * @param Income $income
      *
      * @return User
@@ -65,8 +69,6 @@ class User extends BaseUser
     }
 
     /**
-     * Remove income
-     *
      * @param Income $income
      */
     public function removeIncome(Income $income)
@@ -76,8 +78,6 @@ class User extends BaseUser
     }
 
     /**
-     * Get income
-     *
      * @return \Doctrine\Common\Collections\Collection
      */
     public function getIncome()
@@ -86,8 +86,6 @@ class User extends BaseUser
     }
 
     /**
-     * Add expense
-     *
      * @param \BudgetBundle\Entity\Expenses $expense
      *
      * @return User
@@ -101,8 +99,6 @@ class User extends BaseUser
     }
 
     /**
-     * Remove expense
-     *
      * @param \BudgetBundle\Entity\Expenses $expense
      */
     public function removeExpense(Expenses $expense)
@@ -111,10 +107,7 @@ class User extends BaseUser
         $expense->setUser(null);
     }
 
-
     /**
-     * Get expense
-     *
      * @return \Doctrine\Common\Collections\Collection
      */
     public function getExpense()
@@ -123,8 +116,6 @@ class User extends BaseUser
     }
 
     /**
-     * Add category
-     *
      * @param \CategoryBundle\Entity\Category $category
      *
      * @return User
@@ -138,8 +129,6 @@ class User extends BaseUser
     }
 
     /**
-     * Remove category
-     *
      * @param \CategoryBundle\Entity\Category $category
      */
     public function removeCategory(Category $category)
@@ -149,13 +138,10 @@ class User extends BaseUser
     }
 
     /**
-     * Get Category
-     *
      * @return \CategoryBundle\Entity\Category[]|ArrayCollection
      */
     public function getCategories()
     {
         return $this->Category;
     }
-
 }

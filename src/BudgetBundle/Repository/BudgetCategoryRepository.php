@@ -1,19 +1,12 @@
 <?php
-/**
- * Created by Lezas.
- * Date: 2017-09-16
- * Time: 23:20
- */
 
 namespace BudgetBundle\Repository;
-
 
 use Doctrine\Common\Persistence\ManagerRegistry;
 use MainBundle\Entity\User;
 
 /**
  * Class ExpenseCategory
- * @package CategoryBundle\Repository\Types
  */
 class BudgetCategoryRepository
 {
@@ -28,10 +21,8 @@ class BudgetCategoryRepository
     private $budget_type;
 
     /**
-     * BudgetRepositoryService constructor.
      * @param ManagerRegistry $managerRegistry
      * @param $budget_type
-     * @internal param EntityManager $em
      */
     public function __construct(ManagerRegistry $managerRegistry, $budget_type)
     {
@@ -61,6 +52,4 @@ class BudgetCategoryRepository
 
         return $expense;
     }
-
-
 }

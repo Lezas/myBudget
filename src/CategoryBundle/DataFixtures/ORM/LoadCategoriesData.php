@@ -4,10 +4,8 @@ namespace CategoryBundle\DataFixtures\ORM;
 
 use CategoryBundle\Entity\Category;
 use Doctrine\Common\DataFixtures\AbstractFixture;
-use Doctrine\Common\DataFixtures\FixtureInterface;
 use Doctrine\Common\DataFixtures\OrderedFixtureInterface;
 use Doctrine\Common\Persistence\ObjectManager;
-use MainBundle\Entity\User;
 
 class LoadCategoriesData extends AbstractFixture implements OrderedFixtureInterface
 {

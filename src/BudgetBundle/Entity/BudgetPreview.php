@@ -1,9 +1,4 @@
 <?php
-/**
- * Created by Lezas.
- * Date: 2017-09-16
- * Time: 12:31
- */
 
 namespace BudgetBundle\Entity;
 
@@ -12,20 +7,24 @@ use BudgetBundle\Repository\BudgetCategoryRepository;
 use BudgetBundle\Repository\BudgetRepository;
 use CategoryBundle\Entity\Category;
 
-
 /**
  * Class BudgetPreview
- * @package BudgetBundle\Entity
  */
 class BudgetPreview
 {
+    /** @var array */
     protected $budgetData = [];
+
+    /** @var BudgetCategoryRepository */
     protected $budgetCategoryRepository;
+
+    /** @var BudgetRepository */
     protected $budgetRepository;
+
+    /** @var BudgetMoneyCounter */
     protected $budgetCounter;
 
     /**
-     * BudgetPreview constructor.
      * @param BudgetCategoryRepository $budgetCategoryRepository
      * @param BudgetRepository $budgetRepository
      * @param BudgetMoneyCounter $budgetCounter
@@ -76,6 +75,7 @@ class BudgetPreview
      * @param $user
      * @param $date_from
      * @param $date_to
+     *
      * @return array
      */
     public function calculateBudget($user, $date_from, $date_to)

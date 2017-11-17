@@ -6,14 +6,11 @@ use Symfony\Bundle\FrameworkBundle\Controller\Controller;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Security;
 
-
 /**
  * Class ReportController
- * @package BudgetBundle\Controller
  */
 class ReportController extends Controller
 {
-
     /**
      * @Route("/report", name="reports")
      * @Security("has_role('ROLE_USER')")
@@ -51,5 +48,4 @@ class ReportController extends Controller
         ]);
 
     }
-
 }

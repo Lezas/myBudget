@@ -3,36 +3,25 @@
 namespace BudgetBundle\Controller;
 
 use BudgetBundle\Entity\Budget;
-use BudgetBundle\Entity\Expenses;
-use BudgetBundle\Entity\Income;
-use BudgetBundle\Form\Type\ExpenseType;
-use BudgetBundle\Form\Type\IncomeType;
-use BudgetBundle\Helper\BudgetMoneyCounter;
-use BudgetBundle\Helper\DataFormatter;
 use BudgetBundle\Repository\BudgetRepository;
-use DateTime;
 use Doctrine\Common\Collections\ArrayCollection;
-use Doctrine\ORM\Tools\Pagination\Paginator;
-use MainBundle\Entity\User;
 use Symfony\Bundle\FrameworkBundle\Controller\Controller;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
-use Symfony\Component\HttpFoundation\Response;
-use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
-use Symfony\Component\Validator\Constraints\Date;
 
 /**
  * Class ReportController
- * @package BudgetBundle\Controller
+ *
  * @Route("/report", condition="request.isXmlHttpRequest()")
  */
 class AjaxReportController extends Controller
 {
-
     /**
      * @Route("/get/income", name="ajax_report_get_income")
+     *
      * @param Request $request
+     *
      * @return JsonResponse
      */
     public function ajaxGetIncomeListAction(Request $request)
@@ -53,6 +42,7 @@ class AjaxReportController extends Controller
 
     /**
      * @param Request $request
+     *
      * @return JsonResponse
      */
     public function getLifetimeIncomeListAction(Request $request)
@@ -65,6 +55,7 @@ class AjaxReportController extends Controller
     /**
      * @param Request $request
      * @param BudgetRepository $repository
+     *
      * @return array
      */
     private function getLifetimeBudget(Request $request, BudgetRepository $repository)
@@ -103,17 +94,47 @@ class AjaxReportController extends Controller
 
         $return = [
             'dateFrom' => "lifetime",
-            'dateTo' => "lifetime",
-            'data' => $result,
-            'sum' => $sum
+            'dateTo'   => "lifetime",
+            'data'     => $result,
+            'sum'      => $sum,
         ];
 
         return $return;
     }
 
     /**
+     * @param ArrayCollection $budgets ArrayCollection of Budget
+     *
+     * @return ArrayCollection
+     */
+    private function createDataFromBudget($budgets)
+    {
+        $result = new ArrayCollection();
+        foreach ($budgets as $budget) {
+            /** @var Budget $budget */
+
+            $categoryName = "-";
+            if ($budget->getCategory() != null) {
+                $categoryName = htmlspecialchars($budget->getCategory()->getName());
+            }
+
+            $data = [
+                $budget->getDateTime()->format('Y-m-d H:i:s'),
+                htmlspecialchars($budget->getName()),
+                $categoryName,
+                $budget->getMoney(),
+            ];
+
+            $result->add($data);
+        }
+
+        return $result;
+    }
+
+    /**
      * @param Request $request
      * @param BudgetRepository $repository
+     *
      * @return array
      */
     private function getBudgetList(Request $request, BudgetRepository $repository)
@@ -152,47 +173,19 @@ class AjaxReportController extends Controller
 
         $return = [
             'dateFrom' => $dateFrom,
-            'dateTo' => $dateTo,
-            'data' => $result,
-            'sum' => $sum
+            'dateTo'   => $dateTo,
+            'data'     => $result,
+            'sum'      => $sum,
         ];
 
         return $return;
     }
 
     /**
-     * @param ArrayCollection $budgets ArrayCollection of Budget
-     * @return ArrayCollection
-     */
-    private function createDataFromBudget($budgets)
-    {
-        $result = new ArrayCollection();
-        foreach ($budgets as $budget) {
-            /** @var Budget $budget */
-
-            $categoryName = "-";
-            if ($budget->getCategory() != null) {
-                $categoryName = htmlspecialchars($budget->getCategory()->getName());
-            }
-
-            $data = [
-                $budget->getDateTime()->format('Y-m-d H:i:s'),
-                htmlspecialchars($budget->getName()),
-                $categoryName,
-                $budget->getMoney()
-            ];
-
-            $result->add($data);
-        }
-
-        return $result;
-    }
-
-
-
-    /**
      * @Route("/get/expense", name="ajax_report_get_expense")
+     *
      * @param Request $request
+     *
      * @return JsonResponse
      */
     public function ajaxGetExpenseListAction(Request $request)
@@ -213,6 +206,7 @@ class AjaxReportController extends Controller
 
     /**
      * @param Request $request
+     *
      * @return JsonResponse
      */
     public function getLifetimeExpenseListAction(Request $request)
@@ -221,5 +215,4 @@ class AjaxReportController extends Controller
 
         return JsonResponse::create($return);
     }
-
 }

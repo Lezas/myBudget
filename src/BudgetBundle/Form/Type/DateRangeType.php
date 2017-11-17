@@ -9,7 +9,6 @@ use Symfony\Component\Form\FormBuilderInterface;
 
 /**
  * Class DateRangeType
- * @package BudgetBundle\Form\Type
  */
 class DateRangeType extends AbstractType
 {

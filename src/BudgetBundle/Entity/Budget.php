@@ -8,17 +8,18 @@ use Doctrine\ORM\Mapping as ORM;
 /** @ORM\MappedSuperclass */
 class Budget
 {
-
     /**
      * @ORM\Column(type="integer", unique=true, name="id")
      * @ORM\Id
      * @ORM\GeneratedValue(strategy="AUTO")
+     *
      * @var integer
      */
     protected $id;
 
     /**
      * @ORM\Column(type="string", length=255, name="name")
+     *
      * @var string
      */
     protected $name;
@@ -31,6 +32,7 @@ class Budget
     /**
      * @ORM\ManyToOne(targetEntity = "MainBundle\Entity\User", inversedBy = "incomesUser")
      * @ORM\JoinColumn(name = "user_id", referencedColumnName = "id")
+     *
      * @var User
      */
     protected $user;
@@ -38,12 +40,14 @@ class Budget
     /**
      * @ORM\ManyToOne(targetEntity = "CategoryBundle\Entity\Category", inversedBy = "ExpensesCategory")
      * @ORM\JoinColumn(name = "category_id", referencedColumnName = "id")
+     *
      * @var Category
      */
     protected $category;
 
     /**
      * @ORM\Column(type="decimal", precision=8, scale=2, name="money")
+     *
      * @var float
      */
     protected $money;
@@ -177,5 +181,4 @@ class Budget
     {
         return $this->name;
     }
-
 }

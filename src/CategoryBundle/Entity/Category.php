@@ -13,8 +13,6 @@ use Doctrine\ORM\Mapping\OneToMany;
 use Symfony\Component\Security\Core\User\UserInterface;
 
 /**
- * Category
- *
  * @ORM\Table(name="category")
  * @ORM\Entity(repositoryClass="CategoryBundle\Repository\CategoryRepository")
  */
@@ -51,6 +49,7 @@ class Category
 
     /**
      * @ManyToOne(targetEntity="Category", inversedBy="children")
+     *
      * @JoinColumn(name="parent_id", referencedColumnName="id")
      */
     private $parent;
@@ -58,18 +57,21 @@ class Category
     /**
      * @ORM\ManyToOne(targetEntity = "MainBundle\Entity\User", inversedBy = "CategoryUser")
      * @ORM\JoinColumn(name = "user_id", referencedColumnName = "id")
+     *
      * @var UserInterface
      */
     private $user;
 
     /**
      * @ORM\OneToMany(targetEntity="BudgetBundle\Entity\Expenses", mappedBy="category", cascade={"persist"})
+     *
      * @var Expenses[]|ArrayCollection
      */
     protected $Expense;
 
     /**
      * @ORM\OneToMany(targetEntity="BudgetBundle\Entity\Income", mappedBy="category", cascade={"persist"})
+     *
      * @var Income[]|ArrayCollection
      */
     protected $Income;
@@ -81,6 +83,15 @@ class Category
      */
     protected $type;
 
+    /**
+     * Constructor
+     */
+    public function __construct()
+    {
+        $this->children = new ArrayCollection();
+        $this->Expense = new ArrayCollection();
+        $this->Income = new ArrayCollection();
+    }
 
     /**
      * Get id
@@ -123,7 +134,6 @@ class Category
     {
         return $this->name;
     }
-
 
     /**
      * Set valid
@@ -175,18 +185,6 @@ class Category
 
 
     /**
-     * Constructor
-     */
-    public function __construct()
-    {
-        $this->children = new ArrayCollection();
-        $this->Expense = new ArrayCollection();
-        $this->Income = new ArrayCollection();
-    }
-
-    /**
-     * Add child
-     *
      * @param \CategoryBundle\Entity\Category $child
      *
      * @return Category
@@ -199,8 +197,6 @@ class Category
     }
 
     /**
-     * Remove child
-     *
      * @param \CategoryBundle\Entity\Category $child
      */
     public function removeChild(\CategoryBundle\Entity\Category $child)
@@ -210,8 +206,6 @@ class Category
     }
 
     /**
-     * Get children
-     *
      * @return \Doctrine\Common\Collections\Collection
      */
     public function getChildren()
@@ -220,8 +214,6 @@ class Category
     }
 
     /**
-     * Set parent
-     *
      * @param \CategoryBundle\Entity\Category $parent
      *
      * @return Category
@@ -234,8 +226,6 @@ class Category
     }
 
     /**
-     * Get parent
-     *
      * @return \CategoryBundle\Entity\Category
      */
     public function getParent()
@@ -244,8 +234,6 @@ class Category
     }
 
     /**
-     * Set user
-     *
      * @param User|UserInterface $user
      * @return Category
      */
@@ -257,8 +245,6 @@ class Category
     }
 
     /**
-     * Get user
-     *
      * @return User|UserInterface
      */
     public function getUser()
@@ -267,8 +253,6 @@ class Category
     }
 
     /**
-     * Add expense
-     *
      * @param \BudgetBundle\Entity\Expenses $expense
      *
      * @return Category
@@ -281,8 +265,6 @@ class Category
     }
 
     /**
-     * Remove expense
-     *
      * @param \BudgetBundle\Entity\Expenses $expense
      */
     public function removeExpense(Expenses $expense)
@@ -292,8 +274,7 @@ class Category
     }
 
     /**
-     * Get expense
-     *
+     * @return Expenses[]|ArrayCollection
      */
     public function getExpense()
     {
@@ -301,8 +282,6 @@ class Category
     }
 
     /**
-     * Add income
-     *
      * @param \BudgetBundle\Entity\Income $income
      *
      * @return Category
@@ -311,12 +290,11 @@ class Category
     {
         $this->Income[] = $income;
         $income->setCategory($this);
+
         return $this;
     }
 
     /**
-     * Remove income
-     *
      * @param \BudgetBundle\Entity\Income $income
      */
     public function removeIncome(Income $income)
@@ -326,8 +304,7 @@ class Category
     }
 
     /**
-     * Get income
-     *
+     * @return Income[]|ArrayCollection
      */
     public function getIncome()
     {

@@ -14,10 +14,8 @@ use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 
-
 /**
  * Class DefaultController
- * @package BudgetBundle\Controller
  */
 class DefaultController extends Controller
 {
@@ -52,7 +50,9 @@ class DefaultController extends Controller
 
     /**
      * @Route("/", name="new_dashboard")
+     *
      * @return Response
+     *
      * @Security("has_role('ROLE_USER')")
      */
     public function newDashboardAction()
@@ -97,7 +97,9 @@ class DefaultController extends Controller
 
     /**
      * @Route("/income/new", name="new_income")
+     *
      * @param Request $request
+     *
      * @return \Symfony\Component\HttpFoundation\RedirectResponse|Response
      */
     public function newIncomeAction(Request $request)
@@ -131,12 +133,13 @@ class DefaultController extends Controller
         return $this->render('BudgetBundle:Default:newIncome.html.twig', [
             'form' => $form->createView(),
         ]);
-
     }
 
     /**
      * @param Request $request
+     *
      * @Route("/expense/new", name="new_expense")
+     *
      * @return Response
      */
     public function newExpenseAction(Request $request)
@@ -170,5 +173,4 @@ class DefaultController extends Controller
             'form' => $form->createView(),
         ]);
     }
-
 }

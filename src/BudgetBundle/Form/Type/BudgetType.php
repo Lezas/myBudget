@@ -1,15 +1,7 @@
 <?php
-/**
- * Created by PhpStorm.
- * User: Lezas
- * Date: 2016-12-04
- * Time: 22:04
- */
 
 namespace BudgetBundle\Form\Type;
 
-use BudgetBundle\Entity\Budget;
-use Doctrine\ORM\EntityRepository;
 use MainBundle\Entity\User;
 use Symfony\Component\Form\AbstractType;
 use Symfony\Component\Form\Extension\Core\Type\DateTimeType;
@@ -22,7 +14,6 @@ use Symfony\Bridge\Doctrine\Form\Type\EntityType;
 
 /**
  * Class BudgetType
- * @package BudgetBundle\Form\Type
  */
 class BudgetType extends AbstractType
 {
@@ -32,7 +23,6 @@ class BudgetType extends AbstractType
     private $user;
 
     /**
-     * BudgetType constructor.
      * @param User|null $user
      */
     public function __construct(User $user = null)

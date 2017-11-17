@@ -1,15 +1,8 @@
 <?php
-/**
- * Created by PhpStorm.
- * User: Vartotojas
- * Date: 2016.02.24
- * Time: 21:41
- */
 
 namespace BudgetBundle\Controller;
 
 use BudgetBundle\Entity\Budget;
-use BudgetBundle\Entity\BudgetPreview;
 use BudgetBundle\Entity\DonutChart;
 use BudgetBundle\Entity\Expenses;
 use BudgetBundle\Entity\Income;
@@ -25,13 +18,14 @@ use Sensio\Bundle\FrameworkExtraBundle\Configuration\Security;
 
 /**
  * Class AjaxController
- * @package BudgetBundle\Controller
+ *
  * @Route("/api", condition="request.isXmlHttpRequest()")
  */
 class AjaxController extends Controller
 {
     /**
      * @return array|JsonResponse
+     *
      * @Route("/income-data", name="ajax_get_income_data")
      */
     public function getIncomeDataAction()
@@ -59,6 +53,7 @@ class AjaxController extends Controller
 
     /**
      * @return array|JsonResponse
+     *
      * @Route("/expense-data", name="ajax_get_expense_data")
      */
     public function getExpenseDataAction()
@@ -94,7 +89,9 @@ class AjaxController extends Controller
     /**
      * @param Expenses $expense
      * @param Request $request
+     *
      * @return array|JsonResponse
+     *
      * @Route("/new-expense/{expense}", name="ajax_new_expense")
      */
     public function NewExpenseAction(Expenses $expense = null, Request $request)
@@ -116,6 +113,7 @@ class AjaxController extends Controller
      * @param Request $request
      * @param Budget $budget
      * @param string $action
+     *
      * @return JsonResponse
      */
     public function NewBudgetAction(Request $request, Budget $budget, $action)
@@ -153,7 +151,9 @@ class AjaxController extends Controller
     /**
      * @param Income $income
      * @param Request $request
+     *
      * @return array|JsonResponse
+     *
      * @Route("/new-income/{income}", name="ajax_new_income")
      */
     public function NewIncomeAction(Income $income = null, Request $request)
@@ -172,8 +172,11 @@ class AjaxController extends Controller
 
     /**
      * @Route("/delete-expense/{expense}", name="ajax_delete_expense")
+     *
      * @Security("user.getId() == expense.getUser().getId()")
+     *
      * @param Expenses $expense
+     *
      * @return JsonResponse
      */
     public function DeleteExpenseAction(Expenses $expense = null)
@@ -183,6 +186,7 @@ class AjaxController extends Controller
 
     /**
      * @param Budget $budget
+     *
      * @return mixed
      */
     private function deleteBudget(Budget $budget)
@@ -200,7 +204,9 @@ class AjaxController extends Controller
 
     /**
      * @Route("/delete-income/{income}", name="ajax_delete_income")
+     *
      * @Security("user.getId() == income.getUser().getId()")
+     *
      * @param Income $income
      * @return JsonResponse
      */
@@ -211,6 +217,7 @@ class AjaxController extends Controller
 
     /**
      * @Route("/expenses-date-range", name="ajax_expense_by_date_range")
+     *
      * @return JsonResponse
      */
     public function GetExpenseByDateRangeAction()
@@ -224,6 +231,7 @@ class AjaxController extends Controller
 
     /**
      * @param BudgetRepository $repository
+     *
      * @return array
      */
     private function GetBudgetByDateRange(BudgetRepository $repository)
@@ -242,6 +250,7 @@ class AjaxController extends Controller
 
     /**
      * @Route("/income-date-range", name="ajax_income_by_date_range")
+     *
      * @return JsonResponse
      */
     public function GetIncomeByDateRangeAction()
@@ -254,6 +263,7 @@ class AjaxController extends Controller
 
     /**
      * @Route("/income-list", name="ajax_income_list_by_date_range")
+     *
      * @return JsonResponse
      */
     public function GetIncomeListByDateRangeAction()
@@ -281,6 +291,7 @@ class AjaxController extends Controller
 
     /**
      * @Route("/expense-list", name="ajax_expense_list_by_date_range")
+     *
      * @return JsonResponse
      */
     public function GetExpenseListByDateRangeAction()
@@ -308,6 +319,7 @@ class AjaxController extends Controller
 
     /**
      * @Route("/expenses", name="ajax_expense")
+     *
      * @return JsonResponse
      */
     public function GetExpenseAction()
@@ -343,6 +355,4 @@ class AjaxController extends Controller
 
         return JsonResponse::create($data);
     }
-
-
 }

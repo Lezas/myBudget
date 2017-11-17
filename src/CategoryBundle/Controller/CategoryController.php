@@ -6,25 +6,25 @@ use CategoryBundle\Entity\Category;
 use CategoryBundle\Form\Type\CategoryType;
 use CategoryBundle\Helpers\GroupingHelper;
 use Doctrine\ORM\EntityManager;
-use Doctrine\ORM\Tools\Pagination\Paginator;
 use Doctrine\Common\Collections\ArrayCollection;
 use Symfony\Bundle\FrameworkBundle\Controller\Controller;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
 use Symfony\Component\HttpFoundation\Request;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Security;
-use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 
 /**
  * Class CategoryController
- * @package CategoryBundle\Controller
  */
 class CategoryController extends Controller
 {
     /**
      * @Route("/category/new/{category}", name="new_category")
+     *
      * @param Category $category
      * @param Request $request
+     *
      * @return \Symfony\Component\HttpFoundation\RedirectResponse|\Symfony\Component\HttpFoundation\Response
+     *
      * @Security("user.getId() == category.getUser().getId()")
      */
     public function newCategoryAction(Category $category = null, Request $request)
@@ -56,6 +56,7 @@ class CategoryController extends Controller
 
     /**
      * @Route("/category/all", name="category_list")
+     *
      * @return \Symfony\Component\HttpFoundation\Response
      */
     public function listCategoryAction()
@@ -84,11 +85,12 @@ class CategoryController extends Controller
 
     /**
      * @Route("category/{category}/delete", name="delete_category")
+     *
      * @Security("user.getId() == category.getUser().getId()")
+     *
      * @param Category $category
+     *
      * @return \Symfony\Component\HttpFoundation\RedirectResponse
-     * @internal param Request $request
-     * @internal param $id
      */
     public function deleteCategoryAction(Category $category)
     {
@@ -110,7 +112,5 @@ class CategoryController extends Controller
         }
 
         return $this->redirect($this->generateUrl('category_list'));
-
     }
-
 }

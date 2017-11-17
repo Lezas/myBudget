@@ -1,12 +1,6 @@
 <?php
-/**
- * Created by Lezas.
- * Date: 2017-09-16
- * Time: 12:17
- */
 
 namespace BudgetBundle\Entity;
-
 
 /**
  * Class DonutChart
@@ -14,6 +8,7 @@ namespace BudgetBundle\Entity;
  */
 class DonutChart
 {
+    /** @var array */
     protected $data = [];
 
     /**
@@ -32,5 +27,4 @@ class DonutChart
     {
         return $this->data;
     }
-
 }

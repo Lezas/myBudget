@@ -10,8 +10,14 @@ use Doctrine\Common\DataFixtures\OrderedFixtureInterface;
 use Doctrine\Common\Persistence\ObjectManager;
 use MainBundle\Entity\User;
 
+/**
+ * Class LoadExpenseData
+ */
 class LoadExpenseData extends AbstractFixture implements OrderedFixtureInterface
 {
+    /**
+     * @param ObjectManager $manager
+     */
     public function load(ObjectManager $manager)
     {
         //get user

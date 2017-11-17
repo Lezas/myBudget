@@ -1,18 +1,19 @@
 <?php
 
 namespace BudgetBundle\Response;
-use Symfony\Component\Form\Form;
 
 /**
  * Class AjaxBudgetResponse
- * @package BudgetBundle\Response
  */
 class AjaxBudgetResponse
 {
+    /** @var null */
     protected $form = null;
 
+    /** @var bool */
     protected $success = false;
 
+    /** @var bool */
     protected $isDataValid = false;
 
     /**
@@ -44,7 +45,7 @@ class AjaxBudgetResponse
     }
 
     /**
-     * @return mixed
+     * @return array
      */
     public function getResponse()
     {
@@ -52,7 +53,7 @@ class AjaxBudgetResponse
     }
 
     /**
-     * @return mixed
+     * @return array
      */
     private function generateResponse()
     {

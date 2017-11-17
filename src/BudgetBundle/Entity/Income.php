@@ -4,7 +4,6 @@ namespace BudgetBundle\Entity;
 
 use Doctrine\ORM\Mapping as ORM;
 
-
 /**
  * @ORM\Entity
  * @ORM\Table(name="income")
@@ -12,6 +11,4 @@ use Doctrine\ORM\Mapping as ORM;
  */
 class Income extends Budget
 {
-
-
 }

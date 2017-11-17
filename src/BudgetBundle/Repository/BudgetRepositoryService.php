@@ -1,14 +1,7 @@
 <?php
-/**
- * Created by PhpStorm.
- * User: Vartotojas
- * Date: 2016.02.25
- * Time: 11:39
- */
 
 namespace BudgetBundle\Repository;
 
-use BudgetBundle\Entity\Expenses;
 use BudgetBundle\Helper\DateTime\DateTimeHelper;
 use Doctrine\ORM\EntityManager;
 use MainBundle\Entity\User;
@@ -17,19 +10,18 @@ use Symfony\Component\Validator\Constraints\Date;
 
 /**
  * Class BudgetRepositoryService
- * @package BudgetBundle\Repository
  */
 class BudgetRepositoryService
 {
+    /** @var ManagerRegistry */
     private $managerRegistry;
 
+    /** @var DateTimeHelper */
     private $dateTimeHelper;
 
     /**
-     * BudgetRepositoryService constructor.
      * @param ManagerRegistry $managerRegistry
      * @param DateTimeHelper $dateTimeHelper
-     * @internal param EntityManager $em
      */
     public function __construct(ManagerRegistry $managerRegistry, DateTimeHelper $dateTimeHelper)
     {
@@ -41,6 +33,7 @@ class BudgetRepositoryService
      *
      * @param \DateTime|Date $date - date object MUST be valid datetime object or string of format YYYY-MM-DD
      * @param User $user
+     *
      * @return array
      */
     public function getMonthBudget(\DateTime $date = null, User $user)
@@ -63,6 +56,7 @@ class BudgetRepositoryService
      * @param \DateTime $date_from
      * @param \DateTime $date_to
      * @param User $user
+     *
      * @return array
      */
     public function getBudgetByDateRange($date_from, $date_to, $user)

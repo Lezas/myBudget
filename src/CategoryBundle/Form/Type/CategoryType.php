@@ -1,8 +1,6 @@
 <?php
 namespace CategoryBundle\Form\Type;
 
-use Doctrine\ORM\EntityRepository;
-use MainBundle\Entity\User;
 use Symfony\Bridge\Doctrine\Form\Type\EntityType;
 use Symfony\Component\Form\AbstractType;
 use Symfony\Component\Form\Extension\Core\Type\CheckboxType;
@@ -14,7 +12,6 @@ use Symfony\Component\OptionsResolver\OptionsResolver;
 
 /**
  * Class CategoryType
- * @package CategoryBundle\Form\Type
  */
 class CategoryType extends AbstractType
 {
@@ -49,7 +46,6 @@ class CategoryType extends AbstractType
                 'choices' => $data,
             ])
             ->add('submit', SubmitType::class);
-
     }
 
     /**

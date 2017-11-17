@@ -7,20 +7,22 @@ use Symfony\Component\HttpFoundation\RequestStack;
 
 /**
  * Class BudgetByDateRangeRequest
- * @package BudgetBundle\Helper\Request
  */
 final class BudgetDateRangeRequest
 {
+    /** @var  */
     private $request;
 
+    /** @var DateTimeHelper */
     private $dateTimeHelper;
 
+    /** @var null */
     private $dateTo = null;
 
+    /** @var null */
     private $dateFrom = null;
 
     /**
-     * BudgetByDateRangeRequest constructor.
      * @param DateTimeHelper $dateTimeHelper
      */
     public function __construct(DateTimeHelper $dateTimeHelper)
@@ -34,7 +36,6 @@ final class BudgetDateRangeRequest
     public function setRequest(RequestStack $request_stack)
     {
         $this->request = $request_stack->getCurrentRequest();
-
     }
 
     /**
@@ -66,6 +67,7 @@ final class BudgetDateRangeRequest
 
     /**
      * @param $variable_name
+     *
      * @return \DateTime|string
      */
     protected function getDateRangeVariable($variable_name) {
@@ -90,5 +92,4 @@ final class BudgetDateRangeRequest
     {
         return $this->request->query->get($variableName);
     }
-
 }

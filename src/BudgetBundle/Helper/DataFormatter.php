@@ -2,14 +2,16 @@
 
 namespace BudgetBundle\Helper;
 
-
 use Doctrine\Common\Collections\ArrayCollection;
 
-
+/**
+ * Class DataFormatter
+ */
 class DataFormatter
 {
     /**
      * @param $data
+     *
      * @return array
      */
     public static function groupByDay($data)
@@ -38,6 +40,7 @@ class DataFormatter
     /**
      * @param $first
      * @param $second
+     *
      * @return array
      */
     public static function connectData($first, $second)
