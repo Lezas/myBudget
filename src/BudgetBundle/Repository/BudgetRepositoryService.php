@@ -3,6 +3,7 @@
 namespace BudgetBundle\Repository;
 
 use BudgetBundle\Helper\DateTime\DateTimeHelper;
+use BudgetBundle\Model\DateRange;
 use Doctrine\ORM\EntityManager;
 use MainBundle\Entity\User;
 use Symfony\Bridge\Doctrine\ManagerRegistry;
@@ -46,21 +47,42 @@ class BudgetRepositoryService
         //how to get first and last day of the month
         $month_first_day = $this->dateTimeHelper->getFirstDayOfMonth($date);
         $month_last_day = $this->dateTimeHelper->getLastDayOfMonth($date);
+        $dateRange = new DateRange($month_first_day, $month_last_day);
 
-        $budget_array = $this->getBudgetByDateRange($month_first_day, $month_last_day, $user);
+        $budget_array = $this->getBudgetByDateRange($dateRange, $user);
 
         return $budget_array;
     }
 
     /**
-     * @param \DateTime $date_from
-     * @param \DateTime $date_to
+     * @param DateRange $dateRange
      * @param User $user
      *
      * @return array
      */
-    public function getBudgetByDateRange($date_from, $date_to, $user)
+    public function getMonthBudgetByDateRange(DateRange $dateRange, User $user)
     {
+        $month_first_day = $this->dateTimeHelper->getFirstDayOfMonth($dateRange->getDateFrom());
+        $month_last_day = $this->dateTimeHelper->getLastDayOfMonth($dateRange->getDateTo());
+
+        $dateRange = new DateRange($month_first_day, $month_last_day);
+
+        $budget_array = $this->getBudgetByDateRange($dateRange, $user);
+
+        return $budget_array;
+    }
+
+    /**
+     * @param DateRange $dateRange
+     * @param $user
+     *
+     * @return array
+     */
+    public function getBudgetByDateRange(DateRange $dateRange, $user)
+    {
+        $date_from = $dateRange->getDateFrom();
+        $date_to = $dateRange->getDateTo();
+
         /** @var EntityManager $em */
         $em = $this->managerRegistry->getManager();
         $income = $em->getRepository('BudgetBundle:Income')->getByDateRange($user, $date_from, $date_to);

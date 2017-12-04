@@ -7,6 +7,7 @@ use BudgetBundle\Entity\DonutChart;
 use BudgetBundle\Entity\Expenses;
 use BudgetBundle\Entity\Income;
 use BudgetBundle\Helper\DataFormatter;
+use BudgetBundle\Model\DateRange;
 use BudgetBundle\Repository\BudgetRepository;
 use BudgetBundle\Response\AjaxBudgetResponse;
 use CategoryBundle\Entity\Category;
@@ -36,6 +37,8 @@ class AjaxController extends Controller
 
         $month_first_day = $budgetByRange->getDateFrom();
         $month_last_day = $budgetByRange->getDateTo();
+
+        $dateRange = new DateRange($month_first_day, $month_last_day);
 
         $incomeBudgetPreview = $this->get('budget.income.preview');
         $incomeBudgetPreview->calculateBudget($user, $month_first_day, $month_last_day);
@@ -141,8 +144,8 @@ class AjaxController extends Controller
         $ajaxBudgetResponse->setDataToInvalid();
         $ajaxBudgetResponse->setResponseToSuccessful();
         $ajaxBudgetResponse->setRenderedForm($this->render('BudgetBundle:Default:budgetForm.html.twig', [
-                'form' => $form->createView(),
-            ])->getContent()
+            'form' => $form->createView(),
+        ])->getContent()
         );
 
         return new JsonResponse($ajaxBudgetResponse->getResponse());

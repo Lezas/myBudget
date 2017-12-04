@@ -46,6 +46,5 @@ class ReportController extends Controller
             'month_first_day'    => $firstDay,
             'month_last_day'     => $lastDay,
         ]);
-
     }
 }
