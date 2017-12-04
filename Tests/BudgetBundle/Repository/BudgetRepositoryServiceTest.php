@@ -8,7 +8,6 @@ use Tests\TestCase\FunctionalTestCase;
 
 /**
  * Class BudgetRepositoryServiceTest
- * @package Tests\BudgetBundle\Repository
  */
 class BudgetRepositoryServiceTest extends FunctionalTestCase
 {

@@ -35,13 +35,10 @@ class AjaxController extends Controller
 
         $budgetByRange = $this->get('budget.request.budgetbydaterange');
 
-        $month_first_day = $budgetByRange->getDateFrom();
-        $month_last_day = $budgetByRange->getDateTo();
-
-        $dateRange = new DateRange($month_first_day, $month_last_day);
+        $dateRange = $budgetByRange->getDateRange();
 
         $incomeBudgetPreview = $this->get('budget.income.preview');
-        $incomeBudgetPreview->calculateBudget($user, $month_first_day, $month_last_day);
+        $incomeBudgetPreview->calculateBudget($user, $dateRange);
 
         $view = $this->render('BudgetBundle:Default/Budget:budgetList.html.twig', [
             'budgetData' => $incomeBudgetPreview->getData(),
@@ -64,11 +61,10 @@ class AjaxController extends Controller
         $user = $this->getUser();
         $budgetByRange = $this->get('budget.request.budgetbydaterange');
 
-        $month_first_day = $budgetByRange->getDateFrom();
-        $month_last_day = $budgetByRange->getDateTo();
+        $dateRange = $budgetByRange->getDateRange();
 
         $expenseBudgetPreview = $this->get('budget.expense.preview');
-        $expenseBudgetPreview->calculateBudget($user, $month_first_day, $month_last_day);
+        $expenseBudgetPreview->calculateBudget($user, $dateRange);
 
         $donutChart = new DonutChart();
         foreach ($expenseBudgetPreview->getData() as $BudgetData) {

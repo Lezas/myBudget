@@ -32,7 +32,7 @@ class BudgetRepositoryService
 
     /**
      *
-     * @param \DateTime|Date $date - date object MUST be valid datetime object or string of format YYYY-MM-DD
+     * @param \DateTime $date - date object MUST be valid datetime object or string of format YYYY-MM-DD
      * @param User $user
      *
      * @return array

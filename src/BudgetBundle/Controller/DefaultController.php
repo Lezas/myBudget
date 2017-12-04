@@ -58,16 +58,13 @@ class DefaultController extends Controller
     public function newDashboardAction()
     {
         $user = $this->getUser();
-        $budgetByRange = $this->get('budget.request.budgetbydaterange');
-
-        $month_first_day = $budgetByRange->getDateFrom();
-        $month_last_day = $budgetByRange->getDateTo();
+        $dateRange = $this->get('budget.request.budgetbydaterange')->getDateRange();
 
         $incomeBudgetPreview = $this->get('budget.income.preview');
-        $incomeBudgetPreview->calculateBudget($user, $month_first_day, $month_last_day);
+        $incomeBudgetPreview->calculateBudget($user, $dateRange);
 
         $expenseBudgetPreview = $this->get('budget.expense.preview');
-        $expenseBudgetPreview->calculateBudget($user, $month_first_day, $month_last_day);
+        $expenseBudgetPreview->calculateBudget($user, $dateRange);
 
         $donutChart = new DonutChart();
         foreach ($expenseBudgetPreview->getData() as $BudgetData) {
@@ -78,8 +75,8 @@ class DefaultController extends Controller
         }
 
         $dateRangeForm = $this->createForm(DateRangeType::class);
-        $dateRangeForm->get('dateFrom')->setData($month_first_day);
-        $dateRangeForm->get('dateTo')->setData($month_last_day);
+        $dateRangeForm->get('dateFrom')->setData($dateRange->getDateFrom());
+        $dateRangeForm->get('dateTo')->setData($dateRange->getDateTo());
 
         return $this->render("@Budget/Default/newDashboard.html.twig", [
             'chartData'     => json_encode($donutChart->generateChartData()),
@@ -87,8 +84,8 @@ class DefaultController extends Controller
             'totalIncome'   => $incomeBudgetPreview->getTotalMoneyCount(),
             'expenseData'   => $expenseBudgetPreview->getData(),
             'totalExpense'  => $expenseBudgetPreview->getTotalMoneyCount(),
-            'firstDay'      => $month_first_day,
-            'lastDay'       => $month_last_day,
+            'firstDay'      => $dateRange->getDateFrom(),
+            'lastDay'       => $dateRange->getDateTo(),
             'incomeForm'    => $this->get('budget.entity.form')->createBudgetForm(new Income(), $this->generateUrl('ajax_new_income'), $user)->createView(),
             'expenseForm'   => $this->get('budget.entity.form')->createBudgetForm(new Expenses(), $this->generateUrl('ajax_new_expense'), $user)->createView(),
             'dateRangeForm' => $dateRangeForm->createView(),

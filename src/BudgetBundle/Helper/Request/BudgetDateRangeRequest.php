@@ -3,6 +3,7 @@
 namespace BudgetBundle\Helper\Request;
 
 use BudgetBundle\Helper\DateTime\DateTimeHelper;
+use BudgetBundle\Model\DateRange;
 use Symfony\Component\HttpFoundation\RequestStack;
 
 /**
@@ -63,6 +64,14 @@ final class BudgetDateRangeRequest
         }
 
         return $this->dateTo;
+    }
+
+    /**
+     * @return DateRange
+     */
+    public function getDateRange()
+    {
+        return new DateRange($this->getDateFrom(), $this->getDateTo());
     }
 
     /**

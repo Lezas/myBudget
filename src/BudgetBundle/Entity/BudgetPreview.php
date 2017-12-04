@@ -3,6 +3,7 @@
 namespace BudgetBundle\Entity;
 
 use BudgetBundle\Helper\BudgetMoneyCounter;
+use BudgetBundle\Model\DateRange;
 use BudgetBundle\Repository\BudgetCategoryRepository;
 use BudgetBundle\Repository\BudgetRepository;
 use CategoryBundle\Entity\Category;
@@ -73,13 +74,14 @@ class BudgetPreview
 
     /**
      * @param $user
-     * @param $date_from
-     * @param $date_to
+     * @param DateRange $dateRange
      *
      * @return array
      */
-    public function calculateBudget($user, $date_from, $date_to)
+    public function calculateBudget($user, DateRange $dateRange)
     {
+        $date_from = $dateRange->getDateFrom();
+        $date_to = $dateRange->getDateTo();
         $budgetCategories = $this->budgetCategoryRepository->getAllUserBudgetCategories($user);
 
         foreach ($budgetCategories as $category) {
