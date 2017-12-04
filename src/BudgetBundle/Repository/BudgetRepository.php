@@ -2,6 +2,7 @@
 
 namespace BudgetBundle\Repository;
 
+use BudgetBundle\Model\DateRange;
 use MainBundle\Entity\User;
 use Doctrine\ORM\EntityRepository;
 
@@ -12,12 +13,11 @@ class BudgetRepository extends EntityRepository
 {
     /**
      * @param User $user
-     * @param $date_from
-     * @param $date_to
+     * @param DateRange $dateRange
      *
      * @return array
      */
-    public function getByDateRange(User $user, $date_from, $date_to)
+    public function getByDateRange(User $user, DateRange $dateRange)
     {
         $entityName = $this->getEntityName();
 
@@ -30,8 +30,8 @@ ORDER BY p.dateTime
 SQL;
 
         $query = $this->_em->createQuery($sql)
-            ->setParameter('date_from', $date_from)
-            ->setParameter('date_to', $date_to)
+            ->setParameter('date_from', $dateRange->getDateFrom())
+            ->setParameter('date_to', $dateRange->getDateTo())
             ->setParameter('id', $user);
 
         $budget = $query->getResult();
@@ -41,13 +41,12 @@ SQL;
 
     /**
      * @param User $user
-     * @param string $date_from
-     * @param string $date_to
+     * @param DateRange $dateRange
      * @param array $categoryIds
      *
      * @return mixed ['2015-02-02 00:00' => 58.85,]
      */
-    public function getByDateRangeAndCategories($user, $date_from, $date_to, array $categoryIds)
+    public function getByDateRangeAndCategories($user, DateRange $dateRange, array $categoryIds)
     {
         $entityName = $this->getEntityName();
         $sql = <<<SQL
@@ -60,8 +59,8 @@ ORDER BY p.dateTime
 SQL;
 
         $query = $this->_em->createQuery($sql)
-            ->setParameter('date_from', $date_from)
-            ->setParameter('date_to', $date_to)
+            ->setParameter('date_from', $dateRange->getDateFrom())
+            ->setParameter('date_to', $dateRange->getDateTo())
             ->setParameter('id', $user)
             ->setParameter('ids', $categoryIds);
 
@@ -71,13 +70,12 @@ SQL;
     }
 
     /**
-     * @param $date_from \DateTime
      * @param $user User
-     * @param $date_to \DateTime
+     * @param DateRange $dateRange
      *
-     * @return mixed  ['2015-02-02 00:00' => 58.85,]
+     * @return mixed ['2015-02-02 00:00' => 58.85,]
      */
-    public function getByDateRangeWithoutCategories($user, $date_from, $date_to)
+    public function getByDateRangeWithoutCategories($user, DateRange $dateRange)
     {
         $entityName = $this->getEntityName();
 
@@ -91,8 +89,8 @@ ORDER BY p.dateTime
 SQL;
 
         $query = $this->_em->createQuery($sql)
-            ->setParameter('date_from', $date_from)
-            ->setParameter('date_to', $date_to)
+            ->setParameter('date_from', $dateRange->getDateFrom())
+            ->setParameter('date_to', $dateRange->getDateTo())
             ->setParameter('id', $user);
 
         $budget = $query->getResult();

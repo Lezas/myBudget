@@ -7,7 +7,6 @@ use BudgetBundle\Entity\DonutChart;
 use BudgetBundle\Entity\Expenses;
 use BudgetBundle\Entity\Income;
 use BudgetBundle\Helper\DataFormatter;
-use BudgetBundle\Model\DateRange;
 use BudgetBundle\Repository\BudgetRepository;
 use BudgetBundle\Response\AjaxBudgetResponse;
 use CategoryBundle\Entity\Category;
@@ -236,12 +235,10 @@ class AjaxController extends Controller
     private function GetBudgetByDateRange(BudgetRepository $repository)
     {
         $user = $this->getUser();
-        $requestData = $this->get('budget.request.budgetbydaterange');
 
-        $date_from = $requestData->getDateFrom();
-        $date_to = $requestData->getDateTo();
+        $dateRange = $this->get('budget.request.budgetbydaterange')->getDateRange();
 
-        $budget = $repository->getByDateRange($user, $date_from, $date_to);
+        $budget = $repository->getByDateRange($user, $dateRange);
         $filtered_budget = DataFormatter::groupByDay($budget);
 
         return $filtered_budget;
@@ -269,20 +266,18 @@ class AjaxController extends Controller
     {
         $user = $this->getUser();
         $response = [];
-        $requestData = $this->get('budget.request.budgetbydaterange');
 
-        $date_from = $requestData->getDateFrom();
-        $date_to = $requestData->getDateTo();
+        $dateRange = $this->get('budget.request.budgetbydaterange')->getDateRange();
 
-        $income = $this->getDoctrine()->getRepository('BudgetBundle:Income')->getByDateRange($user, $date_from, $date_to);
+        $income = $this->getDoctrine()->getRepository('BudgetBundle:Income')->getByDateRange($user, $dateRange);
         $total = $this->get('budget.money.counter')->countBudget($income);
 
         $response['list'] = $this->render('BudgetBundle:Default:IncomeList.html.twig', [
             'list' => $income,
             'name' => 'income',
         ])->getContent();
-        $response['date_from'] = $date_from->format('Y-m-d');
-        $response['date_to'] = $date_to->format('Y-m-d');
+        $response['date_from'] = $dateRange->getDateFrom()->format('Y-m-d');
+        $response['date_to'] = $dateRange->getDateTo()->format('Y-m-d');
         $response['total'] = $total;
 
         return new JsonResponse($response);
@@ -297,20 +292,18 @@ class AjaxController extends Controller
     {
         $response = [];
         $user = $this->getUser();
-        $requestData = $this->get('budget.request.daterange');
 
-        $date_from = $requestData->getDateFrom();
-        $date_to = $requestData->getDateTo();
+        $dateRange = $this->get('budget.request.daterange')->getDateRange();
 
-        $expense = $this->getDoctrine()->getRepository('BudgetBundle:Expenses')->getByDateRange($user, $date_from, $date_to);
+        $expense = $this->getDoctrine()->getRepository('BudgetBundle:Expenses')->getByDateRange($user, $dateRange);
         $total = $this->get('budget.money.counter')->countBudget($expense);
 
         $response['list'] = $this->render('BudgetBundle:Default:ExpenseList.html.twig', [
             'list' => $expense,
             'name' => 'expense',
         ])->getContent();
-        $response['date_from'] = $date_from->format('Y-m-d');
-        $response['date_to'] = $date_to->format('Y-m-d');
+        $response['date_from'] = $dateRange->getDateFrom()->format('Y-m-d');
+        $response['date_to'] = $dateRange->getDateTo()->format('Y-m-d');
         $response['total'] = $total;
 
         return new JsonResponse($response);
@@ -340,13 +333,11 @@ class AjaxController extends Controller
     public function GetBudgetForChart()
     {
         $user = $this->getUser();
-        $requestData = $this->get('budget.request.daterange');
 
-        $date_from = $requestData->getDateFrom();
-        $date_to = $requestData->getDateTo();
+        $dateRange = $this->get('budget.request.daterange')->getDateRange();
 
-        $expense = $this->getDoctrine()->getRepository('BudgetBundle:Expenses')->getByDateRange($user, $date_from, $date_to);
-        $income = $this->getDoctrine()->getRepository('BudgetBundle:Income')->getByDateRange($user, $date_from, $date_to);
+        $expense = $this->getDoctrine()->getRepository('BudgetBundle:Expenses')->getByDateRange($user, $dateRange);
+        $income = $this->getDoctrine()->getRepository('BudgetBundle:Income')->getByDateRange($user, $dateRange);
 
         $filteredExpense = DataFormatter::groupByDay($expense);
         $filteredIncome = DataFormatter::groupByDay($income);

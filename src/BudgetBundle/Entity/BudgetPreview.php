@@ -80,19 +80,17 @@ class BudgetPreview
      */
     public function calculateBudget($user, DateRange $dateRange)
     {
-        $date_from = $dateRange->getDateFrom();
-        $date_to = $dateRange->getDateTo();
         $budgetCategories = $this->budgetCategoryRepository->getAllUserBudgetCategories($user);
 
         foreach ($budgetCategories as $category) {
-            $categoryIncome = $this->budgetRepository->getByDateRangeAndCategories($user, $date_from->format('Y-m-d H:i'), $date_to->format('Y-m-d H:i'), [$category->getId()]);
+            $categoryIncome = $this->budgetRepository->getByDateRangeAndCategories($user, $dateRange, [$category->getId()]);
             $total = $this->budgetCounter->countBudget($categoryIncome);
             if ($total > 0) {
                 $this->addBudget($category, $categoryIncome, $total);
             }
         }
 
-        $budgetWithNoCat = $this->budgetRepository->getByDateRangeWithoutCategories($user, $date_from, $date_to);
+        $budgetWithNoCat = $this->budgetRepository->getByDateRangeWithoutCategories($user, $dateRange);
         $total = $this->budgetCounter->countBudget($budgetWithNoCat);
         $NoCat = new Category();
         $NoCat->setName('Without Category');

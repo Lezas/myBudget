@@ -140,10 +140,7 @@ class AjaxReportController extends Controller
     private function getBudgetList(Request $request, BudgetRepository $repository)
     {
         $user = $this->get('security.token_storage')->getToken()->getUser();
-        $requestData = $this->get('budget.request.daterange');
-
-        $dateFrom = $requestData->getDateFrom();
-        $dateTo = $requestData->getDateTo();
+        $dateRange = $this->get('budget.request.daterange')->getDateRange();
         $Ids = $request->query->get('ids');
 
         $result = [];
@@ -151,10 +148,10 @@ class AjaxReportController extends Controller
         $IdsArrayCollection = new ArrayCollection();
 
         if ($Ids != null) {
-            $expenses = $repository->getByDateRangeAndCategories($user, $dateFrom, $dateTo, $Ids);
+            $expenses = $repository->getByDateRangeAndCategories($user, $dateRange, $Ids);
             $IdsArrayCollection = new ArrayCollection($Ids);
         } else {
-            $expenses = $repository->getByDateRange($user, $dateFrom, $dateTo);
+            $expenses = $repository->getByDateRange($user, $dateRange);
         }
 
         $expenses = new ArrayCollection($expenses);
@@ -163,7 +160,7 @@ class AjaxReportController extends Controller
         $sum += $this->get('budget.money.counter')->countBudget($expenses);
 
         if ($IdsArrayCollection->contains("NULL")) {
-            $additionalExpenses = $repository->getByDateRangeWithoutCategories($user, $dateFrom, $dateTo);
+            $additionalExpenses = $repository->getByDateRangeWithoutCategories($user, $dateRange);
             $expenses = new ArrayCollection($additionalExpenses);
 
             $data = $this->createDataFromBudget($expenses);
@@ -172,8 +169,8 @@ class AjaxReportController extends Controller
         }
 
         $return = [
-            'dateFrom' => $dateFrom,
-            'dateTo'   => $dateTo,
+            'dateFrom' => $dateRange->getDateFrom(),
+            'dateTo'   => $dateRange->getDateTo(),
             'data'     => $result,
             'sum'      => $sum,
         ];

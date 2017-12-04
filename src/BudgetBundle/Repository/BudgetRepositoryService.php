@@ -80,13 +80,10 @@ class BudgetRepositoryService
      */
     public function getBudgetByDateRange(DateRange $dateRange, $user)
     {
-        $date_from = $dateRange->getDateFrom();
-        $date_to = $dateRange->getDateTo();
-
         /** @var EntityManager $em */
         $em = $this->managerRegistry->getManager();
-        $income = $em->getRepository('BudgetBundle:Income')->getByDateRange($user, $date_from, $date_to);
-        $expense = $em->getRepository('BudgetBundle:Expenses')->getByDateRange($user, $date_from, $date_to);
+        $income = $em->getRepository('BudgetBundle:Income')->getByDateRange($user, $dateRange);
+        $expense = $em->getRepository('BudgetBundle:Expenses')->getByDateRange($user, $dateRange);
 
         $budget = [];
 
