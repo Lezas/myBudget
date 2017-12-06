@@ -28,10 +28,7 @@ class AjaxReportController extends Controller
     {
         $requestData = $this->get('budget.request.daterange');
 
-        $dateFrom = $requestData->getDateFrom();
-        $dateTo = $requestData->getDateTo();
-
-        if (mb_strtolower($dateFrom) == "lifetime" && mb_strtolower($dateTo) == "lifetime") {
+        if ($requestData->isDateRangeLifeTime()) {
             return $this->getLifetimeIncomeListAction($request);
         }
 
@@ -189,10 +186,7 @@ class AjaxReportController extends Controller
     {
         $requestData = $this->get('budget.request.daterange');
 
-        $dateFrom = $requestData->getDateFrom();
-        $dateTo = $requestData->getDateTo();
-
-        if ($dateFrom == "Lifetime" && $dateTo == "Lifetime") {
+        if ($requestData->isDateRangeLifeTime()) {
             return $this->getLifetimeExpenseListAction($request);
         }
 

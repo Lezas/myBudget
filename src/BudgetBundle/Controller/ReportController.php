@@ -20,15 +20,15 @@ class ReportController extends Controller
         $user = $this->getUser();
         $repository = $this->get('budget.repository.budget');
         $oCategoryRepService = $this->get('category.repository.service');
-        $budgetUtility = $this->get('budget.utility');
+        $budgetCounter = $this->get('budget.money.counter');
 
         $budget_array = $repository->getMonthBudget(null, $user);
 
         $incomeCategories = $oCategoryRepService->getAllUserIncomeCategories($user);
         $expenseCategories = $oCategoryRepService->getAllUserExpenseCategories($user);
 
-        $totalIncome = $budgetUtility->sumBudget($budget_array['income']);
-        $totalExpenses = $budgetUtility->sumBudget($budget_array['expenses']);
+        $totalIncome = $budgetCounter->countBudget($budget_array['income']);
+        $totalExpenses = $budgetCounter->countBudget($budget_array['expenses']);
 
         $date = new \DateTime('now');
         $dateTimeHelper = $this->get('helper.datetime');

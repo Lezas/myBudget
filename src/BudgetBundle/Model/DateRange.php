@@ -17,6 +17,7 @@ class DateRange
 
     /**
      * DateRange constructor.
+     *
      * @param \DateTime $dateFrom
      * @param \DateTime $dateTo
      */

@@ -75,6 +75,18 @@ final class BudgetDateRangeRequest
     }
 
     /**
+     * @return bool
+     */
+    public function isDateRangeLifeTime()
+    {
+        if (mb_strtolower($this->getVariable('date_from')) == "lifetime" && mb_strtolower($this->getVariable('date_to')) == "lifetime") {
+            return true;
+        }
+
+        return false;
+    }
+
+    /**
      * @param $variable_name
      *
      * @return \DateTime|string

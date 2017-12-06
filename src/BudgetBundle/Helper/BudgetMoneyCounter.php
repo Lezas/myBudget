@@ -17,8 +17,10 @@ class BudgetMoneyCounter
     {
         $sum = 0.0;
         foreach ($arrayCollection as $item) {
-            /** @var Budget $item */
-            $sum += (float)$item->getMoney();
+            if (is_a($item, Budget::class)) {
+                /** @var Budget $item */
+                $sum += (float)$item->getMoney();
+            }
         }
 
         return $sum;

@@ -100,7 +100,7 @@ class AjaxController extends Controller
 
         $action = $this->generateUrl('ajax_new_expense');
 
-        if ($expense->getId() != null) {
+        if (!is_null($expense->getId())) {
             $action .= '/' . $expense->getId();
         }
 
